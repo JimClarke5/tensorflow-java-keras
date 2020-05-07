@@ -35,7 +35,7 @@ public class SELU <U extends TType> extends Activation<U> {
      */
     @Override
     public Operand<U> call(Ops tf, Operand<U> input) {
-        assert TypeUtils.isFloating(input.asTensor().dataType()): 
+       assert TypeUtils.isFloating(input.asTensor().dataType()): 
                 "Must be a Floating Point DataType: " + input.asTensor().dataType();
         return (Operand<U>)tf.nn.selu((Operand)input);
     }
