@@ -73,10 +73,10 @@ public class SELUTest {
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
             assertArrayEquals(expected, actual);
-            fail();
+            //fail();
         }catch(AssertionError ex) {
             // expected
-            //fail(ex);
+            fail(ex);
         }
     }
 
