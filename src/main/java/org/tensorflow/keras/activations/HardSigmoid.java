@@ -1,0 +1,52 @@
+/* Copyright 2020 The TensorFlow Authors. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+=======================================================================*/
+package org.tensorflow.keras.activations;
+
+import org.tensorflow.DataType;
+import org.tensorflow.Operand;
+import org.tensorflow.keras.utils.TypeUtils;
+import org.tensorflow.op.Ops;
+import org.tensorflow.types.family.TType;
+
+/**
+ * Hard sigmoid activation function.
+ * @author Jim Clarke
+ */
+public class HardSigmoid <U extends TType> extends Activation<U> {
+     
+    /**
+     * create Hard sigmoid activation function.
+     */
+     public HardSigmoid() {
+     }
+     
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Operand<U> call(Ops tf, Operand<U> input) {
+        assert TypeUtils.isFloating(input.asTensor().dataType()): 
+                "Must be a Floating Point DataType: " + input.asTensor().dataType();
+        DataType dtype = input.asTensor().dataType();
+        Operand point2  = tf.dtypes.cast(tf.constant(0.2), dtype);
+        Operand point5  = tf.dtypes.cast(tf.constant(0.5), dtype);
+        input = tf.math.mul(input, point2);
+        input = tf.math.add(input, point5);
+        
+        return input;
+    }
+    
+}
