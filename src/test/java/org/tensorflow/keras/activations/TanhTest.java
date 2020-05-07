@@ -73,7 +73,7 @@ public class TanhTest {
             Operand<TInt32> operand = instance.call(tf, tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
-            assertArrayEquals(actual,expected);
+            assertArrayEquals(expected, actual);
             fail();
         }catch(AssertionError ex) {
             // expected

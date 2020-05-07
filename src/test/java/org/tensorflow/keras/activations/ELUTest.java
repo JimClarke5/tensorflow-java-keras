@@ -72,7 +72,7 @@ public class ELUTest {
             Operand<TInt32> operand = instance.call(tf, tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
-            assertArrayEquals(actual,expected);
+            assertArrayEquals(expected, actual);
         }catch(TensorFlowException exp) {
             // TODO - Docs indicateit it can hanlde int, 
             // but I get this error from both Java and Python
@@ -96,7 +96,7 @@ public class ELUTest {
             Operand<TFloat32> operand = instance.call(tf, tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
-            assertArrayEquals(actual,expected, EPSILON_F);
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
     
@@ -116,7 +116,7 @@ public class ELUTest {
             Operand<TFloat64> operand = instance.call(tf, tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
-            assertArrayEquals(actual,expected, EPSILON_F);
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
     

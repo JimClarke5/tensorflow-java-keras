@@ -72,10 +72,11 @@ public class SELUTest {
             Operand<TInt32> operand = instance.call(tf, tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
-            assertArrayEquals(actual,expected);
-        }catch(TensorFlowException ex) {
+            assertArrayEquals(expected, actual);
+            fail();
+        }catch(AssertionError ex) {
             // expected
-            fail(ex);
+            //fail(ex);
         }
     }
 
@@ -95,7 +96,7 @@ public class SELUTest {
             Operand<TFloat32> operand = instance.call(tf, tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
-            assertArrayEquals(actual,expected, EPSILON_F);
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
     
@@ -117,7 +118,7 @@ public class SELUTest {
             Operand<TFloat64> operand = instance.call(tf, tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
-            assertArrayEquals(actual,expected, EPSILON);
+            assertArrayEquals(expected, actual, EPSILON);
         }
     }
     

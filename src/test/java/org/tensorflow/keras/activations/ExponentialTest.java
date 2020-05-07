@@ -72,7 +72,7 @@ public class ExponentialTest {
             Operand<TInt32> operand = instance.call(tf, tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
-            assertArrayEquals(actual,expected);
+            assertArrayEquals(expected, actual);
         }catch(AssertionError ex) {
             // expected
         }
@@ -94,7 +94,7 @@ public class ExponentialTest {
             Operand<TFloat32> operand = instance.call(tf, tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
-            assertArrayEquals(actual,expected, EPSILON_F);
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
     
@@ -116,7 +116,7 @@ public class ExponentialTest {
             Operand<TFloat64> operand = instance.call(tf, tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
-            assertArrayEquals(actual,expected, EPSILON);
+            assertArrayEquals(expected, actual, EPSILON);
         }
     }
     

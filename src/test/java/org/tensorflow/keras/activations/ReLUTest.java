@@ -74,7 +74,7 @@ public class ReLUTest {
             Operand<TFloat32> operand = instance.call(tf, tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat32(operand.asTensor());
-            assertArrayEquals(actual,expected, EPSILON_F);
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
     
@@ -93,7 +93,7 @@ public class ReLUTest {
             Operand<TInt32> operand = instance.call(tf, tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
-            assertArrayEquals(actual,expected);
+            assertArrayEquals(expected, actual);
         }
     }
     /**
@@ -111,7 +111,7 @@ public class ReLUTest {
             Operand<TInt64> operand = instance.call(tf, tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt64(operand.asTensor());
-            assertArrayEquals(actual,expected);
+            assertArrayEquals(expected, actual);
         }
     }
     
@@ -130,7 +130,7 @@ public class ReLUTest {
             Operand<TFloat16> operand = instance.call(tf, tf.dtypes.cast(tf.constant(input), TFloat16.DTYPE));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat16(operand.asTensor());
-            assertArrayEquals(actual,expected, EPSILON_F);
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
     
@@ -149,7 +149,7 @@ public class ReLUTest {
             Operand<TFloat64> operand = instance.call(tf, tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat64(operand.asTensor());
-            assertArrayEquals(actual,expected, EPSILON_F);
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
     
