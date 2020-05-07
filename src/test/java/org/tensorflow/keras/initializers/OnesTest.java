@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.EagerSession;
 import org.tensorflow.Operand;
+import org.tensorflow.keras.utils.PrintUtils;
 import org.tensorflow.op.Ops;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.tools.buffer.DataBuffers;
@@ -77,8 +78,8 @@ public class OnesTest {
             Ones<TUint8> instance = new Ones<>();
             Operand<TUint8> operand = instance.call(tf, tf.constant(shape.asArray()),  TUint8.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-           // operand.asTensor().data().scalars().forEach(s -> System.out.println(s.getI()));
-            assertArrayEquals(actual,expected);
+           // PrintUtils.print(operand.asTensor());
+            assertArrayEquals(expected, actual);
         }
     }
     
@@ -96,8 +97,8 @@ public class OnesTest {
             Ones<TInt32> instance = new Ones<>();
             Operand<TInt32> operand = instance.call(tf, tf.constant(shape.asArray()),  TInt32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-           // operand.asTensor().data().scalars().forEach(s -> System.out.println(s.getI()));
-            assertArrayEquals(actual,expected);
+           // PrintUtils.print(operand.asTensor());
+            assertArrayEquals(expected, actual);
         }
     }
     
@@ -115,8 +116,8 @@ public class OnesTest {
             Ones<TInt64> instance = new Ones<>();
             Operand<TInt64> operand = instance.call(tf, tf.constant(shape.asArray()),  TInt64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-           // operand.asTensor().data().scalars().forEach(s -> System.out.println(s.getI()));
-            assertArrayEquals(actual,expected);
+           // PrintUtils.print(operand.asTensor());
+            assertArrayEquals(expected, actual);
         }
     }
     
@@ -135,8 +136,8 @@ public class OnesTest {
             Ones<TFloat32> instance = new Ones<>();
             Operand<TFloat32> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-            operand.asTensor().data().scalars().forEach(s -> System.out.println(s.getFloat()));
-            assertArrayEquals(actual,expected, EPSILON_F);
+            PrintUtils.print(operand.asTensor());
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
     
@@ -155,8 +156,8 @@ public class OnesTest {
             Ones<TFloat64> instance = new Ones<>();
             Operand<TFloat64> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-            operand.asTensor().data().scalars().forEach(s -> System.out.println(s.getDouble()));
-            assertArrayEquals(actual,expected, EPSILON);
+            PrintUtils.print(operand.asTensor());
+            assertArrayEquals(expected, actual, EPSILON);
         }
     }
     
@@ -178,21 +179,6 @@ public class OnesTest {
     }
     
         
-    /**
-     * Test of call method, of class Ones.
-     */
-    @Test
-    public void testCallBool() {
-        System.out.println("call Boolean");
-        try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-           
-            Ones<TBool> instance = new Ones<>();
-            Operand<TBool> operand = instance.call(tf, tf.constant(shape.asArray()),  TBool.DTYPE);
-            counter = 0;
-            operand.asTensor().data().scalars().forEach(s -> {counter++; assertTrue(s.getBoolean());});
-            assertEquals(counter, 2*2);
-        }
-    }
+   
+    
 }

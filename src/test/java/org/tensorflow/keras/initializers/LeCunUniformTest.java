@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.EagerSession;
 import org.tensorflow.Operand;
+import org.tensorflow.keras.utils.PrintUtils;
 import org.tensorflow.op.Ops;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.tools.buffer.DataBuffers;
@@ -99,7 +100,7 @@ public class LeCunUniformTest {
     public void testCall_Float() {
         System.out.println("call Float");
         float[] actual = { 0,0, 0, 0};
-        float[] expected = {  0.35824084F, 1.1912297F, 0.037676133F, 0.6003696F };
+        float[] expected = {  0.9266439F, 0.8190767F, 1.1268647F, 0.6596042F };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
@@ -107,8 +108,8 @@ public class LeCunUniformTest {
                     new LeCunUniform<>(SEED);
             Operand<TFloat32> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-            operand.asTensor().data().scalars().forEach(s -> System.out.println(s.getFloat()));
-            assertArrayEquals(actual,expected, EPSILON_F);
+            PrintUtils.print(operand.asTensor());
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
     
@@ -116,8 +117,8 @@ public class LeCunUniformTest {
     public void testCall_Double() {
         System.out.println("call Double");
         double[] actual = { 0,0, 0, 0};
-        double[] expected = { 0.4164372412494076, 0.3014095030803002,
-                            0.10232585621644692, 0.7709579042005174  };
+        double[] expected = { 0.06468193804916589, 0.44170328686673477, 
+                            0.06711059208157763, 0.6278720842445181 };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
@@ -125,8 +126,8 @@ public class LeCunUniformTest {
                     new LeCunUniform<>(SEED);
             Operand<TFloat64> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-            operand.asTensor().data().scalars().forEach(s -> System.out.println(s.getDouble()));
-            assertArrayEquals(actual,expected, EPSILON);
+            PrintUtils.print(operand.asTensor());
+            assertArrayEquals(expected, actual, EPSILON);
         }
     }
     

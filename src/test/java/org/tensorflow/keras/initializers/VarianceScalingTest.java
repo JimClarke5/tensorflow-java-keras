@@ -109,7 +109,7 @@ public class VarianceScalingTest {
             Operand<TFloat32> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat32(operand.asTensor());
-            assertArrayEquals(actual,expected, EPSILON_F);
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
     
@@ -127,7 +127,7 @@ public class VarianceScalingTest {
             Operand<TFloat64> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat64(operand.asTensor());
-            assertArrayEquals(actual,expected, EPSILON);
+            assertArrayEquals(expected, actual, EPSILON);
         }
     }
     
@@ -147,7 +147,7 @@ public class VarianceScalingTest {
             Operand<TFloat32> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat32(operand.asTensor());
-            assertArrayEquals(actual,expected, EPSILON_F);
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
     
@@ -165,7 +165,7 @@ public class VarianceScalingTest {
             Operand<TFloat64> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat64(operand.asTensor());
-            assertArrayEquals(actual,expected, EPSILON);
+            assertArrayEquals(expected, actual, EPSILON);
         }
     }
     
@@ -185,7 +185,7 @@ public class VarianceScalingTest {
             Operand<TFloat32> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat32(operand.asTensor());
-            assertArrayEquals(actual,expected, EPSILON_F);
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
     
@@ -203,7 +203,7 @@ public class VarianceScalingTest {
             Operand<TFloat64> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat64(operand.asTensor());
-            assertArrayEquals(actual,expected, EPSILON);
+            assertArrayEquals(expected, actual, EPSILON);
         }
     }
     

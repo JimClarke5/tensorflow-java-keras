@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.EagerSession;
 import org.tensorflow.Operand;
+import org.tensorflow.keras.utils.PrintUtils;
 import org.tensorflow.op.Ops;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.tools.buffer.DataBuffers;
@@ -77,7 +78,7 @@ public class ZerosTest {
             Zeros<TUint8> instance = new Zeros<>();
             Operand<TUint8> operand = instance.call(tf, tf.constant(shape.asArray()),  TUint8.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-           // operand.asTensor().data().scalars().forEach(s -> System.out.println(s.getI()));
+           // PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual);
         }
     }
@@ -96,7 +97,7 @@ public class ZerosTest {
             Zeros<TInt32> instance = new Zeros<>();
             Operand<TInt32> operand = instance.call(tf, tf.constant(shape.asArray()),  TInt32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-           // operand.asTensor().data().scalars().forEach(s -> System.out.println(s.getI()));
+           // PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual);
         }
     }
@@ -115,7 +116,7 @@ public class ZerosTest {
             Zeros<TInt64> instance = new Zeros<>();
             Operand<TInt64> operand = instance.call(tf, tf.constant(shape.asArray()),  TInt64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-           // operand.asTensor().data().scalars().forEach(s -> System.out.println(s.getI()));
+           //PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual);
         }
     }
@@ -135,7 +136,7 @@ public class ZerosTest {
             Zeros<TFloat32> instance = new Zeros<>();
             Operand<TFloat32> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-            operand.asTensor().data().scalars().forEach(s -> System.out.println(s.getFloat()));
+            PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
@@ -155,7 +156,7 @@ public class ZerosTest {
             Zeros<TFloat64> instance = new Zeros<>();
             Operand<TFloat64> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-            operand.asTensor().data().scalars().forEach(s -> System.out.println(s.getDouble()));
+            PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);
         }
     }

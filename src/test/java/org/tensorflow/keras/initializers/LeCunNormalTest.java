@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.EagerSession;
 import org.tensorflow.Operand;
+import org.tensorflow.keras.utils.PrintUtils;
 import org.tensorflow.op.Ops;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.tools.buffer.DataBuffers;
@@ -99,7 +100,7 @@ public class LeCunNormalTest {
     public void testCall_Float() {
         System.out.println("call Float");
         float[] actual = { 0,0, 0, 0};
-        float[] expected = { -0.21565685F, 1.2418709F, 0.1305355F, 1.0191818F };
+        float[] expected = { -0.52388954F,-0.29329166F,-0.07872587F,-0.31851602F };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
@@ -107,8 +108,8 @@ public class LeCunNormalTest {
                     new LeCunNormal<>(SEED);
             Operand<TFloat32> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-            operand.asTensor().data().scalars().forEach(s -> System.out.println(s.getFloat()));
-            assertArrayEquals(actual,expected, EPSILON_F);
+            PrintUtils.print(operand.asTensor());
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
     
@@ -116,8 +117,7 @@ public class LeCunNormalTest {
     public void testCall_Double() {
         System.out.println("call Double");
         double[] actual = { 0,0, 0, 0};
-        double[] expected = { 1.1804090085115349, 0.028932303309678203, 
-                                -0.5210409914947474, -1.1755309088162063 };
+        double[] expected = { 1.4971264721246893, -1.2488522307109322, -0.5409677352523339, 0.4871390504288623 };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
@@ -125,8 +125,8 @@ public class LeCunNormalTest {
                     new LeCunNormal<>(SEED);
             Operand<TFloat64> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-            operand.asTensor().data().scalars().forEach(s -> System.out.println(s.getDouble()));
-            assertArrayEquals(actual,expected, EPSILON);
+            PrintUtils.print(operand.asTensor());
+            assertArrayEquals(expected, actual, EPSILON);
         }
     }
     
