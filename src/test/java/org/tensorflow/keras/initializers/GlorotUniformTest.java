@@ -134,7 +134,7 @@ public class GlorotUniformTest {
             PrintUtils.print(operand.asTensor());
             counter = 0;
             operand.asTensor().data().scalars().forEach(s -> {counter++;});
-            assertEquals(counter, 2*2);
+            assertEquals(shape.size(), counter);
             
            // assertArrayEquals(expected, actual, EPSILON);
         }

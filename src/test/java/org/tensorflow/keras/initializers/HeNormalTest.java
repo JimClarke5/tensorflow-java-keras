@@ -136,7 +136,8 @@ public class HeNormalTest {
             PrintUtils.print(operand.asTensor());
             counter = 0;
             operand.asTensor().data().scalars().forEach(s -> {counter++;});
-            assertEquals(counter, 2*2);
+            assertEquals(shape.size(), counter);
+            // TODO 
             //TOFO assertArrayEquals(expected, actual, EPSILON);
         }
     }

@@ -134,8 +134,8 @@ public class HeUniformTest {
             PrintUtils.print(operand.asTensor());
             counter = 0;
             operand.asTensor().data().scalars().forEach(s -> {counter++;});
-            assertEquals(counter, 2*2);
-            //TOFO assertArrayEquals(expected, actual, EPSILON);
+            assertEquals(shape.size(), counter);
+            // TODO  assertArrayEquals(expected, actual, EPSILON);
         }
     }
     
