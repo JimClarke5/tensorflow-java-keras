@@ -16,6 +16,7 @@ package org.tensorflow.keras.activations;
 
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
+import org.tensorflow.keras.utils.TypeUtils;
 import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TType;
 
@@ -34,6 +35,8 @@ public class SELU <U extends TType> extends Activation<U> {
      */
     @Override
     public Operand<U> call(Ops tf, Operand<U> input) {
+        assert TypeUtils.isFloating(input.asTensor().dataType()): 
+                "Must be a Floating Point DataType: " + input.asTensor().dataType();
         return (Operand<U>)tf.nn.selu((Operand)input);
     }
     
