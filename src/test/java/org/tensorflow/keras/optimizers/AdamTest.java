@@ -18,8 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.Graph;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
-import static org.tensorflow.framework.optimizers.AdaDelta.ACCUMULATOR;
-import static org.tensorflow.framework.optimizers.AdaDelta.ACCUMULATOR_UPDATE;
 import static org.tensorflow.framework.optimizers.Adam.FIRST_MOMENT;
 import static org.tensorflow.framework.optimizers.Adam.SECOND_MOMENT;
 import org.tensorflow.framework.optimizers.Optimizer;
@@ -40,7 +38,6 @@ import org.tensorflow.op.core.Constant;
 import org.tensorflow.op.core.Variable;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.tools.ndarray.FloatNdArray;
-import org.tensorflow.tools.ndarray.NdArray;
 import org.tensorflow.tools.ndarray.NdArrays;
 import org.tensorflow.types.TFloat32;
 
@@ -159,7 +156,7 @@ public class AdamTest {
             assertEquals(secondMomentSlots[1].asOutput().shape(), var1.asOutput().shape());
             
             /**
-            * initialize the accumalators
+            * initialize the accumulators
             */
             
             for(Op initializer : graph.initializers()) {

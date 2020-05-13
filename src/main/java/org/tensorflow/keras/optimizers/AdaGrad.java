@@ -34,7 +34,7 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
     
     
     public static final float  LEARNING_RATE_DEFAULT = 0.001F;
-    public static final float  INITIAL_ACCUM__DEFAULT = 0.01f;
+    public static final float  INITIAL_ACCUM__DEFAULT = 0.1f;
   
     
     
@@ -43,18 +43,17 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
     
 
      /**
-     * create an Adadelta
-     * @param graph
-     * @param learningRate
+     * create an Adadelta Optimizer with name="Adagrad", learningRate=0.001F, and accumulator=0.01F
+     * @param graph the tensorflow graph
      */
     public AdaGrad(Graph graph) {
         this(graph, LEARNING_RATE_DEFAULT, INITIAL_ACCUM__DEFAULT);
     }
     
       /**
-     * create an Adadelta
-     * @param graph
-     * @param learningRate
+     * create an Adadelta Optimizer with learningRate=0.001F, and initial accumulator=0.01F
+     * @param graph the tensorflow graph
+     * @param name the name of the Optimizer, defaults to "Adagrad"
      */
     public AdaGrad(Graph graph, String name) {
         this(graph, name, LEARNING_RATE_DEFAULT, INITIAL_ACCUM__DEFAULT);
@@ -62,30 +61,29 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
     
     
     /**
-     * create an Adadelta
-     * @param graph
-     * @param learningRate
+     * create an Adadelta Optimizer with  initial accumulator=0.01F
+     * @param graph the tensorflow graph
+     * @param learningRate The learning rate. Defaults to 0.001.
      */
     public AdaGrad(Graph graph, float learningRate) {
         this(graph, learningRate, INITIAL_ACCUM__DEFAULT);
     }
     
      /**
-     * create an Adadelta
-     * @param graph
-     * @param name Optional name prefix for the operations created when applying 
-     * gradients.  Defaults to "Adadelta".
-     * @param learningRate
+     * create an Adadelta Optimizer
+     * @param graph the tensorflow graph
+     * @param name the name of the Optimizer, defaults to "Adagrad"
+     * @param learningRate The learning rate. Defaults to 0.001.
      */
     public AdaGrad(Graph graph, String name, float learningRate) {
         this(graph, name, learningRate, INITIAL_ACCUM__DEFAULT);
     }
     
     /**
-     * create an Adadelta
-     * @param graph
-     * @param learningRate
-     * @param initialAccumulatorValue
+     * create an Adadelta Optimizer
+     * @param graph the tensorflow graph
+     * @param learningRate The learning rate
+     * @param initialAccumulatorValue initial accumulator value
      */
     public AdaGrad(Graph graph,float learningRate, float initialAccumulatorValue) {
         super(graph, learningRate, initialAccumulatorValue);
@@ -93,12 +91,11 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
     }
     
     /**
-     * create an Adadelta
-     * @param graph
-     * @param name Optional name prefix for the operations created when applying 
-     * gradients.  Defaults to "Adadelta".
-     * @param learningRate
-     * @param initialAccumulatorValue
+     * create an Adadelta Optimizer
+     * @param graph the tensorflow graph
+     * @param name the name of the Optimizer, defaults to "Adagrad"
+     * @param learningRate The learning rate
+     * @param initialAccumulatorValue initial accumulator value, must be >= 0.
      */
     public AdaGrad(Graph graph, String name, float learningRate, float initialAccumulatorValue) {
         super(graph, name, learningRate, initialAccumulatorValue);
@@ -106,25 +103,28 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
         initConfig(learningRate, initialAccumulatorValue);
     }
     
+    
+    
+    /* TODO - do we need to do this to be compatible with keras python? */
     /**
-     * create an Adadelta
-     * @param graph
-     * @param name Optional name prefix for the operations created when applying 
-     * gradients.  Defaults to "Adadelta".
-     * @param learningRate
-     * @param initialAccumulatorValue
+     * create an AdaGrad Optimizer from a config object
+     *
+     * @param graph the tensorflow graph
+     * @param config a config object to initialize, , the config object has keys for 
+     * "name", "learning_rate" and "accumulator". If a key is missing 
+     * the default value is used.
      */
-    public AdaGrad(Graph graph, String name, float learningRate, float initialAccumulatorValue, Options... options) {
-        super(graph, name, learningRate, initialAccumulatorValue);
-        assert initialAccumulatorValue >= 0.0F : "initial_accumulator_value must be non-negative: " + initialAccumulatorValue;
-        initConfig(learningRate, initialAccumulatorValue);
+    public static AdaGrad fromConfig(Graph graph, Map<String, Object> config) {
+        return create(graph, config);
     }
 
     /**
-     * create an Adadelta
+     * create an Adadelta Optimizer from a config object
      *
-     * @param graph
-     * @param config a config object to initialize
+     * @param graph the tensorflow graph
+     * @param config a config object to initialize, the config object has keys for 
+     * "name", "learning_rate" and "accumulator". If a key is missing 
+     * the default value is used.
      */
     public static AdaGrad create(Graph graph, Map<String, Object> config) {
         String name = (String)config.get(NAME_KEY);
@@ -140,8 +140,7 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
     /**
      * Initialize the configuration
      * @param learningRate
-     * @param rho
-     * @param epsilon 
+     * @param initialAccumulatorValue
      */
     private void initConfig(float learningRate, float initialAccumulatorValue) {
         config.put(NAME_KEY, this.getOptimizerName());

@@ -181,7 +181,7 @@ public class AdaDeltaTest {
 
 
                     /**
-                     * initialize the accumalators
+                     * initialize the accumulators
                      */
                     for(Op initializer : graph.initializers()) {
                         sess.runner().addTarget(initializer).run();
