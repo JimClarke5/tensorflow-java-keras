@@ -43,7 +43,7 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
     
 
      /**
-     * create an Adadelta Optimizer with name="Adagrad", learningRate=0.001F, and accumulator=0.01F
+     * create an Adadelta Optimizer with name="Adagrad", learningRate=0.001F, and initial accumulator=0.1
      * @param graph the tensorflow graph
      */
     public AdaGrad(Graph graph) {
@@ -51,7 +51,7 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
     }
     
       /**
-     * create an Adadelta Optimizer with learningRate=0.001F, and initial accumulator=0.01F
+     * create an Adadelta Optimizer with learningRate=0.001F, and initial accumulator=0.1
      * @param graph the tensorflow graph
      * @param name the name of the Optimizer, defaults to "Adagrad"
      */
@@ -61,7 +61,7 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
     
     
     /**
-     * create an Adadelta Optimizer with  initial accumulator=0.01F
+     * create an Adadelta Optimizer with  initial accumulator=0.1
      * @param graph the tensorflow graph
      * @param learningRate The learning rate. Defaults to 0.001.
      */
@@ -73,7 +73,7 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
      * create an Adadelta Optimizer
      * @param graph the tensorflow graph
      * @param name the name of the Optimizer, defaults to "Adagrad"
-     * @param learningRate The learning rate. Defaults to 0.001.
+     * @param learningRate The learning rate. Defaults to 0.01.
      */
     public AdaGrad(Graph graph, String name, float learningRate) {
         this(graph, name, learningRate, INITIAL_ACCUM__DEFAULT);
