@@ -19,7 +19,14 @@ import org.tensorflow.Graph;
 
 /**
  * AdaDelta Optimizer that implements the AdaDelta algorithm.
- * Keras wrapper around the Tensorflow Framework optimizer
+ * Keras wrapper around the Tensorflow Framework optimizer.
+ * Adadelta optimization is a stochastic gradient descent method that is based 
+ * on adaptive learning rate per dimension to address two drawbacks: 
+ * 1) the continual decay of learning rates throughout training 
+ * 2) the need for a manually selected global learning rate
+ * 
+ * Two accumulation steps are required: 1) the accumulation of gradients squared,
+ * 2) the accumulation of updates squared.
  *
  * @author Jim Clarke
  * @param <U> The Type for the call operation
@@ -39,16 +46,19 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
     
 
     /**
-     * create an Adadelta
-     * @param graph
+     * create an Adadelta optimizer with default name="Adadelta", 
+     * learning_rate=0.001F, rho=0.95F, and epsilon=1e-7F
+     * @param graph the tensorflow graph
      */
     public AdaDelta(Graph graph) {
         this(graph, LEARNING_RATE_DEFAULT, RHO_DEFAULT, EPSILON_DEFAULT);
     }
     
     /**
-     * create an Adadelta
-     * @param graph
+     * create an Adadelta optimizer with default learning_rate=0.001F, 
+     * rho=0.95F, and epsilon=1e-7F
+     * @param graph the tensorflow graph
+     * @param name the name of the Optimizer, defaults to "Adadelta"
      */
     public AdaDelta(Graph graph, String name) {
         this(graph, LEARNING_RATE_DEFAULT, RHO_DEFAULT, EPSILON_DEFAULT);
@@ -56,18 +66,21 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
     
     
     /**
-     * create an Adadelta
-     * @param graph
-     * @param learningRate
+     * create an Adadelta  optimizer with default name="Adadelta", 
+     *  rho=0.95F, and epsilon=1e-7F
+     * @param graph  the tensorflow graph
+     * @param learningRate The learning rate
      */
     public AdaDelta(Graph graph, float learningRate) {
         this(graph, learningRate, RHO_DEFAULT, EPSILON_DEFAULT);
     }
     
     /**
-     * create an Adadelta
-     * @param graph
-     * @param learningRate
+     * create an Adadelta  optimizer with default  
+     *  rho=0.95F, and epsilon=1e-7F
+     * @param graph  the tensorflow graph
+     * @param name the name of the Optimizer, defaults to "Adadelta"
+     * @param learningRate The learning rate
      */
     public AdaDelta(Graph graph, String name, float learningRate) {
         this(graph, learningRate, RHO_DEFAULT, EPSILON_DEFAULT);
@@ -76,11 +89,11 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
     
     
     /**
-     * create an Adadelta
-     * @param graph
-     * @param learningRate
-     * @param rho
-     * @param epsilon
+     * create an Adadelta  optimizer with default name="Adadelta", 
+     * @param graph  the tensorflow graph
+     * @param learningRate The learning rate
+     * @param rho The decay rate.
+     * @param epsilon A constant epsilon used to better conditioning the grad update.
      */
     public AdaDelta(Graph graph,float learningRate, float rho, float epsilon) {
         super(graph, learningRate, rho, epsilon);
@@ -88,11 +101,12 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
     }
     
     /**
-     * create an Adadelta
-     * @param graph
-     * @param learningRate
-     * @param rho
-     * @param epsilon
+     * create an Adadelta  optimizer
+     * @param graph  the tensorflow graph
+     * @param name the name of the Optimizer, defaults to "Adadelta"
+     * @param learningRate The learning rate
+     * @param rho The decay rate.
+     * @param epsilon A constant epsilon used to better conditioning the grad update.
      */
     public AdaDelta(Graph graph, String name, float learningRate, float rho, float epsilon) {
         super(graph, name, learningRate, rho, epsilon);
@@ -101,11 +115,26 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
     
 
 
+     /* TODO - do we need to do this to be compatible with keras python? */
     /**
-     * create an Adadelta
+     * create an Adam Optimizer from a config object
      *
-     * @param graph
-     * @param config a config object to initialize
+     * @param graph the tensorflow graph
+     * @param config a config object to initialize, he config object has keys for 
+     * "name", "learning_rate", "rho" and "epsilon". If a key is missing 
+     * the default value is used.
+     */
+    public static AdaDelta fromConfig(Graph graph, Map<String, Object> config) {
+        return create(graph, config);
+    }
+    
+    /**
+     * create an Adadelta  optimizer
+     *
+     * @param graph  the tensorflow graph
+     * @@param config a config object to initialize, the config object has keys for 
+     * "name", "learning_rate", "rho" and "epsilon". If a key is missing 
+     * the default value is used.
      */
     public static AdaDelta create(Graph graph, Map<String, Object> config) {
         String name = (String)config.get(NAME_KEY);
@@ -119,10 +148,10 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
     }
     
     /**
-     * Initialize the configuration
-     * @param learningRate
-     * @param rho
-     * @param epsilon 
+     * Initialize the configuration ased on which constructor is called.
+     * @param learningRate The learning rate
+     * @param rho The decay rate.
+     * @param epsilon  A constant epsilon used to better conditioning the grad update.
      */
     private void initConfig(float learningRate, float rho, float epsilon) {
         config.put(NAME_KEY, this.getOptimizerName());

@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,12 +16,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.Graph;
-import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 import static org.tensorflow.framework.optimizers.AdaDelta.ACCUMULATOR;
 import static org.tensorflow.framework.optimizers.AdaDelta.ACCUMULATOR_UPDATE;
-import org.tensorflow.framework.optimizers.Optimizer;
 import org.tensorflow.framework.optimizers.Optimizer.GradAndVar;
 import static org.tensorflow.keras.optimizers.AdaDelta.EPSILON_DEFAULT;
 import static org.tensorflow.keras.optimizers.AdaDelta.EPSILON_KEY;
@@ -38,7 +35,6 @@ import org.tensorflow.op.core.Constant;
 import org.tensorflow.op.core.Variable;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat32;
-import org.tensorflow.types.TInt64;
 
 /**
  *
@@ -183,20 +179,13 @@ public class AdaDeltaTest {
                     sess.runner().addTarget(var0Initializer).run();
                     sess.runner().addTarget(var1Initializer).run();
 
-                    System.out.println(slots[0].asOutput().shape());
 
                     /**
                      * initialize the accumalators
                      */
-                    Assign<TFloat32> var0AccumInitializer = tf.assign(slots[0], tf.constant(new float[]{0.0F, 0.0F}));
-                    Assign<TFloat32> var1AccumInitializer = tf.assign(slots[1], tf.constant(new float[]{0.0F, 0.0F}));
-                    Assign<TFloat32> var0AccumUpdateInitializer = tf.assign(slotUpdates[0], tf.constant(new float[]{0.0F, 0.0F}));
-                    Assign<TFloat32> var1AccumUpdateInitializer = tf.assign(slotUpdates[1], tf.constant(new float[]{0.0F, 0.0F}));
-
-                    sess.runner().addTarget(var0AccumInitializer).run();
-                    sess.runner().addTarget(var1AccumInitializer).run();
-                    sess.runner().addTarget(var0AccumUpdateInitializer).run();
-                    sess.runner().addTarget(var1AccumUpdateInitializer).run();
+                    for(Op initializer : graph.initializers()) {
+                        sess.runner().addTarget(initializer).run();
+                    }
 
                     /**
                      * make sure the variables were initialized properly
