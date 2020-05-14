@@ -14,10 +14,10 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.optimizers;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.tensorflow.Graph;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
-import static org.tensorflow.keras.optimizers.OptimizerInterface.config;
 
 /**
  * RMSProp Optimizer that implements the RMSProp algorithm.
@@ -32,14 +32,14 @@ public class RMSProp extends org.tensorflow.framework.optimizers.RMSProp impleme
     public static final String EPSILON_KEY = "epsilon";
     public static final String CENTERED_KEY = "centered";
     
-    
-    
      
     public static final float LEARNING_RATE_DEFAULT = 0.01F;
     public static final float DECAY_DEFAULT = 0.9F;
     public static final float MOMENTUM_DEFAULT  = 0.0F;
     public static final float EPSILON_DEFAULT = 1e-07F;
     public static final boolean CENTERED_DEFAULT = false;
+    
+    private Map<String, Object> config = new HashMap<>();
      
     /**
      * create an GradientDescent
@@ -101,5 +101,10 @@ public class RMSProp extends org.tensorflow.framework.optimizers.RMSProp impleme
         config.put(MOMENTUM_KEY, momentum);
         config.put(EPSILON_KEY, epsilon);
         config.put(CENTERED_KEY, centered);
+    }
+    
+     @Override
+    public Map<String, Object> getConfig() {
+        return config;
     }
 }

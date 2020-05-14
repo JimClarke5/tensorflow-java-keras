@@ -14,6 +14,7 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.optimizers;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.tensorflow.Graph;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
@@ -28,6 +29,7 @@ import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
  */
 public class Adamax extends Adam implements OptimizerInterface  {
     
+    private Map<String, Object> config = new HashMap<>();
     
     public Adamax(Graph graph) {
         this(graph, LEARNING_RATE_DEFAULT, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT );
@@ -65,6 +67,11 @@ public class Adamax extends Adam implements OptimizerInterface  {
             return new Adamax(graph, learningRate, betaOne,betaTwo, epsilon );
         else
             return new Adamax(graph, name, learningRate, betaOne,betaTwo, epsilon );
+    }
+
+    @Override
+    public Map<String, Object> getConfig() {
+        return config;
     }
      
     

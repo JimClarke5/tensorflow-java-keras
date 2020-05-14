@@ -14,10 +14,10 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.optimizers;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.tensorflow.Graph;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
-import static org.tensorflow.keras.optimizers.OptimizerInterface.config;
 
 /**
  * Adam Optimizer that implements the Adam algorithm.
@@ -28,6 +28,8 @@ public class GradientDescent extends org.tensorflow.framework.optimizers.Gradien
     public static final String LEARNING_RATE_KEY = "learning_rate";
     
      public static final float  LEARNING_RATE_DEFAULT = 0.001F;
+     
+     private Map<String, Object> config = new HashMap<>();
       /**
      * create an GradientDescent
      * @param graph
@@ -68,5 +70,10 @@ public class GradientDescent extends org.tensorflow.framework.optimizers.Gradien
     private void initConfig(float learningRate) {
         config.put(NAME_KEY, this.getOptimizerName());
         config.put(LEARNING_RATE_KEY, learningRate);
+    }
+    
+    @Override
+    public Map<String, Object> getConfig() {
+        return config;
     }
 }

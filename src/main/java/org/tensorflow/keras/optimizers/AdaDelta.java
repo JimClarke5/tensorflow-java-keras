@@ -14,6 +14,7 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.optimizers;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.tensorflow.Graph;
 
@@ -40,6 +41,7 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
     public static final float  RHO_DEFAULT = 0.95F;
     public static final float  EPSILON_DEFAULT = 1e-7F;
     
+    private Map<String, Object> config = new HashMap<>();
     
     // TODO is this still necessary?
     private String[] allowed_options = {"clipnorm", "clipvalue", "lr", "decay"};
@@ -158,6 +160,11 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
         config.put(LEARNING_RATE_KEY, learningRate);
         config.put(RHO_RATE_KEY, rho);
         config.put(EPSILON_KEY, epsilon);
+    }
+    
+    @Override
+    public Map<String, Object> getConfig() {
+        return config;
     }
     
     

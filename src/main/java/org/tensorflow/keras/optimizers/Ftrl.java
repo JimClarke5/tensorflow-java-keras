@@ -14,6 +14,7 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.optimizers;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.tensorflow.Graph;
@@ -39,7 +40,7 @@ public class Ftrl extends org.tensorflow.framework.optimizers.Optimizer implemen
     
     public static final float LEARNING_RATE_DEFAULT = 0.001F;
     public static final float LEARNING_RATE_POWER_DEFAULT = -0.5F;
-    public static final float INITIAL_ACCUM_VALUE_DEFAULT = 0.001F;
+    public static final float INITIAL_ACCUM_VALUE_DEFAULT = 0.1F;
     public static final float L1STRENGTH_DEFAULT = 0.0F;
     public static final float L2STRENGTH_DEFAULT = 0.0F;
     public static final float L2_SHRINKAGE_REGULARIZATION_STRENGTH_DEFAULT = 0.0F;
@@ -55,6 +56,7 @@ public class Ftrl extends org.tensorflow.framework.optimizers.Optimizer implemen
     private final float l2RegularizationStrength;
     private final float l2ShrinkageRegularizationStrength;
     
+    private Map<String, Object> config = new HashMap<>();
     
     private boolean useLocking = true;
     
@@ -193,13 +195,13 @@ public class Ftrl extends org.tensorflow.framework.optimizers.Optimizer implemen
   
     @Override
     protected <T extends TType> Op applyDense(Output<T> gradient, Output<T> variable) {
-        Variable<T> gradSlot = getSlot(variable, ACCUMULATOR).get();
-        Variable<T> gradLinearSlot = getSlot(variable, LINEAR_ACCUMULATOR).get();
+        Variable<T> accumSlot = getSlot(variable, ACCUMULATOR).get();
+        Variable<T> linearSlot = getSlot(variable, LINEAR_ACCUMULATOR).get();
         ApplyFtrl.Options options = ApplyFtrl.useLocking(useLocking);
         return this.tf.train.applyFtrl(
                 variable,
-                gradSlot, //accum
-                gradLinearSlot, //linear
+                accumSlot, //accum
+                linearSlot, //linear
                 gradient, //gradient
                 tf.dtypes.cast(tf.constant(learningRate), gradient.dataType()), // lr
                 tf.dtypes.cast(tf.constant(l1RegularizationStrength), gradient.dataType()), //l1
@@ -213,6 +215,11 @@ public class Ftrl extends org.tensorflow.framework.optimizers.Optimizer implemen
     @Override
     public String getOptimizerName() {
         return "Ftrl";
+    }
+    
+    @Override
+    public Map<String, Object> getConfig() {
+        return config;
     }
 
 }

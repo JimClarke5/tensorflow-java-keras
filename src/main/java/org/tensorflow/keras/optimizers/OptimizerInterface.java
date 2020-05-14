@@ -15,13 +15,10 @@ import java.util.Map;
 public interface OptimizerInterface {
     public static final String NAME_KEY = "name";
     
-    Map<String, Object> config = new HashMap<>();
+    
     
     /**
      * @return the config object used to initialize the Initializer values
      */
-    default Map<String, Object> getConfig() {
-        
-        return config;
-    }
+    public  Map<String, Object> getConfig();
 }

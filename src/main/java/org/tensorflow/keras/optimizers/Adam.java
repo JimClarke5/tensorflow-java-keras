@@ -14,10 +14,10 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.optimizers;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.tensorflow.Graph;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
-import static org.tensorflow.keras.optimizers.OptimizerInterface.config;
 
 /**
  * Adam Optimizer that implements the Adam algorithm.
@@ -36,6 +36,7 @@ public class Adam extends org.tensorflow.framework.optimizers.Adam implements Op
     public static final float  BETA_TWO_DEFAULT = 0.999F;
     
 
+    private Map<String, Object> config = new HashMap<>();
     /**
      * create an Adam Optimizer
      * @param graph the tensorflow graph
@@ -161,5 +162,10 @@ public class Adam extends org.tensorflow.framework.optimizers.Adam implements Op
         config.put(BETA_ONE_KEY, betaOne);
         config.put(BETA_TWO_KEY, betaTwo);
         
+    }
+    
+    @Override
+    public Map<String, Object> getConfig() {
+        return config;
     }
 }

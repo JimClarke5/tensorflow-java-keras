@@ -14,10 +14,10 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.optimizers;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.tensorflow.Graph;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
-import static org.tensorflow.keras.optimizers.OptimizerInterface.config;
 
 /**
  * SGD Stochastic gradient descent and momentum optimizer.
@@ -34,6 +34,8 @@ public class SGD  extends org.tensorflow.framework.optimizers.Momentum implement
     public static final float  LEARNING_RATE_DEFAULT = 0.01F;
     public static final float MOMENTUM_DEFAULT  = 0.0F;
     public static final boolean NESTEROV_DEFAULT  = false;
+    
+    private Map<String, Object> config = new HashMap<>();
      
     /**
      * create an GradientDescent
@@ -85,5 +87,10 @@ public class SGD  extends org.tensorflow.framework.optimizers.Momentum implement
         config.put(LEARNING_RATE_KEY, learningRate);
         config.put(MOMENTUM_KEY, momentum);
         config.put(NESTEROV_KEY, useNesterov);
+    }
+    
+    @Override
+    public Map<String, Object> getConfig() {
+        return config;
     }
 }

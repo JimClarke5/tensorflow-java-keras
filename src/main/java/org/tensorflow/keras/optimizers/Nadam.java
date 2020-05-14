@@ -14,6 +14,7 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.optimizers;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.tensorflow.Graph;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
@@ -29,6 +30,8 @@ import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
  */
 public class Nadam extends Adam implements OptimizerInterface  {
 
+    private Map<String, Object> config = new HashMap<>();
+    
     public Nadam(Graph graph) {
         this(graph, LEARNING_RATE_DEFAULT, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT );
     }
@@ -65,6 +68,11 @@ public class Nadam extends Adam implements OptimizerInterface  {
             return new Nadam(graph, learningRate, betaOne,betaTwo, epsilon );
         else
             return new Nadam(graph, name, learningRate, betaOne,betaTwo, epsilon );
+    }
+     
+     @Override
+    public Map<String, Object> getConfig() {
+        return config;
     }
      
     

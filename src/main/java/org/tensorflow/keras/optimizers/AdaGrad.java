@@ -14,9 +14,9 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.optimizers;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.tensorflow.Graph;
-import static org.tensorflow.keras.optimizers.OptimizerInterface.config;
 
 /**
  * AdaGrad Optimizer that implements the AdaGrad algorithm.
@@ -36,7 +36,7 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
     public static final float  LEARNING_RATE_DEFAULT = 0.001F;
     public static final float  INITIAL_ACCUM__DEFAULT = 0.1f;
   
-    
+    private Map<String, Object> config = new HashMap<>();
     
     // TODO is this still necessary?
     private String[] allowed_options = {"clipnorm", "clipvalue", "lr", "decay"};
@@ -148,6 +148,10 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
         config.put(INITIAL_ACCUM_KEY, initialAccumulatorValue);
     }
     
+    @Override
+    public Map<String, Object> getConfig() {
+        return config;
+    }
     
     
     //TODO ??
