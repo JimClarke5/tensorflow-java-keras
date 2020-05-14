@@ -38,36 +38,91 @@ public class SGD  extends org.tensorflow.framework.optimizers.Momentum implement
     private Map<String, Object> config = new HashMap<>();
      
     /**
-     * create an GradientDescent
-     * @param graph
+     * create a Stochastic gradient descent optimizer using defaults:
+     * name="SGD", learning_rate=0.01,
+     * momentum=0.0, and nesterov=false
+     * 
+     * @param graph the TensorFlow graph
      */
     public SGD(Graph graph) {
         this(graph, LEARNING_RATE_DEFAULT, MOMENTUM_DEFAULT, NESTEROV_DEFAULT);
     }
     
+    /**
+     * create a Stochastic gradient descent optimizer using defaults:
+     * name="SGD", momentum=0.0, and nesterov=false
+     * 
+     * @param graph the TensorFlow graph
+     * @param learningRate The learning rate. Defaults to 0.01.
+     */
     public SGD(Graph graph, float learningRate) {
         this(graph, learningRate, MOMENTUM_DEFAULT, NESTEROV_DEFAULT);
     }
     
+    /**
+     * create a Stochastic gradient descent optimizer using defaults:
+     * momentum=0.0, and nesterov=false
+     * 
+     * @param graph the TensorFlow graph
+     * @param name prefix for the operations created when applying gradients
+     * @param learningRate The learning rate. Defaults to 0.01.
+     */
     public SGD(Graph graph, String name, float learningRate) {
         this(graph, name, learningRate, MOMENTUM_DEFAULT, NESTEROV_DEFAULT);
     }
     
+    /**
+     * create a Stochastic gradient descent optimizer 
+     * 
+     * @param graph the TensorFlow graph
+     * @param learningRate The learning rate. Defaults to 0.01.
+     * @param momentum hyperparameter that accelerates SGD in the relevant
+     * direction and dampens oscillations. Must be between [0, 1].
+     * @param useNesterov Whether to apply Nesterov momentum. Defaults to `false`.
+     */
      public SGD(Graph graph, float learningRate, float momentum, boolean useNesterov) {
          super(graph, learningRate, momentum, useNesterov);
+         assert momentum >= 0.0F && momentum <= 1.0F: "\"momentum\" must be between [0, 1].";
          initConfig(learningRate, momentum, useNesterov);
      }
      
+     /**
+      * create a Stochastic gradient descent optimizer 
+      * 
+      * @param graph the TensorFlow graph
+      * @param name  prefix for the operations created when applying gradients
+      * @param learningRate The learning rate. Defaults to 0.01.
+      * @param momentum hyperparameter that accelerates SGD in the relevant
+      * direction and dampens oscillations. Must be between [0, 1].
+      * @param useNesterov Whether to apply Nesterov momentum. Defaults to `false`.
+      */
      public SGD(Graph graph, String name, float learningRate, float momentum, boolean useNesterov) {
          super(graph, name, learningRate, momentum, useNesterov);
          initConfig(learningRate, momentum, useNesterov);
      }
+     
+      /* TODO - do we need to do this to be compatible with keras python? */
+    /**
+     * create a Stochastic gradient descent optimizer 
+     *
+     * @param graph the TensorFlow graph
+     * @param config a config object to initialize, the config object has keys for 
+     * "name", "learning_rate", "momentum", and "nesterov". If a key is missing 
+     * the default value is used.
+     * @return the Stochastic gradient descent optimizer 
+     */
+    public static SGD fromConfig(Graph graph, Map<String, Object> config) {
+        return create(graph, config);
+    }
 
     /**
-     * create an Adam
+     * create a Stochastic gradient descent optimizer 
      *
-     * @param graph
-     * @param config a config object to initialize
+     * @param graph the TensorFlow graph
+     * @param config a config object to initialize, the config object has keys for 
+     * "name", "learning_rate", "momentum", and "nesterov". If a key is missing 
+     * the default value is used.
+     * @return the Stochastic gradient descent optimizer 
      */
     public static  SGD create(Graph graph, Map<String, Object> config) {
         
@@ -82,6 +137,14 @@ public class SGD  extends org.tensorflow.framework.optimizers.Momentum implement
         
     }
     
+    /**
+     * Initialize the configuration ased on which constructor is called.
+     * 
+     * @param learningRate learningRate The learning rate. Defaults to 0.01.
+     * @param momentum hyperparameter that accelerates SGD in the relevant
+      * direction and dampens oscillations. Must be between [0, 1].
+     * @param useNesterov  Whether to apply Nesterov momentum. Defaults to `false`.
+     */
     private void initConfig(float learningRate, float momentum, boolean useNesterov) {
         config.put(NAME_KEY, this.getOptimizerName());
         config.put(LEARNING_RATE_KEY, learningRate);
@@ -89,8 +152,21 @@ public class SGD  extends org.tensorflow.framework.optimizers.Momentum implement
         config.put(NESTEROV_KEY, useNesterov);
     }
     
+    /**
+     * { @inheritDoc }
+     * @return 
+     */
     @Override
     public Map<String, Object> getConfig() {
         return config;
+    }
+    
+    // overide the momentum name to return "SGD"
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getOptimizerName() {
+        return "SGD";
     }
 }

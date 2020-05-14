@@ -150,7 +150,7 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
     }
     
     /**
-     * Initialize the configuration ased on which constructor is called.
+     * Initialize the configuration based on which constructor is called.
      * @param learningRate The learning rate
      * @param rho The decay rate.
      * @param epsilon  A constant epsilon used to better conditioning the grad update.
@@ -162,6 +162,9 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
         config.put(EPSILON_KEY, epsilon);
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map<String, Object> getConfig() {
         return config;
