@@ -73,7 +73,7 @@ public class AdaGradTest {
             config.put(NAME_KEY, "AdaDelta");
             config.put(LEARNING_RATE_KEY, 2.0F);
             config.put(INITIAL_ACCUM_KEY, 0.1F);
-            AdaGrad expResult = new AdaGrad(graph);
+            AdaGrad expResult = new AdaGrad(graph, 2.0F, 0.1F);
             AdaGrad result = AdaGrad.create(graph, config);
             assertEquals(expResult.getConfig(), result.getConfig());
         }
