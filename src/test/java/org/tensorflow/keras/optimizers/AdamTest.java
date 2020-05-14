@@ -178,20 +178,22 @@ public class AdamTest {
             FloatNdArray v1_np = NdArrays.ofFloats(shape1);
                     
             for(int step =0; step < 3; step++) {
-                /**
-                float beta_1_power = (float)Math.pow(beta1, step+1);
-                float beta_2_power = (float)Math.pow(beta2, step+1);
-                final float[] powers = {beta_1_power, beta_2_power};
                 
-                for(index = 0; index < secondMomentSlots.length; index++) {
-                    try ( Tensor<TFloat32> result = sess.runner().fetch(secondMomentSlots[index]).run().get(0).expect(TFloat32.DTYPE)) {
-                        result.data().scalars().forEach(f -> 
-                        {
-                            assertEquals(powers[index], f.getFloat(), epsilon1);
-                        });
-                    }
+                // Test powers
+                final float[] powers = {(float)Math.pow(beta1, step+1), (float)Math.pow(beta2,  step+1)};
+                
+                try ( Tensor<TFloat32> result = sess.runner().fetch("beta1_power").run().get(0).expect(TFloat32.DTYPE)) {
+                    result.data().scalars().forEach(f -> 
+                    {
+                        assertEquals(powers[0], f.getFloat(), epsilon1);
+                    });
                 }
-                * ***/
+                try ( Tensor<TFloat32> result = sess.runner().fetch("beta2_power").run().get(0).expect(TFloat32.DTYPE)) {
+                    result.data().scalars().forEach(f -> 
+                    {
+                        assertEquals(powers[1], f.getFloat(), epsilon1);
+                    });
+                }
                 sess.run(update);
                 
                 float lr_t = learningRate * (float)Math.sqrt(1 - (float)Math.pow(beta2, (step + 1))) / (1 - (float)Math.pow(beta1, (step + 1)));
