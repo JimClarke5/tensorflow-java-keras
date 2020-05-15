@@ -61,6 +61,19 @@ public class SGD  extends org.tensorflow.framework.optimizers.Momentum implement
     
     /**
      * create a Stochastic gradient descent optimizer using defaults:
+     * name="SGD",  and nesterov=false
+     * 
+     * @param graph the TensorFlow graph
+     * @param learningRate The learning rate. Defaults to 0.01.
+     * @param momentum hyperparameter that accelerates SGD in the relevant
+     * direction and dampens oscillations. Must be between [0, 1].
+     */
+    public SGD(Graph graph, float learningRate, float momentum) {
+        this(graph, learningRate, momentum, NESTEROV_DEFAULT);
+    }
+    
+    /**
+     * create a Stochastic gradient descent optimizer using defaults:
      * momentum=0.0, and nesterov=false
      * 
      * @param graph the TensorFlow graph
@@ -69,6 +82,20 @@ public class SGD  extends org.tensorflow.framework.optimizers.Momentum implement
      */
     public SGD(Graph graph, String name, float learningRate) {
         this(graph, name, learningRate, MOMENTUM_DEFAULT, NESTEROV_DEFAULT);
+    }
+    
+    /**
+     * create a Stochastic gradient descent optimizer using defaults:
+     * momentum=0.0, and nesterov=false
+     * 
+     * @param graph the TensorFlow graph
+     * @param name prefix for the operations created when applying gradients
+     * @param learningRate The learning rate. Defaults to 0.01.
+     * @param momentum hyperparameter that accelerates SGD in the relevant
+     * direction and dampens oscillations. Must be between [0, 1].
+     */
+    public SGD(Graph graph, String name, float learningRate, float momentum) {
+        this(graph, name, learningRate, momentum, NESTEROV_DEFAULT);
     }
     
     /**
@@ -98,6 +125,7 @@ public class SGD  extends org.tensorflow.framework.optimizers.Momentum implement
       */
      public SGD(Graph graph, String name, float learningRate, float momentum, boolean useNesterov) {
          super(graph, name, learningRate, momentum, useNesterov);
+         assert momentum >= 0.0F && momentum <= 1.0F: "\"momentum\" must be between [0, 1].";
          initConfig(learningRate, momentum, useNesterov);
      }
      

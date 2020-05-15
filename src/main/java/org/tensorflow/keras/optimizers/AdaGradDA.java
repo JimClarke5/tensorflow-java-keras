@@ -156,6 +156,9 @@ public class AdaGradDA extends org.tensorflow.framework.optimizers.AdaGradDA imp
         config.put(L2STRENGTH_KEY, l2Strength);
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map<String, Object> getConfig() {
         return config;

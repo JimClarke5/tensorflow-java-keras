@@ -212,11 +212,18 @@ public class Ftrl extends org.tensorflow.framework.optimizers.Optimizer implemen
    
     }
 
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getOptimizerName() {
         return "Ftrl";
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map<String, Object> getConfig() {
         return config;

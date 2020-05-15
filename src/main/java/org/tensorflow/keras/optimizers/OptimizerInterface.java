@@ -15,10 +15,8 @@ import java.util.Map;
 public interface OptimizerInterface {
     public static final String NAME_KEY = "name";
     
-    
-    
     /**
-     * @return the config object used to initialize the Initializer values
+     * @return the config object used to initialize the Optimizer 
      */
     public  Map<String, Object> getConfig();
 }

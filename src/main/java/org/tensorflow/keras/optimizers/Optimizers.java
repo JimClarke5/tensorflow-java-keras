@@ -22,7 +22,6 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.tensorflow.Graph;
-import org.tensorflow.framework.optimizers.Momentum;
 import org.tensorflow.framework.optimizers.Optimizer;
 
 
@@ -40,7 +39,6 @@ public class Optimizers {
            put("AdagradDA",graph -> new AdaGradDA(graph) );
            put("adam",graph -> new Adam(graph) );
            put("adamax",graph -> new Adamax(graph) );
-           put("GradientDescent",graph -> new GradientDescent(graph) );
            put("ftrl",graph -> new Ftrl(graph) );
            put("nadam",graph -> new Nadam(graph) );
            put("rmsprop",graph -> new RMSProp(graph) );

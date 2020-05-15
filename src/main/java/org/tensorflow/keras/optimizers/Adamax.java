@@ -69,6 +69,9 @@ public class Adamax extends Adam implements OptimizerInterface  {
             return new Adamax(graph, name, learningRate, betaOne,betaTwo, epsilon );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map<String, Object> getConfig() {
         return config;

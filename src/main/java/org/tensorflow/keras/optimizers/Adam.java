@@ -164,6 +164,9 @@ public class Adam extends org.tensorflow.framework.optimizers.Adam implements Op
         
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map<String, Object> getConfig() {
         return config;

@@ -148,6 +148,9 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
         config.put(INITIAL_ACCUM_KEY, initialAccumulatorValue);
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map<String, Object> getConfig() {
         return config;
