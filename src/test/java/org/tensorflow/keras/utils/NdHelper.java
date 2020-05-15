@@ -22,7 +22,7 @@ public class NdHelper {
         return result;
     }
      
-      public static FloatNdArray squared(FloatNdArray a) {
+      public static FloatNdArray square(FloatNdArray a) {
         FloatNdArray result = NdArrays.ofFloats(a.shape());
         for(int i = 0; i < a.size(); i++) {
             float f = a.getFloat(i);
@@ -143,6 +143,14 @@ public class NdHelper {
     }
     
     public static void print(FloatNdArray a) {
+        for(FloatNdArray v : a.scalars()) {
+            System.out.printf("%f, ", v.getFloat());
+        }
+        System.out.println();
+    }
+    public static void print(String header, FloatNdArray a) {
+        System.out.print(header);
+        System.out.print(" : ");
         for(FloatNdArray v : a.scalars()) {
             System.out.printf("%f, ", v.getFloat());
         }
