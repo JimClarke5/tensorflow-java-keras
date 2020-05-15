@@ -185,11 +185,8 @@ public class AdaGradTest {
     
     private FloatNdArray caclulateAccum(FloatNdArray accum, FloatNdArray grads) {
         // accum + g_t * g_t
-        FloatNdArray squared = NdHelper.squared(grads);
-        System.out.println("squared");
-        NdHelper.print(squared);
-        FloatNdArray result = NdHelper.add(accum, squared);
-        System.out.println("caclulateAccum");
+        FloatNdArray squareG = NdHelper.square(grads);
+        FloatNdArray result = NdHelper.add(accum, squareG);
         NdHelper.print(result);
         return result;
     }
@@ -197,17 +194,9 @@ public class AdaGradTest {
     private FloatNdArray calculate(FloatNdArray param, FloatNdArray accum, FloatNdArray grads, float learningRate) {
         //param - lr * g_t / (np.sqrt(accum_t) + epsilon)
         FloatNdArray divisor = NdHelper.add(NdHelper.sqrt(accum), 1e-07f);
-        System.out.println("divisor");
-        NdHelper.print(divisor);
         FloatNdArray dividend = NdHelper.mul(learningRate, grads);
-        System.out.println("dividend");
-        NdHelper.print(dividend);
         FloatNdArray quotient = NdHelper.div(dividend, divisor);
-        System.out.println("quotient");
-        NdHelper.print(quotient);
         FloatNdArray result = NdHelper.minus(param, quotient);
-        System.out.println("calculate");
-        NdHelper.print(result);
         return result;
     }
     
