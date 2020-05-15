@@ -273,13 +273,13 @@ public class AdamTest {
     private FloatNdArray calculateV(FloatNdArray v, FloatNdArray g_t, float beta) {
         //beta2 * v + (1 - beta2) * g_t * g_t
         FloatNdArray mul1 = NdHelper.mul(v, beta);
-        FloatNdArray sqr = NdHelper.squared(g_t);
-        FloatNdArray mul2 = NdHelper.mul((1-beta), sqr);
+        FloatNdArray squareG = NdHelper.square(g_t);
+        FloatNdArray mul2 = NdHelper.mul((1-beta), squareG);
         FloatNdArray add = NdHelper.add(mul1, mul2);
         return add;
         
         //return NdHelper.add(NdHelper.mul(v, beta),
-        //     NdHelper.mul((1-beta), NdHelper.squared(g_t)));
+        //     NdHelper.mul((1-beta), NdHelper.square(g_t)));
     }
     
     private FloatNdArray calculateParam(FloatNdArray param, float lr_t, FloatNdArray m,  FloatNdArray v, float epsilon) {
