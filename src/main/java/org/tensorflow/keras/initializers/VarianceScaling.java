@@ -101,7 +101,7 @@ public class VarianceScaling <U extends TType> extends Initializer<U> {
         Operand<U> distOp;
         Operand<U> mulOp = null;
         double stddev;
-        long lseed = this.seed == null? 0L : this.seed.longValue();
+        long lseed = this.seed == null? 0L : this.seed;
         long[] seeds = { lseed, 0L };
         switch(distribution) {
             case truncated_normal:
