@@ -23,7 +23,7 @@ import org.tensorflow.framework.optimizers.Optimizer;
 import static org.tensorflow.keras.optimizers.AdaGrad.INITIAL_ACCUM_KEY;
 import static org.tensorflow.keras.optimizers.AdaGrad.LEARNING_RATE_KEY;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
-import org.tensorflow.keras.utils.NdHelper;
+import org.tensorflow.keras.utils.NP;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Assign;
@@ -185,18 +185,18 @@ public class AdaGradTest {
     
     private FloatNdArray caclulateAccum(FloatNdArray accum, FloatNdArray grads) {
         // accum + g_t * g_t
-        FloatNdArray squareG = NdHelper.square(grads);
-        FloatNdArray result = NdHelper.add(accum, squareG);
-        NdHelper.print(result);
+        FloatNdArray squareG = NP.square(grads);
+        FloatNdArray result = NP.add(accum, squareG);
+        NP.print(result);
         return result;
     }
 
     private FloatNdArray calculate(FloatNdArray param, FloatNdArray accum, FloatNdArray grads, float learningRate) {
         //param - lr * g_t / (np.sqrt(accum_t) + epsilon)
-        FloatNdArray divisor = NdHelper.add(NdHelper.sqrt(accum), 1e-07f);
-        FloatNdArray dividend = NdHelper.mul(learningRate, grads);
-        FloatNdArray quotient = NdHelper.div(dividend, divisor);
-        FloatNdArray result = NdHelper.minus(param, quotient);
+        FloatNdArray divisor = NP.add(NP.sqrt(accum), 1e-07f);
+        FloatNdArray dividend = NP.mul(learningRate, grads);
+        FloatNdArray quotient = NP.div(dividend, divisor);
+        FloatNdArray result = NP.minus(param, quotient);
         return result;
     }
     

@@ -32,7 +32,7 @@ import static org.tensorflow.keras.optimizers.RMSProp.EPSILON_DEFAULT;
 import static org.tensorflow.keras.optimizers.RMSProp.EPSILON_KEY;
 import static org.tensorflow.keras.optimizers.RMSProp.MOMENTUM_DEFAULT;
 import static org.tensorflow.keras.optimizers.RMSProp.MOMENTUM_KEY;
-import org.tensorflow.keras.utils.NdHelper;
+import org.tensorflow.keras.utils.NP;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Assign;
@@ -318,7 +318,7 @@ public class RMSPropTest {
         if (centered) {
             result[MG_T] = calcMG(mg_np, grad_np, decay);
             //rms_t - mg_t * mg_t
-            denom_t = NdHelper.minus(result[RMS_T], NdHelper.square(result[MG_T]));
+            denom_t = NP.minus(result[RMS_T], NP.square(result[MG_T]));
         } else {
             result[MG_T] = mg_np;
             denom_t = rms_np;
@@ -327,15 +327,15 @@ public class RMSPropTest {
             //momentum * mom + lr * g / (np.sqrt(denom_t + epsilon))
             result[MOM_T] = calcMom(momentum, mom, lr, grad_np, denom_t, epsilon);
             //var_t = var - mom_t
-            result[VAR_T] = NdHelper.minus(var_np, result[MOM_T]);
+            result[VAR_T] = NP.minus(var_np, result[MOM_T]);
         } else {
             result[MOM_T] = mom;
             result[VAR_T] = calcVar(var_np, grad_np, lr, denom_t, epsilon);
         }
-        NdHelper.print("var_t", result[VAR_T]);
-        NdHelper.print("mg_t",result[MG_T]);
-        NdHelper.print("rms_t",result[RMS_T]);
-        NdHelper.print("mom_t",result[MOM_T]);
+        NP.print("var_t", result[VAR_T]);
+        NP.print("mg_t",result[MG_T]);
+        NP.print("rms_t",result[RMS_T]);
+        NP.print("mom_t",result[MOM_T]);
 
         return result;
 
@@ -343,20 +343,20 @@ public class RMSPropTest {
 
     private FloatNdArray calcRMS(FloatNdArray rms_np, FloatNdArray grad_np, float decay) {
         //rms * rho + (1 - rho) * g * g
-        FloatNdArray rms_rho = NdHelper.mul(rms_np, decay);
-        FloatNdArray squareG = NdHelper.square(grad_np);
+        FloatNdArray rms_rho = NP.mul(rms_np, decay);
+        FloatNdArray squareG = NP.square(grad_np);
         float oneRHO = 1.0F - decay;
-        FloatNdArray decayG2 = NdHelper.mul(oneRHO, squareG);
-        FloatNdArray result = NdHelper.add(rms_rho, decayG2);
+        FloatNdArray decayG2 = NP.mul(oneRHO, squareG);
+        FloatNdArray result = NP.add(rms_rho, decayG2);
         return result;
     }
 
     private FloatNdArray calcMG(FloatNdArray mg_np, FloatNdArray grad_np, float decay) {
         //mg_t = mg * rho + (1 - rho) * g
-        FloatNdArray mg_rho = NdHelper.mul(mg_np, decay);
+        FloatNdArray mg_rho = NP.mul(mg_np, decay);
         float oneRHO = 1.0F - decay;
-        FloatNdArray decayG = NdHelper.mul(oneRHO, grad_np);
-        FloatNdArray result = NdHelper.add(mg_rho, decayG);
+        FloatNdArray decayG = NP.mul(oneRHO, grad_np);
+        FloatNdArray result = NP.add(mg_rho, decayG);
         return result;
 
     }
@@ -364,11 +364,11 @@ public class RMSPropTest {
     private FloatNdArray calcMom(float momentum, FloatNdArray mom, float lr,
             FloatNdArray grad_np, FloatNdArray denom_t, float epsilon) {
         // momentum * mom + lr * g / (np.sqrt(denom_t + epsilon))
-        FloatNdArray moMo = NdHelper.mul(momentum, mom);
-        FloatNdArray dividend = NdHelper.mul(lr, grad_np);
-        FloatNdArray divisor = NdHelper.sqrt(NdHelper.add(denom_t, epsilon));
-        FloatNdArray quotient = NdHelper.div(dividend, divisor);
-        FloatNdArray result = NdHelper.add(moMo, quotient);
+        FloatNdArray moMo = NP.mul(momentum, mom);
+        FloatNdArray dividend = NP.mul(lr, grad_np);
+        FloatNdArray divisor = NP.sqrt(NP.add(denom_t, epsilon));
+        FloatNdArray quotient = NP.div(dividend, divisor);
+        FloatNdArray result = NP.add(moMo, quotient);
         return result;
 
     }
@@ -376,10 +376,10 @@ public class RMSPropTest {
     private FloatNdArray calcVar(FloatNdArray var_np, FloatNdArray grad_np, float lr,
             FloatNdArray denom_t, float epsilon) {
         // var - lr * g / (np.sqrt(denom_t) + epsilon)
-        FloatNdArray dividend = NdHelper.mul(lr, grad_np);
-        FloatNdArray divisor = NdHelper.add(NdHelper.sqrt(denom_t), epsilon);
-        FloatNdArray quotient = NdHelper.div(dividend, divisor);
-        FloatNdArray result = NdHelper.minus(var_np, quotient);
+        FloatNdArray dividend = NP.mul(lr, grad_np);
+        FloatNdArray divisor = NP.add(NP.sqrt(denom_t), epsilon);
+        FloatNdArray quotient = NP.div(dividend, divisor);
+        FloatNdArray result = NP.minus(var_np, quotient);
         return result;
 
     }
