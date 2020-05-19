@@ -288,7 +288,7 @@ public class AdamTest {
        FloatNdArray divisor = NP.add(sqrt, epsilon);
        FloatNdArray dividend = NP.mul(lr_t, m);
        FloatNdArray quotient = NP.div(dividend, divisor);
-       FloatNdArray result = NP.minus(param, quotient);
+       FloatNdArray result = NP.sub(param, quotient);
        return result;
        
     }

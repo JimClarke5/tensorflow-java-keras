@@ -318,7 +318,7 @@ public class RMSPropTest {
         if (centered) {
             result[MG_T] = calcMG(mg_np, grad_np, decay);
             //rms_t - mg_t * mg_t
-            denom_t = NP.minus(result[RMS_T], NP.square(result[MG_T]));
+            denom_t = NP.sub(result[RMS_T], NP.square(result[MG_T]));
         } else {
             result[MG_T] = mg_np;
             denom_t = rms_np;
@@ -327,7 +327,7 @@ public class RMSPropTest {
             //momentum * mom + lr * g / (np.sqrt(denom_t + epsilon))
             result[MOM_T] = calcMom(momentum, mom, lr, grad_np, denom_t, epsilon);
             //var_t = var - mom_t
-            result[VAR_T] = NP.minus(var_np, result[MOM_T]);
+            result[VAR_T] = NP.sub(var_np, result[MOM_T]);
         } else {
             result[MOM_T] = mom;
             result[VAR_T] = calcVar(var_np, grad_np, lr, denom_t, epsilon);
@@ -379,7 +379,7 @@ public class RMSPropTest {
         FloatNdArray dividend = NP.mul(lr, grad_np);
         FloatNdArray divisor = NP.add(NP.sqrt(denom_t), epsilon);
         FloatNdArray quotient = NP.div(dividend, divisor);
-        FloatNdArray result = NP.minus(var_np, quotient);
+        FloatNdArray result = NP.sub(var_np, quotient);
         return result;
 
     }

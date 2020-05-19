@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +16,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.Graph;
-import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 import org.tensorflow.framework.optimizers.Optimizer;
@@ -42,7 +40,6 @@ import org.tensorflow.tools.Shape;
 import org.tensorflow.tools.ndarray.FloatNdArray;
 import org.tensorflow.tools.ndarray.NdArrays;
 import org.tensorflow.types.TFloat32;
-import org.tensorflow.types.family.TType;
 
 /**
  *
@@ -261,7 +258,7 @@ public class AdamaxTest {
        // np.maximum(beta2 * v, np.abs(g_t)) 
         v = NP.max(NP.mul(beta2, v), NP.abs(grads_np));
         //param_t = param - (alpha / (1 - beta1**(t + 1))) * (m_t / (v_t + epsilon))
-        var_np = NP.minus(var_np, 
+        var_np = NP.sub(var_np, 
            NP.mul(alpha1, NP.div(m, NP.add(v, espilon))));
                 
         FloatNdArray[] result = new FloatNdArray[3];

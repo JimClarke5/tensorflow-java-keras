@@ -57,7 +57,7 @@ public class NP {
     }
     
     
-    public static FloatNdArray minus(FloatNdArray a, FloatNdArray b) {
+    public static FloatNdArray sub(FloatNdArray a, FloatNdArray b) {
         assert(a.shape().size() == b.shape().size());
         FloatNdArray result = NdArrays.ofFloats(a.shape());
         for(int i = 0; i < a.size(); i++) {
@@ -66,7 +66,7 @@ public class NP {
         return result;
     }
     
-    public static FloatNdArray minus(FloatNdArray a, float scalar) {
+    public static FloatNdArray sub(FloatNdArray a, float scalar) {
         FloatNdArray result = NdArrays.ofFloats(a.shape());
         for(int i = 0; i < a.size(); i++) {
             result.setFloat(a.getFloat(i) - scalar, i);
@@ -74,7 +74,7 @@ public class NP {
         return result;
     }
     
-    public static FloatNdArray minus(float scalar, FloatNdArray a ) {
+    public static FloatNdArray sub(float scalar, FloatNdArray a ) {
         FloatNdArray result = NdArrays.ofFloats(a.shape());
         for(int i = 0; i < a.size(); i++) {
             result.setFloat(scalar - a.getFloat(i), i);
@@ -130,6 +130,33 @@ public class NP {
         FloatNdArray result = NdArrays.ofFloats(a.shape());
         for(int i = 0; i < a.size(); i++) {
             result.setFloat(scalar / a.getFloat(i) , i);
+        }
+        return result;
+    }
+    
+    public static FloatNdArray pow(FloatNdArray a, FloatNdArray b) {
+        assert(a.shape().size() == b.shape().size());
+        FloatNdArray result = NdArrays.ofFloats(a.shape());
+        for(int i = 0; i < a.size(); i++) {
+            result.setFloat((float)Math.pow(a.getFloat(i),  b.getFloat(i)), i);
+        }
+        return result;
+    }
+    
+    public static FloatNdArray pow(FloatNdArray a, float scalar) {
+        assert(scalar != 0);
+        FloatNdArray result = NdArrays.ofFloats(a.shape());
+        for(int i = 0; i < a.size(); i++) {
+            result.setFloat((float)Math.pow(a.getFloat(i), scalar), i);
+        }
+        return result;
+    }
+    
+    public static FloatNdArray pow( float scalar, FloatNdArray a) {
+        assert(scalar != 0);
+        FloatNdArray result = NdArrays.ofFloats(a.shape());
+        for(int i = 0; i < a.size(); i++) {
+            result.setFloat((float)Math.pow(scalar, a.getFloat(i)), i);
         }
         return result;
     }

@@ -196,7 +196,7 @@ public class AdaGradTest {
         FloatNdArray divisor = NP.add(NP.sqrt(accum), 1e-07f);
         FloatNdArray dividend = NP.mul(learningRate, grads);
         FloatNdArray quotient = NP.div(dividend, divisor);
-        FloatNdArray result = NP.minus(param, quotient);
+        FloatNdArray result = NP.sub(param, quotient);
         return result;
     }
     
