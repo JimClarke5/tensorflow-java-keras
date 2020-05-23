@@ -5,6 +5,9 @@
  */
 package org.tensorflow.keras.losses;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
 import org.tensorflow.Operand;
 import org.tensorflow.Session;
 import org.tensorflow.keras.losses.impl.LossesImpl;
@@ -16,6 +19,37 @@ import org.tensorflow.op.Ops;
  * @author Jim Clarke
  */
 public class Losses {
+    static Map<String, Supplier<Loss>> map = new HashMap<String, Supplier<Loss>>() {
+        {
+            //put("kld", kld::new);
+            //put("kullback_leibler_divergence", kullback_leibler_divergence::new);
+            //put("kldivergence", KLDivergence::new);
+           // put("huber", Huber::new);
+            put("mae", MeanAbsoluteError::new);
+            put("mean_absolute_error", MeanAbsoluteError::new);
+            put("mape", MeanAbsolutePercentageError::new);
+            put("mean_absolute_percentage_error", MeanAbsolutePercentageError::new);
+            put("mse", MeanSquaredError::new);
+            put("mean_squared_error", MeanSquaredError::new);
+            put("msle", MeanSquaredLogarithmicError::new);
+            put("mean_squared_logarithmic_error", MeanSquaredLogarithmicError::new);
+            put("binary_crossentropy", BinaryCrossentropy::new);
+            //put("categorical_crossentropy", categorical_crossentropy::new);
+            //put("categorical_hinge", categorical_hinge::new);
+            //put("cosine_similarity", cosine_similarity::new);
+            //put("hinge", hinge::new);
+            //put("logcosh", logcosh::new);
+            //put("poisson", poisson::new);
+            //put("sparse_categorical_crossentropy", sparse_categorical_crossentropy::new);
+            //put("squared_hinge", squared_hinge::new);
+        }
+    };
+    
+    public static Loss get(String loss) {
+        Supplier<Loss> lossFunction = map.get(loss.toLowerCase());
+        return lossFunction != null ? lossFunction.get() : null;
+    }
+    
 
     /**
      * Computes Kullback-Leibler divergence loss between y_true and y_pred.
