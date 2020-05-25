@@ -34,7 +34,7 @@ public class Losses {
             put("mean_squared_logarithmic_error", MeanSquaredLogarithmicError::new);
             put("binary_crossentropy", BinaryCrossentropy::new);
             put("categorical_crossentropy", CategoricalCrossentropy::new);
-            //put("categorical_hinge", categorical_hinge::new);
+            put("categorical_hinge", CategoricalHinge::new);
             //put("cosine_similarity", cosine_similarity::new);
             //put("hinge", hinge::new);
             //put("logcosh", logcosh::new);

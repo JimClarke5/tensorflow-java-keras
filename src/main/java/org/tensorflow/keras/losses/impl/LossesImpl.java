@@ -168,17 +168,22 @@ public class LossesImpl {
         Operand[] ops = preamble(tf, yTrue, yPred, null);
         yPred = ops[PRED];
         yTrue = ops[TRUE];
+        
+        Operand one =  K.one(tf, dtype);
+        
         Operand pos = tf.reduceSum(tf.math.mul(yTrue,  yPred), tf.constant(-1), ReduceSum.keepDims(Boolean.FALSE));
         Operand neg = tf.reduceMax(
            tf.math.mul(
-                tf.math.sub(K.one(tf, dtype), yTrue),
+                tf.math.sub(one, yTrue),
                 yPred), 
-           tf.constant(-1), ReduceMax.keepDims(Boolean.TRUE));
-        
-        return tf.math.maximum(
+           tf.constant(-1), ReduceMax.keepDims(Boolean.FALSE));
+        Operand sub =  tf.math.sub(neg, pos);
+         Operand add =  tf.math.add(sub, one);
+        Operand result = tf.math.maximum(
                 K.zero(tf, dtype),
-                tf.math.sub(neg, tf.math.add(pos, K.one(tf, dtype)))
+                add
                 );
+        return result;
     }
     
     
