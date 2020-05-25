@@ -48,8 +48,8 @@ public class MeanAbsoluteErrorTest {
     }
     
     @Test
-    public void testCongig() {
-         System.out.println("testCongig");
+    public void testConfig() {
+         System.out.println("testConfig");
          MeanAbsoluteError instance = new MeanAbsoluteError();
          assertEquals("mean_absolute_error", instance.getName());
          
