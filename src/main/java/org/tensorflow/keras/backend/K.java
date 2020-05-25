@@ -41,7 +41,7 @@ public class K {
     
     public static final Operand epsilonConstant(Ops tf, DataType dtype) { return tf.dtypes.cast(tf.constant(Epsilon), dtype); }
     public static final Operand one(Ops tf, DataType dtype) { return tf.dtypes.cast(tf.constant(1), dtype); }
-    public static final Operand zero(Ops tf, DataType dtype) { return tf.dtypes.cast(tf.constant(1), dtype); }
+    public static final Operand zero(Ops tf, DataType dtype) { return tf.dtypes.cast(tf.constant(0), dtype); }
     public static final Operand constant(Ops tf, double number, DataType dtype) { return tf.dtypes.cast(tf.constant(number), dtype); }
     
     
