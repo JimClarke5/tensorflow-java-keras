@@ -6,7 +6,6 @@
 package org.tensorflow.keras.losses.impl;
 
 import java.util.Arrays;
-import java.util.function.Supplier;
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.Session;
@@ -24,6 +23,9 @@ import org.tensorflow.op.core.Squeeze;
 import org.tensorflow.op.nn.SoftmaxCrossEntropyWithLogits;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat32;
+import org.tensorflow.types.TFloat64;
+import org.tensorflow.types.TInt32;
+import org.tensorflow.types.TInt64;
 
 /**
  *
@@ -31,8 +33,7 @@ import org.tensorflow.types.TFloat32;
  */
 public class LossesImpl {
     
-    // for debug
-    private static Session session;
+    
     
     private static int PRED = 0;
     private static int TRUE = 1;
@@ -121,18 +122,12 @@ public class LossesImpl {
         yPred = ops[PRED];
         yTrue = ops[TRUE];
         
-        debug("yTrue", yTrue);
-        debug("yPred", yPred);
-        
         yTrue = SmartCond.cond(tf,
                         tf.math.notEqual(tf.constant(labelSmoothing), tf.constant(0.F)),
                         smoothLabelsBinaryX(tf, yTrue, labelSmoothing),
                         yTrue);
-        debug("SmartCond/yTrue", yTrue);
-        Operand bce = K.binary_crossentropy(tf, yTrue, yPred, fromLogits, session);
-        debug("bce", bce);
+        Operand bce = K.binary_crossentropy(tf, yTrue, yPred, fromLogits);
         Operand result =  K.mean(tf, bce, tf.constant(-1));
-        debug("result", result);
         return result;
     }
     
@@ -165,11 +160,7 @@ public class LossesImpl {
                         smoothLabelsCatX(tf, yTrue, labelSmoothing),
                         yTrue);
         
-        Op op =  K.categorical_crossentropy(tf, yTrue, yPred, fromLogits);
-        if(op instanceof SoftmaxCrossEntropyWithLogits) {
-            return ((SoftmaxCrossEntropyWithLogits)op).loss();
-        }
-        return (Operand)op;
+        return  K.categorical_crossentropy(tf, yTrue, yPred, fromLogits);
     }
 
     public static Operand categorical_hinge(Ops tf, Operand yTrue, Operand yPred) {
@@ -305,19 +296,15 @@ public class LossesImpl {
 
     private static Operand reduceWeightedLoss(Ops tf, Operand weighted_losses, Reduction reduction) {
         Operand loss;
-        debug("reduceWeightedLoss/weighted_losses" , weighted_losses);
         if (reduction == Reduction.NONE) {
             loss = weighted_losses;
         }else {
             loss = tf.reduceSum(weighted_losses, K.allAxis(tf, weighted_losses), ReduceSum.keepDims(Boolean.FALSE));
             //tf.reshape(loss, tf.constant(Shape.scalar()));
-            debug("reduceWeightedLoss/reduceSum" , loss);
             if (reduction == Reduction.AUTO || reduction == Reduction.SUM_OVER_BATCH_SIZE) {
                 loss =  safeMean(tf, loss, weighted_losses.asOutput().shape().size());
-                debug("reduceWeightedLoss/safeMean" , loss);
             }
         }
-        debug("reduceWeightedLoss/loss" , loss);
         return loss;
     }
 
@@ -403,12 +390,36 @@ public class LossesImpl {
         return result;
     }
     
-    private static void debug(String prefix, Operand operand) {
+    //TODO  debug, take out after unit tests are complete
+   
+    private static Session session;
+    public static void debug(String prefix, Operand operand) {
+        System.out.printf("%s Shape: %s\n", prefix, operand.asOutput().shape());
         if(session != null) {
-            try ( Tensor<TFloat32> result = session.runner().fetch(operand).run().get(0).expect(TFloat32.DTYPE)) {
+            if(operand.asOutput().dataType() == TInt64.DTYPE) {
+                try ( Tensor<TInt64> result = session.runner().fetch(operand).run().get(0).expect(TInt64.DTYPE)) {
                         result.data().scalars().forEach(f -> {
-                            System.out.printf("%s:  Actual = %f\n", prefix, f.getFloat());
+                            System.out.printf("    %s:  Actual = %d\n", prefix, f.getLong());
                          });
+                }
+            } else if(operand.asOutput().dataType() == TInt32.DTYPE) {
+                try ( Tensor<TInt32> result = session.runner().fetch(operand).run().get(0).expect(TInt32.DTYPE)) {
+                        result.data().scalars().forEach(f -> {
+                            System.out.printf("    %s:  Actual = %d\n", prefix, f.getInt());
+                         });
+                }
+             } else if(operand.asOutput().dataType() == TFloat64.DTYPE) {
+                try ( Tensor<TFloat64> result = session.runner().fetch(operand).run().get(0).expect(TFloat64.DTYPE)) {
+                        result.data().scalars().forEach(f -> {
+                            System.out.printf("    %s:  Actual = %f\n", prefix, f.getDouble());
+                         });
+                }
+            }else {
+                try ( Tensor<TFloat32> result = session.runner().fetch(operand).run().get(0).expect(TFloat32.DTYPE)) {
+                            result.data().scalars().forEach(f -> {
+                                System.out.printf("    %s:  Actual = %f\n", prefix, f.getFloat());
+                             });
+                }
             }
         }
     }

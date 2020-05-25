@@ -5,17 +5,29 @@
  */
 package org.tensorflow.keras.backend;
 
+import java.util.Arrays;
+import java.util.List;
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
+import org.tensorflow.keras.losses.impl.LossesImpl;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
+import org.tensorflow.op.core.ReduceSum;
+import org.tensorflow.op.core.Stack;
 import org.tensorflow.op.core.Variable;
 import org.tensorflow.op.math.Mean;
+import org.tensorflow.op.nn.SoftmaxCrossEntropyWithLogits;
 import org.tensorflow.tools.Shape;
+import org.tensorflow.types.TBfloat16;
 import org.tensorflow.types.TBool;
+import org.tensorflow.types.TFloat16;
 import org.tensorflow.types.TFloat32;
+import org.tensorflow.types.TInt32;
+import org.tensorflow.types.TInt64;
+import org.tensorflow.types.family.TNumber;
+import org.tensorflow.types.family.TType;
 
 /**
  *
@@ -100,20 +112,20 @@ public class K {
         );
         
     }
-    // Not sure if this is right.
+    // Not sure if this is right or how to do it.
     private static Operand  backtrackIdentity(Operand output) {
-        while(!output.op().type().equals("Identity"))
-            output = output.op().output(0);
+       // while(!output.op().type().equals("Identity"))
+        //    output = output.op().output(0);
         return output;
     }
     
-    public static Operand binary_crossentropy(Ops tf, Operand target, Operand output, boolean fromLogits, Session session ){
+    public static Operand binary_crossentropy(Ops tf, Operand target, Operand output, boolean fromLogits ){
         if(fromLogits) {
             return sigmoidCrossEntropyWithLogits(tf, target, output);
         }
         
         if(!(output instanceof Variable) && (!tf.scope().env().isEager())) {
-            //output = backtrackIdentity(output); // TODO - this dose not work, goes infinite loop
+            //output = backtrackIdentity(output); // TODO - this does not work, goes infinite loop
             if(output.op().type().equals("Sigmoid")) {
                 assert output.op().numOutputs() == 1;
                 output = output.op().output(0);
@@ -125,52 +137,47 @@ public class K {
         Operand epsilonConst = K.epsilonConstant(tf,dtype);
         Operand oneMinusEpsilonConst = tf.math.sub(one, epsilonConst);
         output = tf.clipByValue(output, epsilonConst, oneMinusEpsilonConst);
-        debug( session, "BCE/output",output);
         
         // Compute cross entropy from probabilities.
         Operand bce = tf.math.mul(target, tf.math.log(tf.math.add(output, epsilonConst)));
-        debug( session, "BCE/bce1",bce);
         bce = tf.math.add(bce,
             tf.math.mul(
                 tf.math.sub(one, target),
                 tf.math.log(tf.math.add(tf.math.sub(one, output), epsilonConst )) 
             ));
-        debug( session, "BCE/bce2",bce);
         Operand result =  tf.math.neg(bce);
-        debug( session, "BCE/result",result);
         return result;
     }
     
-    public static Op categorical_crossentropy(Ops tf, Operand target, Operand output, boolean fromLogits) {
+    public static Operand categorical_crossentropy(Ops tf, Operand target, Operand output, boolean fromLogits) {
         return categorical_crossentropy(tf, target, output, fromLogits, -1);
     }
 
-    public static Op categorical_crossentropy(Ops tf, Operand target, Operand output, boolean fromLogits, int axis) {
+    public static Operand categorical_crossentropy(Ops tf, Operand target, Operand output, boolean fromLogits, int axis) {
+        
         if(fromLogits) {
-            return tf.nn.softmaxCrossEntropyWithLogits(target, output);
+            return softmax_cross_entropy_with_logits_v2(tf, target, output);
         }
         if(!(output instanceof Variable) && (!tf.scope().env().isEager())) {
-            output = backtrackIdentity(output);
+            //TODO output = backtrackIdentity(output); doesn't seem to work with Java version.
             if(output.op().type().equals("Softmax")) {
                 assert output.op().numOutputs() == 1;
                 output = output.op().output(0);
-                return  tf.nn.softmaxCrossEntropyWithLogits( target, output);
+                 Operand op = softmax_cross_entropy_with_logits_v2(tf, target, output);
+                 return op;
             }
         }
         DataType dtype = output.asOutput().dataType();
         Operand one = one(tf,dtype);
         Operand epsilonConst = K.epsilonConstant(tf,dtype);
         Operand oneMinusepsilonConst = tf.math.sub(one, epsilonConst);
+        output = tf.math.div(output,  tf.reduceSum(output, tf.constant(axis), ReduceSum.keepDims(Boolean.TRUE)));
         output = tf.clipByValue(output, epsilonConst, oneMinusepsilonConst);
         
         // Compute cross entropy from probabilities.
-        Operand bce = tf.math.mul(target, tf.math.log(tf.math.add(output, epsilonConst)));
-        bce = tf.math.add(bce,
-            tf.math.mul(
-                tf.math.sub(one(tf, dtype), target),
-                tf.math.log(tf.math.sub(one, tf.math.add(output, epsilonConst)))
-            ));
-        return tf.math.neg(bce);
+        Operand cce = tf.reduceSum(tf.math.mul(target, tf.math.log(output)), 
+                tf.constant(axis), ReduceSum.keepDims(Boolean.FALSE));
+        return tf.math.neg(cce);
     }
     
     private static int[] allAxis(Operand op) {
@@ -186,14 +193,120 @@ public class K {
         return tf.constant(ranks);
     }
     
-    private static void debug(Session session, String prefix, Operand operand) {
-        if(session != null) {
-            try ( Tensor<TFloat32> result = session.runner().fetch(operand).run().get(0).expect(TFloat32.DTYPE)) {
-                        result.data().scalars().forEach(f -> {
-                            System.out.printf("%s:  Actual = %f\n", prefix, f.getFloat());
-                         });
+    //TODO shouldn't these be in tensorflow itself under nn?
+    private static <T extends TType,U extends TNumber> Operand moveDimToEnd(Ops tf, Operand tensor, int dim_index, Operand rank){
+        Operand one = one(tf, TInt32.DTYPE);
+        List<Operand<T>> concatList = Arrays.asList(
+                tf.range(tf.constant(dim_index), one, one),
+                tf.range(tf.constant(dim_index+1),rank, one)
+        );
+        return tf.linalg.transpose( tensor, 
+                (Operand<U>)tf.concat( 
+                        (Iterable<Operand<T>>)concatList, 
+                        (Operand<U>)tf.constant(0)));
+    }
+    
+    private static <T extends TType,U extends TNumber>Operand flattenOuterDims(Ops tf, Operand logits) {
+        Operand zero = zero(tf, TInt64.DTYPE);
+        Operand one = one(tf, TInt64.DTYPE);
+        Operand minusOne = tf.constant(-1);
+        
+        //Shape logitsShape = logits.asOutput().shape();
+        //long lastDimSize = logitsShape.size(logitsShape.numDimensions()-1);
+        if(!tf.scope().env().isEager()) {
+            Shape shape = logits.asOutput().shape();
+            int ndims = shape.numDimensions();
+            if(!shape.hasUnknownDimension()) {
+                long product = 1L;
+                boolean productValid = true;
+                for(int i = ndims-2; i >= 0; i--) {
+                    long d = shape.size(i);
+                    if(d == Shape.UNKNOWN_SIZE) {
+                        productValid = false;
+                        break;
+                    }
+                    product *= d;
+                }
+                if(productValid) {
+                    Shape outputShape = Shape.of(product, shape.size(ndims-1));
+                    return tf.reshape(logits, tf.constant(outputShape.asArray()));
+                }
             }
         }
+        
+        Operand rank = tf.dtypes.cast(tf.rank(logits),TInt64.DTYPE);
+        Operand rankMinusOne = tf.math.sub(rank, one);
+
+        Operand last_dim_size = tf.slice(
+                tf.shape(logits), 
+                rankMinusOne,
+                tf.constant(1)
+           );
+        Operand concat = tf.concat(Arrays.asList(tf.constant(new int[] {-1}), last_dim_size), tf.constant(0));
+        return tf.reshape(zero, concat);
+        
+    }
+    
+    public static Operand softmax_cross_entropy_with_logits_v2(Ops tf, Operand labels, Operand logits) {
+        return softmax_cross_entropy_with_logits_v2(tf, labels, logits, -1);
+    }
+    public static Operand softmax_cross_entropy_with_logits_v2(Ops tf, Operand labels, Operand logits, int axis) {
+        Operand minusOne = tf.constant(-1);
+        Operand precise_logits = logits;
+        Operand one = tf.constant(1L);
+        
+        boolean convertToFloat32 = logits.asOutput().dataType() == TFloat16.DTYPE ||
+                logits.asOutput().dataType() == TBfloat16.DTYPE;
+        if(convertToFloat32 )
+            precise_logits = tf.dtypes.cast(logits, TFloat32.DTYPE);
+        DataType dtype = precise_logits.asOutput().dataType();
+        labels = tf.dtypes.cast(labels, dtype);
+        Operand inputRank = tf.dtypes.cast(tf.rank(precise_logits), TInt64.DTYPE);
+        Operand inputRankMinusOne = tf.dtypes.cast(tf.math.sub(inputRank, one), TInt64.DTYPE);
+        Shape shape = logits.asOutput().shape();
+        
+        // Move the dim to the end if dim is not the last dimension.
+        if(axis != -1 && axis != precise_logits.asOutput().shape().numDimensions() -1 ) {
+          precise_logits = moveDimToEnd(tf, precise_logits, axis, inputRank);
+          labels = moveDimToEnd(tf, labels, axis, inputRank);
+        }
+
+        Shape inputShape = precise_logits.asOutput().shape();
+        precise_logits = flattenOuterDims(tf, precise_logits);
+        System.out.println("precise_logits.shape: " + precise_logits.asOutput().shape());
+        labels = flattenOuterDims(tf, labels);
+        System.out.println("labels.shape: " + labels.asOutput().shape());
+        SoftmaxCrossEntropyWithLogits smax = tf.nn.softmaxCrossEntropyWithLogits(
+                precise_logits,  labels);
+        Operand cost = smax.loss();
+        Operand outputShape = tf.slice(tf.constant(inputShape.asArray()), 
+                tf.constant(new long[]{0}), 
+                tf.constant(new long[]{inputShape.numDimensions()-1}));
+        cost = tf.reshape(cost,outputShape);
+        if(tf.scope().env().isGraph() && !shape.hasUnknownDimension()) {
+            long[] array = shape.asArray();
+            long[] newArray = new long[array.length-1];
+            if(axis < 0)
+                axis = shape.numDimensions() + axis;
+            for(int i = 0; i < axis; i++) {
+                newArray[i] = shape.size(i);
+            }
+            for(int i = axis + 1; i < shape.numDimensions(); i++) {
+                newArray[i-1] = shape.size(i);
+            }
+            Shape newShape = Shape.of(newArray);
+            cost = tf.reshape(cost, tf.constant(newShape.asArray()));
+        }
+        
+        if(convertToFloat32) 
+            cost = tf.dtypes.cast(cost, logits.asOutput().dataType());
+        return cost;
+    }
+    
+    //TODO for debug, remove when done
+    
+    private static void debug( String prefix, Operand operand) {
+        LossesImpl.debug(prefix, operand);
     }
     
 }
