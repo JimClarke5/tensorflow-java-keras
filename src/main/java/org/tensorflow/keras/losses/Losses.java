@@ -11,7 +11,6 @@ import java.util.function.Supplier;
 import org.tensorflow.Operand;
 import org.tensorflow.Session;
 import org.tensorflow.keras.losses.impl.LossesImpl;
-import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 
 /**
@@ -34,7 +33,7 @@ public class Losses {
             put("msle", MeanSquaredLogarithmicError::new);
             put("mean_squared_logarithmic_error", MeanSquaredLogarithmicError::new);
             put("binary_crossentropy", BinaryCrossentropy::new);
-            //put("categorical_crossentropy", categorical_crossentropy::new);
+            put("categorical_crossentropy", CategoricalCrossentropy::new);
             //put("categorical_hinge", categorical_hinge::new);
             //put("cosine_similarity", cosine_similarity::new);
             //put("hinge", hinge::new);
@@ -293,8 +292,8 @@ public class Losses {
     public static Operand binary_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, float labelSmoothing) {
         return LossesImpl.binary_crossentropy(tf, yTrue, yPred, fromLogits, labelSmoothing);
     }
-
-    /**
+    
+     /**
      * Computes the categorical crossentropy loss.
      *
      * @param tf the TensorFlow Ops
@@ -303,7 +302,55 @@ public class Losses {
      * @return the loss
      */
     public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred) {
-        return LossesImpl.categorical_crossentropy(tf, yTrue, yPred);
+        return categorical_crossentropy(tf, yTrue, yPred, false, 0.0F);
+    }
+    
+     /**
+     * Computes the categorical crossentropy loss.
+     *
+     * @param tf the TensorFlow Ops
+     * @param yTrue true targets
+     * @param yPred predictions
+     *  @param fromLogits Whether to interpret yPred as a tensor of logit values
+     * @return the loss
+     */
+    public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits) {
+        return categorical_crossentropy(tf, yTrue, yPred, fromLogits, 0.0F);
+    }
+    
+     /**
+     * Computes the categorical crossentropy loss.
+     *
+     * @param tf the TensorFlow Ops
+     * @param yTrue true targets
+     * @param yPred predictions
+     * @param labelSmoothing Float in [0, 1]. When 0, no smoothing occurs. 
+     * When > 0, we compute the loss between the predicted labels and 
+     * a smoothed version of the true labels, where the smoothing squeezes
+     * the labels towards 0.5. Larger values of label_smoothing correspond 
+     * to heavier smoothing.
+     * @return the loss
+     */
+    public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, float labelSmoothing) {
+        return categorical_crossentropy(tf, yTrue, yPred, false,labelSmoothing);
+    }
+
+    /**
+     * Computes the categorical crossentropy loss.
+     *
+     * @param tf the TensorFlow Ops
+     * @param yTrue true targets
+     * @param yPred predictions
+     *  @param fromLogits Whether to interpret yPred as a tensor of logit values
+     * @param labelSmoothing Float in [0, 1]. When 0, no smoothing occurs. 
+     * When > 0, we compute the loss between the predicted labels and 
+     * a smoothed version of the true labels, where the smoothing squeezes
+     * the labels towards 0.5. Larger values of label_smoothing correspond 
+     * to heavier smoothing.
+     * @return the loss
+     */
+    public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, float labelSmoothing) {
+        return LossesImpl.categorical_crossentropy(tf, yTrue, yPred, fromLogits, labelSmoothing);
     }
 
     /**

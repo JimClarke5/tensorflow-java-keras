@@ -44,7 +44,6 @@ public class MeanAbsoluteError extends Loss {
     @Override
     public <T extends TNumber> Operand<T> call(Ops tf,  Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
         tf = tf.withSubScope(this.getName());
-        Losses.setDebug(this.getSession());
         Operand losses = Losses.mean_absolute_error(tf, labels, predictions);
         return super.computeWeightedLoss(tf, losses, getReduction(), sampleWeights);
     }
