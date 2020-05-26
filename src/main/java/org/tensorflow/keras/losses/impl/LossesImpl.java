@@ -219,9 +219,12 @@ public class LossesImpl {
         
         Operand are_zeros = tf.math.equal(yTrue, K.zero(tf, dtype));
         Operand are_ones = tf.math.equal(yTrue, K.one(tf, dtype));
-        Operand is_binary = tf.reduceAll(tf.math.logicalOr(are_zeros, are_ones), tf.constant(-1),ReduceAll.keepDims(Boolean.TRUE));
+        Operand is_binary = tf.reduceAll(
+                tf.math.logicalOr(are_zeros, are_ones), 
+                tf.constant(-1),ReduceAll.keepDims(Boolean.TRUE));
+        Operand convertBinaryLabels = tf.math.sub(tf.math.mul(tf.constant(2.F),yTrue ), tf.constant(1.F));
         return  SmartCond.cond(tf, is_binary, 
-                tf.math.sub(tf.math.mul(K.constant(tf, -2., dtype), yTrue), K.one(tf, dtype)), 
+                convertBinaryLabels, 
                 yTrue);
         
     }
