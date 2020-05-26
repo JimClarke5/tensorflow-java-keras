@@ -187,11 +187,13 @@ public class LossesImpl {
     }
     
     
-    
+    // TODO this was tf.math.l2_normalize in TF Python
     private static Operand l2Normalize(Ops tf, Operand  x, int axis) {
         Operand square_sum = tf.reduceSum(tf.math.square(x), tf.constant(axis),ReduceSum.keepDims(Boolean.TRUE));
-        Operand x_inv_norm = tf.math.rsqrt(tf.math.maximum(square_sum, K.epsilonConstant(tf, x.asOutput().dataType())));
-        return tf.math.mul(x, x_inv_norm);
+        Operand x_inv_norm = tf.math.rsqrt(tf.math.maximum(square_sum, 
+                tf.dtypes.cast(tf.constant(1e-12F), x.asOutput().dataType())));
+        Operand result =  tf.math.mul(x, x_inv_norm);
+        return result;
         
     }
     
@@ -206,7 +208,10 @@ public class LossesImpl {
         yTrue = ops[TRUE];
         yTrue = l2Normalize(tf, yTrue, axis);
         yPred = l2Normalize(tf, yPred, axis);
-        return tf.math.neg(tf.reduceSum(tf.math.mul(yTrue, yPred), tf.constant(axis),ReduceSum.keepDims(Boolean.TRUE)));
+        Operand mathMul = tf.math.mul(yTrue, yPred);
+        Operand sum = tf.reduceSum(mathMul, tf.constant(axis),ReduceSum.keepDims(Boolean.FALSE));
+        Operand result = tf.math.neg(sum); 
+        return result;
     }
     
     private static Operand maybeConvertLables(Ops tf, Operand yTrue) {
