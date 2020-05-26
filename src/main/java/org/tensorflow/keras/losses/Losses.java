@@ -20,9 +20,9 @@ import org.tensorflow.op.Ops;
 public class Losses {
     static Map<String, Supplier<Loss>> map = new HashMap<String, Supplier<Loss>>() {
         {
-            //put("kld", kld::new);
-            //put("kullback_leibler_divergence", kullback_leibler_divergence::new);
-            //put("kldivergence", KLDivergence::new);
+            put("kld", KLDivergence::new);
+            put("kullback_leibler_divergence", KLDivergence::new);
+            put("kldivergence", KLDivergence::new);
             put("huber", Huber::new);
             put("mae", MeanAbsoluteError::new);
             put("mean_absolute_error", MeanAbsoluteError::new);
