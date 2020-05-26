@@ -37,8 +37,8 @@ public class Losses {
             put("categorical_hinge", CategoricalHinge::new);
             put("cosine_similarity", CosineSimilarity::new);
             put("hinge", Hinge::new);
-            //put("logcosh", logcosh::new);
-            //put("poisson", poisson::new);
+            put("logcosh", LogCosh::new);
+            put("poisson", Poisson::new);
             //put("sparse_categorical_crossentropy", sparse_categorical_crossentropy::new);
             //put("squared_hinge", squared_hinge::new);
         }
