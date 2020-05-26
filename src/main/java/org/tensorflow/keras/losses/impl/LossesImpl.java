@@ -291,6 +291,27 @@ public class LossesImpl {
             , tf.constant(-1));
     }
     
+    public static Operand huber(Ops tf, Operand yTrue, Operand yPred, float delta) {
+         DataType dtype = yPred.asOutput().dataType();
+         Operand[] ops = preamble(tf, yTrue, yPred, null);
+         yPred = ops[PRED];
+         yTrue = ops[TRUE];
+         Operand error = tf.math.sub(yPred, yTrue);
+         Operand deltaConst = tf.dtypes.cast(tf.constant(delta), yPred.asOutput().dataType());
+         Operand point5 = tf.dtypes.cast(tf.constant(0.5), yPred.asOutput().dataType());
+         Operand abs_error = tf.math.abs(error);
+         Operand quadratic = tf.math.minimum(abs_error, deltaConst);
+         Operand linear = tf.math.sub(abs_error, quadratic);
+         Operand q2Point5 = tf.math.mul(point5, tf.math.mul(quadratic, quadratic));
+         Operand deltaLinear = tf.math.mul(deltaConst, linear);
+         Operand loss = tf.math.add(q2Point5, deltaLinear);
+         Operand result =  K.mean(tf, loss, tf.constant(-1)  );
+         return result;
+    }
+
+    
+
+    
     public static Operand computeWeightedLoss(Ops tf, Operand losses, Reduction reduction, Operand sampleWeight) {
         DataType dtype = losses.asOutput().dataType();
         if(sampleWeight == null) {
@@ -406,38 +427,41 @@ public class LossesImpl {
     //TODO  debug, take out after unit tests are complete
    
     private static Session session;
+    public static void setDebug(Session sess) {
+        session = sess;
+    }
     public static void debug(String prefix, Operand operand) {
-        System.out.printf("%s Shape: %s\n", prefix, operand.asOutput().shape());
+        
         if(session != null) {
+            System.out.printf("%s Shape: %s\n", prefix, operand.asOutput().shape());
             if(operand.asOutput().dataType() == TInt64.DTYPE) {
                 try ( Tensor<TInt64> result = session.runner().fetch(operand).run().get(0).expect(TInt64.DTYPE)) {
-                        result.data().scalars().forEach(f -> {
-                            System.out.printf("    %s:  Actual = %d\n", prefix, f.getLong());
+                        result.data().scalars().forEachIndexed((idx,f) -> {
+                            System.out.printf("    %s:  Actual = %d : [%s]\n", prefix, f.getLong(), Arrays.toString(idx));
                          });
                 }
             } else if(operand.asOutput().dataType() == TInt32.DTYPE) {
                 try ( Tensor<TInt32> result = session.runner().fetch(operand).run().get(0).expect(TInt32.DTYPE)) {
-                        result.data().scalars().forEach(f -> {
-                            System.out.printf("    %s:  Actual = %d\n", prefix, f.getInt());
+                        result.data().scalars().forEachIndexed((idx,f) -> {
+                            System.out.printf("    %s:  Actual = %d : [%s]\n", prefix, f.getInt(), Arrays.toString(idx));
                          });
                 }
              } else if(operand.asOutput().dataType() == TFloat64.DTYPE) {
                 try ( Tensor<TFloat64> result = session.runner().fetch(operand).run().get(0).expect(TFloat64.DTYPE)) {
-                        result.data().scalars().forEach(f -> {
-                            System.out.printf("    %s:  Actual = %f\n", prefix, f.getDouble());
+                        result.data().scalars().forEachIndexed((idx,f) -> {
+                            System.out.printf("    %s:  Actual = %f: [%s]\n", prefix, f.getDouble(), Arrays.toString(idx));
                          });
                 }
             }else {
                 try ( Tensor<TFloat32> result = session.runner().fetch(operand).run().get(0).expect(TFloat32.DTYPE)) {
-                            result.data().scalars().forEach(f -> {
-                                System.out.printf("    %s:  Actual = %f\n", prefix, f.getFloat());
+                            result.data().scalars().forEachIndexed((idx,f) -> {
+                                System.out.printf("    %s:  Actual = %f: [%s]\n", prefix, f.getFloat(), Arrays.toString(idx));
                              });
                 }
             }
         }
     }
-
-    public static void setDebug(Session sess) {
-        session = sess;
-    }
+    
+     
+   
 }

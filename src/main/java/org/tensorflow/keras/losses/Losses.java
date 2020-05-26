@@ -23,7 +23,7 @@ public class Losses {
             //put("kld", kld::new);
             //put("kullback_leibler_divergence", kullback_leibler_divergence::new);
             //put("kldivergence", KLDivergence::new);
-           // put("huber", Huber::new);
+            put("huber", Huber::new);
             put("mae", MeanAbsoluteError::new);
             put("mean_absolute_error", MeanAbsoluteError::new);
             put("mape", MeanAbsolutePercentageError::new);
@@ -387,6 +387,17 @@ public class Losses {
      */
     public static Operand hinge(Ops tf, Operand yTrue, Operand yPred) {
         return LossesImpl.hinge(tf, yTrue, yPred);
+    }
+    /**
+     * Computes the hinge loss between y_true and y_pred.
+     *
+     * @param tf the TensorFlow Ops
+     * @param yTrue true targets
+     * @param yPred predictions
+     * @return the loss
+     */
+    public static Operand huber(Ops tf, Operand yTrue, Operand yPred, float delta) {
+        return LossesImpl.huber(tf, yTrue, yPred, delta);
     }
 
     /**
