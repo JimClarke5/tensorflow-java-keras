@@ -34,15 +34,16 @@ public class ELU <U extends TType> extends Activation<U> {
      /** 
       * creates a new ELU with alpha=1.0
       */
-     public ELU() {
-         this.alpha = ALPHA_DEFAULT;
+     public ELU(Ops tf) {
+         this(tf, ALPHA_DEFAULT);
      }
      
      /**
       * creates a new ELU 
       * @param alpha A scalar, slope of negative section.
       */
-     public ELU(double alpha) {
+     public ELU(Ops tf, double alpha) {
+         super(tf);
          this.alpha = alpha;
      }
 
@@ -50,7 +51,7 @@ public class ELU <U extends TType> extends Activation<U> {
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Ops tf, Operand<U> input) {
+    public Operand<U> call(Operand<U> input) {
         Operand result = tf.nn.elu((Operand)input);
         if(alpha == 1.0)
           return result;

@@ -68,8 +68,8 @@ public class ELUTest {
         int[] expected = { };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           ELU<TInt32> instance = new ELU<>();
-            Operand<TInt32> operand = instance.call(tf, tf.constant(input));
+           ELU<TInt32> instance = new ELU<>(tf);
+            Operand<TInt32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -92,8 +92,8 @@ public class ELUTest {
             1F,-0.86466473F, 3F,-0.9816844F,-0.63212055F,2F, -0.95021296F,4F};
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           ELU<TFloat32> instance = new ELU<>();
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(input));
+           ELU<TFloat32> instance = new ELU<>(tf);
+            Operand<TFloat32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
@@ -112,8 +112,8 @@ public class ELUTest {
             1F,-0.86466473F, 3F,-0.9816844F,-0.63212055F,2F, -0.95021296F,4F};
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           ELU<TFloat64> instance = new ELU<>();
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(input));
+           ELU<TFloat64> instance = new ELU<>(tf);
+            Operand<TFloat64> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);

@@ -69,8 +69,8 @@ public class TanhTest {
         int[] expected = { };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Tanh<TInt32> instance = new Tanh<>();
-            Operand<TInt32> operand = instance.call(tf, tf.constant(input));
+           Tanh<TInt32> instance = new Tanh<>(tf);
+            Operand<TInt32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -93,8 +93,8 @@ public class TanhTest {
             0.7615942F, 0.9640276F, 0.9950547F, 0.9993292F, 0.99990916F, 0.99998784F, 0.99999833F, 1.0F};
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Tanh<TFloat32> instance = new Tanh<>();
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(input));
+           Tanh<TFloat32> instance = new Tanh<>(tf);
+            Operand<TFloat32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected,actual, EPSILON_F);
@@ -115,8 +115,8 @@ public class TanhTest {
             0.9999983369439447, 0.9999997749296758 };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Tanh<TFloat64> instance = new Tanh<>();
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(input));
+           Tanh<TFloat64> instance = new Tanh<>(tf);
+            Operand<TFloat64> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);

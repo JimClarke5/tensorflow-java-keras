@@ -14,7 +14,6 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.activations;
 
-import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.keras.utils.TypeUtils;
 import org.tensorflow.op.Ops;
@@ -28,7 +27,8 @@ public class Tanh <U extends TType> extends Activation<U> {
      /**
       * create Hyperbolic tangent activation function.
       */
-     public Tanh() {
+     public Tanh(Ops tf) {
+         super(tf);
      }
      
 
@@ -36,7 +36,7 @@ public class Tanh <U extends TType> extends Activation<U> {
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Ops tf, Operand<U> input) {
+    public Operand<U> call( Operand<U> input) {
         assert TypeUtils.isFloating(input.asTensor().dataType()): 
                 "Must be a Floating Point DataType: " + input.asTensor().dataType();
         return tf.math.tanh(input);

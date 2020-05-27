@@ -35,10 +35,8 @@ public class ReLU <U extends TType> extends Activation<U> {
      /**
       * Creates a new ReLU with alpha=0.0, max_value=null, threshold=0.0
       */
-     public ReLU() {
-         this.alpha = ALPHA_DEFAULT;
-         this.max_value = MAX_VALUE_DEFAULT;
-         this.threshold = THRESHOLD_DEFAULT;
+     public ReLU(Ops tf) {
+         this(tf, ALPHA_DEFAULT, MAX_VALUE_DEFAULT, THRESHOLD_DEFAULT);
      }
      
      /**
@@ -47,7 +45,8 @@ public class ReLU <U extends TType> extends Activation<U> {
       * @param max_value sets the saturation threshold (the largest value the function will return).
       * @param threshold the threshold value of the activation function below which values will be damped or set to zero.
       */
-     public ReLU(double alpha, Double max_value, double threshold) {
+     public ReLU(Ops tf, double alpha, Double max_value, double threshold) {
+         super(tf);
          this.alpha = alpha;
          this.max_value = max_value;
          this.threshold = threshold;
@@ -57,7 +56,7 @@ public class ReLU <U extends TType> extends Activation<U> {
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Ops tf, Operand<U> input) {
+    public Operand<U> call(Operand<U> input) {
         Operand negative_part = null;
         if (alpha != 0) {
             if (max_value == null && threshold == 0) {

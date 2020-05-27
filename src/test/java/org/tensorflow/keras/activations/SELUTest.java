@@ -68,8 +68,8 @@ public class SELUTest {
         int[] expected = { };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           SELU<TInt32> instance = new SELU<>();
-            Operand<TInt32> operand = instance.call(tf, tf.constant(input));
+           SELU<TInt32> instance = new SELU<>(tf);
+            Operand<TInt32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -92,8 +92,8 @@ public class SELUTest {
             1.050701F, -1.5201665F, 3.152103F, -1.7258986F, -1.1113307F, 2.101402F, -1.6705687F, 4.202804F};
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           SELU<TFloat32> instance = new SELU<>();
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(input));
+           SELU<TFloat32> instance = new SELU<>(tf);
+            Operand<TFloat32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
@@ -114,8 +114,8 @@ public class SELUTest {
             -1.670568728767112, 4.202803949421922,   };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           SELU<TFloat64> instance = new SELU<>();
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(input));
+           SELU<TFloat64> instance = new SELU<>(tf);
+            Operand<TFloat64> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);

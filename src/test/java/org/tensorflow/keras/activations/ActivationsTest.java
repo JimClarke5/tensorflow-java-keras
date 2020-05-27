@@ -16,6 +16,7 @@ package org.tensorflow.keras.activations;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
@@ -23,89 +24,107 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import org.tensorflow.EagerSession;
+import org.tensorflow.op.Ops;
 
 /**
  *
  * @author Jim Clarke
  */
 public class ActivationsTest {
+
     private static final double EPSILON = 1e-7;
     private static final float EPSILON_F = 1e-7f;
-    
+
     public ActivationsTest() {
     }
-    
+
     @BeforeAll
     public static void setUpClass() {
     }
-    
+
     @AfterAll
     public static void tearDownClass() {
     }
-    
+
     @BeforeEach
     public void setUp() {
     }
-    
+
     @AfterEach
     public void tearDown() {
     }
 
-        /**
+    /**
      * Test of get method, of class Activations.
      */
     @Test
     public void testGet_Object_String() {
         System.out.println("get");
-        String  initializerFunction = "relu";
-        Activation result = Activations.get(initializerFunction);
-        assertNotNull(result);
-        assertTrue(result instanceof ReLU);
+        try ( EagerSession session = EagerSession.create()) {
+            Ops tf = Ops.create(session);
+            String initializerFunction = "relu";
+            Activation result = Activations.get(tf, initializerFunction);
+            assertNotNull(result);
+            assertTrue(result instanceof ReLU);
+        }
     }
-    
+
     /**
      * Test of get method, of class Activations.
      */
     @Test
     public void testGet_Object_Lambda() {
         System.out.println("get");
-        Activation result = Activations.get(ReLU::new);
-        assertNotNull(result);
-        assertTrue(result instanceof ReLU);
+        try ( EagerSession session = EagerSession.create()) {
+            Ops tf = Ops.create(session);
+            Activation result = Activations.get(() -> new ReLU(tf));
+            assertNotNull(result);
+            assertTrue(result instanceof ReLU);
+        }
     }
-    
+
     /**
      * Test of get method, of class Activations.
      */
     @Test
     public void testGet_Object_Class() {
         System.out.println("get");
-        Activation result = Activations.get(ReLU.class);
-        assertNotNull(result);
-        assertTrue(result instanceof ReLU);
+        try ( EagerSession session = EagerSession.create()) {
+            Ops tf = Ops.create(session);
+            Activation result = Activations.get(tf, ReLU.class);
+            assertNotNull(result);
+            assertTrue(result instanceof ReLU);
+        }
     }
-    
+
     /**
      * Test of get method, of class Activations.
      */
     @Test
     public void testGet_Object_Initializer() {
         System.out.println("get");
-        ReLU initializerFunction =new ReLU();
-        Activation result = Activations.get(initializerFunction);
-        assertNotNull(result);
-        assertTrue(result instanceof ReLU);
+        try ( EagerSession session = EagerSession.create()) {
+            Ops tf = Ops.create(session);
+            Function<Ops, Activation> initializerFunction = (ops) -> new ReLU(ops);
+            Activation result = Activations.get(tf, initializerFunction);
+            assertNotNull(result);
+            assertTrue(result instanceof ReLU);
+        }
     }
-    
+
     /**
      * Test of get method, of class Activations.
      */
     @Test
     public void testGet_Object_Unknown() {
         System.out.println("get");
-        String initializerFunction = "bogus";
-        Activation result = Activations.get(initializerFunction);
-        assertNull(result);
+        try ( EagerSession session = EagerSession.create()) {
+            Ops tf = Ops.create(session);
+            String initializerFunction = "bogus";
+            Activation result = Activations.get(tf, initializerFunction);
+            assertNull(result);
+        }
     }
 
     /**
@@ -114,14 +133,15 @@ public class ActivationsTest {
     @Test
     public void testGet_Object_Map() {
         System.out.println("get");
-        Map<String, Supplier<Activation> > custom_functions = new HashMap<String, Supplier<Activation> >();
-        custom_functions.put("foobar",ReLU::new);
-        String initializerFunction = "foobar";
-        Activation result = Activations.get(initializerFunction, custom_functions);
-        assertNotNull(result);
-        assertTrue(result instanceof ReLU);
+        try ( EagerSession session = EagerSession.create()) {
+            Ops tf = Ops.create(session);
+            Map<String, Function<Ops, Activation> > custom_functions = new HashMap<String, Function<Ops, Activation> >();
+            custom_functions.put("foobar", ops -> new ReLU(ops));
+            String initializerFunction = "foobar";
+            Activation result = Activations.get(tf, initializerFunction, custom_functions);
+            assertNotNull(result);
+            assertTrue(result instanceof ReLU);
+        }
     }
 
-   
-    
 }

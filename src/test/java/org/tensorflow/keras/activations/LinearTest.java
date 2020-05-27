@@ -68,8 +68,8 @@ public class LinearTest {
         int[] expected = {1, -2, 3, -4, -1, 2, -3, 4 };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Linear<TInt32> instance = new Linear<>();
-            Operand<TInt32> operand = instance.call(tf, tf.constant(input));
+           Linear<TInt32> instance = new Linear<>(tf);
+            Operand<TInt32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -87,8 +87,8 @@ public class LinearTest {
         float[] expected = {1, -2, 3, -4, -1, 2, -3, 4};
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Linear<TFloat32> instance = new Linear<>();
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(input));
+           Linear<TFloat32> instance = new Linear<>(tf);
+            Operand<TFloat32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
@@ -107,8 +107,8 @@ public class LinearTest {
             1, -2, 3, -4, -1, 2, -3, 4 };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Linear<TFloat64> instance = new Linear<>();
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(input));
+           Linear<TFloat64> instance = new Linear<>(tf);
+            Operand<TFloat64> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);

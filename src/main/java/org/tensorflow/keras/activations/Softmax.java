@@ -14,7 +14,6 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.activations;
 
-import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.keras.utils.ShapeUtils;
 import org.tensorflow.keras.utils.TypeUtils;
@@ -36,15 +35,16 @@ public class Softmax <U extends TType> extends Activation<U> {
       * Create a softmax activation where  the default axis is -1
       * which indicates the last dimension.
       */
-     public Softmax() {
-         this.axis = AXIS_DEFAULT;
+     public Softmax(Ops tf) {
+         this(tf, AXIS_DEFAULT);
      }
      
      /**
       *  Create a Softmax activation
       * @param axis  The dimension softmax would be performed on. 
       */
-     public Softmax(int axis) {
+     public Softmax(Ops tf, int axis) {
+         super(tf);
          this.axis = axis;
      }
 
@@ -52,7 +52,7 @@ public class Softmax <U extends TType> extends Activation<U> {
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Ops tf, Operand<U> input) {
+    public Operand<U> call(Operand<U> input) {
         assert TypeUtils.isFloating(input.asTensor().dataType()): 
                 "Must be a Floating Point DataType: " + input.asTensor().dataType();
         Shape shape = ShapeUtils.getShape(input.asTensor());

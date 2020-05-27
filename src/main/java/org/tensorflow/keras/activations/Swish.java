@@ -14,7 +14,6 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.activations;
 
-import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.keras.utils.TypeUtils;
 import org.tensorflow.op.Ops;
@@ -26,7 +25,8 @@ import org.tensorflow.types.family.TType;
  */
 public class Swish <U extends TType> extends Activation<U> {
      
-     public Swish() {
+     public Swish(Ops tf) {
+         super(tf);
      }
      
 
@@ -34,7 +34,7 @@ public class Swish <U extends TType> extends Activation<U> {
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Ops tf, Operand<U> input) {
+    public Operand<U> call(Operand<U> input) {
         assert TypeUtils.isFloating(input.asTensor().dataType()): 
                 "Must be a Floating Point DataType: " + input.asTensor().dataType();
         // TODO What about the "grad" return from python tensorflow impl?

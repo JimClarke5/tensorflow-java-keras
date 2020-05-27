@@ -14,7 +14,6 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.activations;
 
-import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.keras.utils.TypeUtils;
 import org.tensorflow.op.Ops;
@@ -29,7 +28,8 @@ public class Softplus <U extends TType> extends Activation<U> {
     /**
      *  Create a Softplus activation function.
      */
-     public Softplus() {
+     public Softplus(Ops tf) {
+         super(tf);
      }
      
 
@@ -37,7 +37,7 @@ public class Softplus <U extends TType> extends Activation<U> {
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Ops tf, Operand<U> input) {
+    public Operand<U> call(Operand<U> input) {
         assert TypeUtils.isFloating(input.asTensor().dataType()): 
                 "Must be a Floating Point DataType: " + input.asTensor().dataType();
         return tf.math.softplus((Operand)input);

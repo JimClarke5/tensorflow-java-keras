@@ -68,8 +68,8 @@ public class ExponentialTest {
         int[] expected = { };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Exponential<TInt32> instance = new Exponential<>();
-            Operand<TInt32> operand = instance.call(tf, tf.constant(input));
+           Exponential<TInt32> instance = new Exponential<>(tf);
+            Operand<TInt32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -90,8 +90,8 @@ public class ExponentialTest {
             2.7182817F, 0.13533528F, 20.085537F, 0.01831564F, 0.36787945F, 7.389056F, 0.049787067F, 54.598152F};
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Exponential<TFloat32> instance = new Exponential<>();
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(input));
+           Exponential<TFloat32> instance = new Exponential<>(tf);
+            Operand<TFloat32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
@@ -112,8 +112,8 @@ public class ExponentialTest {
             0.049787068367863944, 54.598150033144236, };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Exponential<TFloat64> instance = new Exponential<>();
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(input));
+           Exponential<TFloat64> instance = new Exponential<>(tf);
+            Operand<TFloat64> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);

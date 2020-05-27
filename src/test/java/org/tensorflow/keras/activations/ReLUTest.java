@@ -70,8 +70,8 @@ public class ReLUTest {
         float[] expected = {1, 0, 3, 0, 0, 2, 0, 4 };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           ReLU<TFloat32> instance = new ReLU<>();
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(input));
+           ReLU<TFloat32> instance = new ReLU<>(tf);
+            Operand<TFloat32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat32(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
@@ -89,8 +89,8 @@ public class ReLUTest {
         int[] expected = {1, 0, 3, 0, 0, 2, 0, 4 };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-            ReLU<TInt32> instance = new ReLU<>();
-            Operand<TInt32> operand = instance.call(tf, tf.constant(input));
+            ReLU<TInt32> instance = new ReLU<>(tf);
+            Operand<TInt32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -107,8 +107,8 @@ public class ReLUTest {
         long[] expected = {1, 0, 3, 0, 0, 2, 0, 4 };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-            ReLU<TInt64> instance = new ReLU<>();
-            Operand<TInt64> operand = instance.call(tf, tf.constant(input));
+            ReLU<TInt64> instance = new ReLU<>(tf);
+            Operand<TInt64> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt64(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -126,8 +126,8 @@ public class ReLUTest {
         float[] expected = {1, 0, 3, 0, 0, 2, 0, 4 };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-            ReLU<TFloat16> instance = new ReLU<>();
-            Operand<TFloat16> operand = instance.call(tf, tf.dtypes.cast(tf.constant(input), TFloat16.DTYPE));
+            ReLU<TFloat16> instance = new ReLU<>(tf);
+            Operand<TFloat16> operand = instance.call(tf.dtypes.cast(tf.constant(input), TFloat16.DTYPE));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat16(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
@@ -145,8 +145,8 @@ public class ReLUTest {
         double[] expected = {1, 0, 3, 0, 0, 2, 0, 4 };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-            ReLU<TFloat64> instance = new ReLU<>();
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(input));
+            ReLU<TFloat64> instance = new ReLU<>(tf);
+            Operand<TFloat64> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat64(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);

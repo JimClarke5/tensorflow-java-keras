@@ -68,8 +68,8 @@ public class HardSigmoidTest {
         int[] expected = { 0, 0, 0, 0, 0, 0, 0, 0 };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           HardSigmoid<TInt32> instance = new HardSigmoid<>();
-            Operand<TInt32> operand = instance.call(tf, tf.constant(input));
+           HardSigmoid<TInt32> instance = new HardSigmoid<>(tf);
+            Operand<TInt32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -92,8 +92,8 @@ public class HardSigmoidTest {
             0.7F, 0.099999994F, 1.1F, -0.3F, 0.3F, 0.9F, -0.100000024F, 1.3F};
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           HardSigmoid<TFloat32> instance = new HardSigmoid<>();
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(input));
+           HardSigmoid<TFloat32> instance = new HardSigmoid<>(tf);
+            Operand<TFloat32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
@@ -112,8 +112,8 @@ public class HardSigmoidTest {
             0.7, 0.09999999999999998, 1.1, -0.30000000000000004, 0.3, 0.9, -0.10000000000000009, 1.3 };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           HardSigmoid<TFloat64> instance = new HardSigmoid<>();
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(input));
+           HardSigmoid<TFloat64> instance = new HardSigmoid<>(tf);
+            Operand<TFloat64> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);

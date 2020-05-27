@@ -67,8 +67,8 @@ public class SwishTest {
         int[] expected = { };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Swish<TInt32> instance = new Swish<>();
-            Operand<TInt32> operand = instance.call(tf, tf.constant(input));
+           Swish<TInt32> instance = new Swish<>(tf);
+            Operand<TInt32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -91,8 +91,8 @@ public class SwishTest {
             0.7310586F, 1.7615942F, 2.8577223F, 3.928055F, 4.9665356F, 5.985164F, 6.993623F, 7.9973164F};
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Swish<TFloat32> instance = new Swish<>();
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(input));
+           Swish<TFloat32> instance = new Swish<>(tf);
+            Operand<TFloat32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected,actual, EPSILON_F);
@@ -113,8 +113,8 @@ public class SwishTest {
            6.993622641639195, 7.997317198956269};
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Swish<TFloat64> instance = new Swish<>();
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(input));
+           Swish<TFloat64> instance = new Swish<>(tf);
+            Operand<TFloat64> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);

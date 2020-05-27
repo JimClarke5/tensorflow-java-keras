@@ -14,6 +14,7 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.activations;
 
+import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TType;
 
 /**
@@ -21,5 +22,9 @@ import org.tensorflow.types.family.TType;
  * @author Jim Clarke
  */
 public abstract class Activation<U extends TType> implements ActivationFunction<U> {
+    protected final Ops tf;
     
+    public Activation(Ops tf) {
+        this.tf = tf;
+    }
 }

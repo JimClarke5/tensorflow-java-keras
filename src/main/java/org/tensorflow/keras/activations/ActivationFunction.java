@@ -14,10 +14,8 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.activations;
 
-import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.op.Ops;
-import org.tensorflow.types.TInt64;
 import org.tensorflow.types.family.TType;
 
 /**
@@ -38,6 +36,6 @@ public interface ActivationFunction<U extends TType> {
      * @param the input tensor
      * @return  The operand for the activation
      */
-    public Operand<U> call(Ops tf, Operand<U> input);
+    public Operand<U> call(Operand<U> input);
     
 }

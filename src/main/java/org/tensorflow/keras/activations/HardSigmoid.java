@@ -29,7 +29,8 @@ public class HardSigmoid <U extends TType> extends Activation<U> {
     /**
      * create Hard sigmoid activation function.
      */
-     public HardSigmoid() {
+     public HardSigmoid(Ops tf) {
+         super(tf);
      }
      
 
@@ -37,7 +38,7 @@ public class HardSigmoid <U extends TType> extends Activation<U> {
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Ops tf, Operand<U> input) {
+    public Operand<U> call(Operand<U> input) {
         assert TypeUtils.isFloating(input.asTensor().dataType()): 
                 "Must be a Floating Point DataType: " + input.asTensor().dataType();
         DataType dtype = input.asTensor().dataType();

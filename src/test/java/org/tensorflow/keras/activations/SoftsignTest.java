@@ -67,8 +67,8 @@ public class SoftsignTest {
         int[] expected = { };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Softsign<TInt32> instance = new Softsign<>();
-            Operand<TInt32> operand = instance.call(tf, tf.constant(input));
+           Softsign<TInt32> instance = new Softsign<>(tf);
+            Operand<TInt32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -91,8 +91,8 @@ public class SoftsignTest {
             0.5F, 0.6666667F, 0.75F, 0.8F, 0.8333333F, 0.85714287F, 0.875F, 0.8888889F};
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Softsign<TFloat32> instance = new Softsign<>();
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(input));
+           Softsign<TFloat32> instance = new Softsign<>(tf);
+            Operand<TFloat32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected,actual, EPSILON_F);
@@ -112,8 +112,8 @@ public class SoftsignTest {
             0.8571428571428571, 0.875, 0.8888888888888888};
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Softsign<TFloat64> instance = new Softsign<>();
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(input));
+           Softsign<TFloat64> instance = new Softsign<>(tf);
+            Operand<TFloat64> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);

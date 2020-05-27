@@ -14,7 +14,6 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.activations;
 
-import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TType;
@@ -25,14 +24,15 @@ import org.tensorflow.types.family.TType;
  */
 public class Linear <U extends TType> extends Activation<U> {
      
-     public Linear() {
+     public Linear(Ops tf) {
+         super(tf);
      }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Ops tf, Operand<U> input) {
+    public Operand<U> call(Operand<U> input) {
         return input;
     }
     

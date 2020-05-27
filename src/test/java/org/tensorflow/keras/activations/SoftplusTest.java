@@ -67,8 +67,8 @@ public class SoftplusTest {
         int[] expected = { };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Softplus<TInt32> instance = new Softplus<>();
-            Operand<TInt32> operand = instance.call(tf, tf.constant(input));
+           Softplus<TInt32> instance = new Softplus<>(tf);
+            Operand<TInt32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -91,8 +91,8 @@ public class SoftplusTest {
             1.3132616F, 2.126928F, 3.0485873F, 4.01815F, 5.0067153F, 6.0024757F, 7.0009117F, 8.000336F};
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Softplus<TFloat32> instance = new Softplus<>();
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(input));
+           Softplus<TFloat32> instance = new Softplus<>(tf);
+            Operand<TFloat32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected,actual, EPSILON_F);
@@ -114,8 +114,8 @@ public class SoftplusTest {
    };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Softplus<TFloat64> instance = new Softplus<>();
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(input));
+           Softplus<TFloat64> instance = new Softplus<>(tf);
+            Operand<TFloat64> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);

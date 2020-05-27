@@ -67,8 +67,8 @@ public class SigmoidTest {
         int[] expected = { };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Sigmoid<TInt32> instance = new Sigmoid<>();
-            Operand<TInt32> operand = instance.call(tf, tf.constant(input));
+           Sigmoid<TInt32> instance = new Sigmoid<>(tf);
+            Operand<TInt32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -90,8 +90,8 @@ public class SigmoidTest {
             0.7310586F, 0.11920291F, 0.95257413F, 0.017986238F, 0.26894143F, 0.8807971F, 0.047425866F, 0.98201376F,};
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Sigmoid<TFloat32> instance = new Sigmoid<>();
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(input));
+           Sigmoid<TFloat32> instance = new Sigmoid<>(tf);
+            Operand<TFloat32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
@@ -112,8 +112,8 @@ public class SigmoidTest {
             0.04742587317756678, 0.9820137900379085};
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Sigmoid<TFloat64> instance = new Sigmoid<>();
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(input));
+           Sigmoid<TFloat64> instance = new Sigmoid<>(tf);
+            Operand<TFloat64> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);

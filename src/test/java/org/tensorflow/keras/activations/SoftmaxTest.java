@@ -68,8 +68,8 @@ public class SoftmaxTest {
         int[] expected = { };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Softmax<TInt32> instance = new Softmax<>();
-            Operand<TInt32> operand = instance.call(tf, tf.constant(input));
+           Softmax<TInt32> instance = new Softmax<>(tf);
+            Operand<TInt32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -92,8 +92,8 @@ public class SoftmaxTest {
             0.07550783F, 0.20525156F, 0.5579316F, 1.5166154F, 4.1225877F, 11.206356F, 30.462032F, 82.80439F};
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Softmax<TFloat32> instance = new Softmax<>();
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(input));
+           Softmax<TFloat32> instance = new Softmax<>(tf);
+            Operand<TFloat32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected,actual, EPSILON_F);
@@ -114,8 +114,8 @@ public class SoftmaxTest {
             30.462032178568293, 82.8043885289369   };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
-           Softmax<TFloat64> instance = new Softmax<>();
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(input));
+           Softmax<TFloat64> instance = new Softmax<>(tf);
+            Operand<TFloat64> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);

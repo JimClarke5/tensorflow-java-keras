@@ -25,7 +25,8 @@ import org.tensorflow.types.family.TType;
  */
 public class Exponential <U extends TType> extends Activation<U> {
      
-     public Exponential() {
+     public Exponential(Ops tf) {
+         super(tf);
      }
      
 
@@ -33,7 +34,7 @@ public class Exponential <U extends TType> extends Activation<U> {
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Ops tf, Operand<U> input) {
+    public Operand<U> call(Operand<U> input) {
         assert TypeUtils.isFloating(input.asTensor().dataType()): 
                 "Must be a Floating Point DataType: " + input.asTensor().dataType();
         return tf.math.exp(input);
