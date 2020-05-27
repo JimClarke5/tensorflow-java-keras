@@ -34,5 +34,5 @@ public interface LossFunction {
      * (Note on dN-1: all loss functions reduce by 1 dimension, usually axis=-1.)
      * @return the loss
      */
-    public  <T extends TNumber> Operand<T> call (Ops tf, Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights );
+    public  <T extends TNumber> Operand<T> call (Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights );
 }

@@ -11,7 +11,6 @@ import org.tensorflow.Operand;
 import org.tensorflow.Session;
 import org.tensorflow.keras.losses.impl.LossesImpl;
 import org.tensorflow.op.Ops;
-import org.tensorflow.op.Scope;
 import org.tensorflow.types.family.TNumber;
 
 /**
@@ -28,14 +27,16 @@ public abstract class Loss implements LossFunction {
     private final String name;
     private final Map<String, Object> config = new HashMap<>();
     
+    protected final Ops tf;
+    
     // for debug
     private Session session;
 
     /**
      * create a loss with  name = class name and reduction = AUTO
      */
-    protected Loss() {
-        this(null, Reduction.AUTO);
+    protected Loss(Ops tf) {
+        this(tf, null, Reduction.AUTO);
     }
 
     /**
@@ -43,8 +44,8 @@ public abstract class Loss implements LossFunction {
      *
      * @param name the name of the Loss Function
      */
-    protected Loss(String name) {
-        this(name, Reduction.AUTO);
+    protected Loss(Ops tf, String name) {
+        this(tf, name, Reduction.AUTO);
     }
 
 
@@ -54,9 +55,11 @@ public abstract class Loss implements LossFunction {
      * @param name the name of the Loss Function
      * @param reduction the reduction
      */
-    protected Loss(String name, Reduction reduction) {
+    protected Loss(Ops tf, String name, Reduction reduction) {
+        
         this.name = name == null ? this.getClass().getSimpleName() : name;
         this.reduction = reduction;
+        this.tf = tf != null ? tf.withSubScope(this.name) : null;
     }
 
 
@@ -69,11 +72,11 @@ public abstract class Loss implements LossFunction {
      * @param predictions the predictions
      * @return the loss
      */
-    public <T extends TNumber> Operand<T> call(Ops tf, Operand<T> labels, Operand<T> predictions) {
-        return call(tf, labels, predictions, null);
+    public <T extends TNumber> Operand<T> call(Operand<T> labels, Operand<T> predictions) {
+        return call(labels, predictions, null);
     }
 
-    protected <T extends TNumber> Operand computeWeightedLoss(Ops tf, Operand<T> losses, Reduction reduction, Operand sampleWeight) {
+    protected <T extends TNumber> Operand computeWeightedLoss(Operand<T> losses, Reduction reduction, Operand sampleWeight) {
         return LossesImpl.computeWeightedLoss(tf, losses, reduction, sampleWeight);
     }
 
@@ -115,6 +118,13 @@ public abstract class Loss implements LossFunction {
     public void setDebug(Session session) {
         this.session = session;
         Losses.setDebug(session);
+    }
+
+    /**
+     * @return the tf
+     */
+    public Ops getTf() {
+        return tf;
     }
 
 

@@ -17,16 +17,16 @@ public class MeanAbsoluteError extends Loss {
     /**
      * Creates a MeanAbsoluteError with Reduction.AUTO
      */
-    public MeanAbsoluteError() {
-        super("mean_absolute_error");
+    public MeanAbsoluteError(Ops tf) {
+        super(tf, "mean_absolute_error");
     }
     
     /**
      * Creates a MeanAbsoluteError
      * @param reduction Type of Reduction to apply to loss.
      */
-    public MeanAbsoluteError(Reduction reduction) {
-        super("mean_absolute_error", reduction);
+    public MeanAbsoluteError(Ops tf, Reduction reduction) {
+        super(tf, "mean_absolute_error", reduction);
     }
     
     /**
@@ -34,18 +34,17 @@ public class MeanAbsoluteError extends Loss {
      * @param name the name of the loss
      * @param reduction Type of Reduction to apply to loss.
      */
-    public MeanAbsoluteError(String name, Reduction reduction) {
-        super(name, reduction);
+    public MeanAbsoluteError(Ops tf, String name, Reduction reduction) {
+        super(tf, name, reduction);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public <T extends TNumber> Operand<T> call(Ops tf,  Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
-        tf = tf.withSubScope(this.getName());
+    public <T extends TNumber> Operand<T> call(Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
         Operand losses = Losses.mean_absolute_error(tf, labels, predictions);
-        return super.computeWeightedLoss(tf, losses, getReduction(), sampleWeights);
+        return super.computeWeightedLoss(losses, getReduction(), sampleWeights);
     }
     
 }

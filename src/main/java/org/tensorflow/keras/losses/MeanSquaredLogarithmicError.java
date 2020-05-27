@@ -19,8 +19,8 @@ public class MeanSquaredLogarithmicError extends Loss {
     /**
      *  Creates a MeanSquaredLogarithmicError with Reduction.AUTO
      */
-    public MeanSquaredLogarithmicError() {
-        super("mean_squared_logarithmic_error");
+    public MeanSquaredLogarithmicError(Ops tf) {
+        super(tf, "mean_squared_logarithmic_error");
     }
     
     /**
@@ -28,15 +28,15 @@ public class MeanSquaredLogarithmicError extends Loss {
      * 
      * @param reduction Type of Reduction to apply to loss.
      */
-    public MeanSquaredLogarithmicError(Reduction reduction) {
-        super("mean_squared_logarithmic_error", reduction);
+    public MeanSquaredLogarithmicError(Ops tf, Reduction reduction) {
+        super(tf, "mean_squared_logarithmic_error", reduction);
     }
     
     /**
      *  Creates a MeanSquaredLogarithmicError with Reduction.AUTO
      */
-    public MeanSquaredLogarithmicError(String name) {
-        super(name);
+    public MeanSquaredLogarithmicError(Ops tf, String name) {
+        super(tf, name);
     }
     
     /**
@@ -44,8 +44,8 @@ public class MeanSquaredLogarithmicError extends Loss {
      * 
      * @param reduction Type of Reduction to apply to loss.
      */
-    public MeanSquaredLogarithmicError(String name, Reduction reduction) {
-        super(name, reduction);
+    public MeanSquaredLogarithmicError(Ops tf, String name, Reduction reduction) {
+        super(tf, name, reduction);
     }
     
 
@@ -53,10 +53,9 @@ public class MeanSquaredLogarithmicError extends Loss {
      * {@inheritDoc}
      */
     @Override
-    public <T extends TNumber> Operand<T> call(Ops tf,  Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
-         tf = tf.withSubScope(this.getName());
+    public <T extends TNumber> Operand<T> call(Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
         Operand losses = Losses.mean_squared_logarithmic_error(tf, labels, predictions);
-        return super.computeWeightedLoss(tf, losses, getReduction(), sampleWeights);
+        return super.computeWeightedLoss(losses, getReduction(), sampleWeights);
     }
     
 }

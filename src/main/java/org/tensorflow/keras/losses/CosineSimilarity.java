@@ -18,16 +18,16 @@ public class CosineSimilarity extends Loss {
     /**
      * Creates a CosineSimilarity with Reduction.AUTO and axis=-1
      */
-    public CosineSimilarity() {
-        this("cosine_similarity", Reduction.AUTO, -1);
+    public CosineSimilarity(Ops tf) {
+        this(tf, "cosine_similarity", Reduction.AUTO, -1);
     }
     
     /**
      * Creates a CosineSimilarity with Reduction.AUTO
      * @param axis  The dimension along which the cosine similarity is computed.
      */
-    public CosineSimilarity(int axis) {
-        this("cosine_similarity", Reduction.AUTO, axis);
+    public CosineSimilarity(Ops tf, int axis) {
+        this(tf, "cosine_similarity", Reduction.AUTO, axis);
     }
     
     /**
@@ -35,8 +35,8 @@ public class CosineSimilarity extends Loss {
      * 
      * @param name the name of the loss
      */
-    public CosineSimilarity(String name) {
-        this(name, Reduction.AUTO, -1);
+    public CosineSimilarity(Ops tf, String name) {
+        this(tf, name, Reduction.AUTO, -1);
     }
     
     /**
@@ -45,16 +45,16 @@ public class CosineSimilarity extends Loss {
      * @param name the name of the loss
      * @param axis The dimension along which the cosine similarity is computed.
      */
-    public CosineSimilarity(String name, int axis) {
-        this(name, Reduction.AUTO, axis);
+    public CosineSimilarity(Ops tf, String name, int axis) {
+        this(tf, name, Reduction.AUTO, axis);
     }
     
     /**
      * Creates a CosineSimilarity  and axis=-1
      * @param reduction Type of Reduction to apply to loss.
      */
-    public CosineSimilarity(Reduction reduction) {
-        this("cosine_similarity", reduction, -1);
+    public CosineSimilarity(Ops tf, Reduction reduction) {
+        this(tf, "cosine_similarity", reduction, -1);
     }
     
     /**
@@ -62,8 +62,8 @@ public class CosineSimilarity extends Loss {
      * @param reduction Type of Reduction to apply to loss.
      * @param axis  The dimension along which the cosine similarity is computed.
      */
-    public CosineSimilarity(Reduction reduction, int axis) {
-        this("cosine_similarity", reduction, axis);
+    public CosineSimilarity(Ops tf, Reduction reduction, int axis) {
+        this(tf, "cosine_similarity", reduction, axis);
     }
     
     /**
@@ -71,8 +71,8 @@ public class CosineSimilarity extends Loss {
      * @param name the name of the loss
      * @param reduction Type of Reduction to apply to loss.
      */
-    public CosineSimilarity(String name, Reduction reduction) {
-        this(name, reduction, -1);
+    public CosineSimilarity(Ops tf, String name, Reduction reduction) {
+        this(tf, name, reduction, -1);
     }
     
     /**
@@ -81,8 +81,8 @@ public class CosineSimilarity extends Loss {
      * @param reduction Type of Reduction to apply to loss.
      * @param axis The dimension along which the cosine similarity is computed.
      */
-    public CosineSimilarity(String name, Reduction reduction, int axis) {
-        super(name, reduction);
+    public CosineSimilarity(Ops tf, String name, Reduction reduction, int axis) {
+        super(tf, name, reduction);
         this.axis = axis;
     }
 
@@ -90,10 +90,9 @@ public class CosineSimilarity extends Loss {
      * {@inheritDoc}
      */
     @Override
-    public <T extends TNumber> Operand<T> call(Ops tf,  Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
-        tf = tf.withSubScope(this.getName());
+    public <T extends TNumber> Operand<T> call(Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
         Operand losses = Losses.cosine_similarity(tf, labels, predictions);
-        return super.computeWeightedLoss(tf, losses, getReduction(), sampleWeights);
+        return super.computeWeightedLoss(losses, getReduction(), sampleWeights);
     }
     
 }

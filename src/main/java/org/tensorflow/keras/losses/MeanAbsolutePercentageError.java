@@ -19,8 +19,8 @@ public class MeanAbsolutePercentageError extends Loss {
     /**
      *  Creates a MeanAbsolutePercentageError with Reduction.AUTO
      */
-    public MeanAbsolutePercentageError() {
-        super("mean_squared_error");
+    public MeanAbsolutePercentageError(Ops tf) {
+        super(tf, "mean_squared_error");
     }
     
     /**
@@ -28,16 +28,16 @@ public class MeanAbsolutePercentageError extends Loss {
      * 
      * @param reduction Type of Reduction to apply to loss.
      */
-    public MeanAbsolutePercentageError(Reduction reduction) {
-        super("mean_squared_error", reduction);
+    public MeanAbsolutePercentageError(Ops tf, Reduction reduction) {
+        super(tf, "mean_squared_error", reduction);
     }
     
     /**
      *  Creates a MeanAbsolutePercentageError with Reduction.AUTO
      * @param name the name for the loss function
      */
-    public MeanAbsolutePercentageError(String name) {
-        super(name);
+    public MeanAbsolutePercentageError(Ops tf, String name) {
+        super(tf, name);
     }
     
     /**
@@ -46,8 +46,8 @@ public class MeanAbsolutePercentageError extends Loss {
      * @param name the name for the loss function
      * @param reduction Type of Reduction to apply to loss.
      */
-    public MeanAbsolutePercentageError(String name, Reduction reduction) {
-        super(name, reduction);
+    public MeanAbsolutePercentageError(Ops tf, String name, Reduction reduction) {
+        super(tf, name, reduction);
     }
     
 
@@ -55,10 +55,9 @@ public class MeanAbsolutePercentageError extends Loss {
      * {@inheritDoc}
      */
     @Override
-    public <T extends TNumber> Operand<T> call(Ops tf,  Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
-        tf = tf.withSubScope(this.getName());
+    public <T extends TNumber> Operand<T> call(Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
         Operand losses = Losses.mean_absolute_percentage_error(tf, labels, predictions);
-        return super.computeWeightedLoss(tf, losses, getReduction(), sampleWeights);
+        return super.computeWeightedLoss(losses, getReduction(), sampleWeights);
     }
     
 }

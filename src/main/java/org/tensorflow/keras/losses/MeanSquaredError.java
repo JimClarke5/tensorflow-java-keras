@@ -19,8 +19,8 @@ public class MeanSquaredError extends Loss {
     /**
      * Creates a MeanSquaredError with Reduction.AUTO
      */
-    public MeanSquaredError() {
-        super("mean_squared_error");
+    public MeanSquaredError(Ops tf) {
+        super(tf, "mean_squared_error");
     }
 
     /**
@@ -28,16 +28,16 @@ public class MeanSquaredError extends Loss {
      *
      * @param reduction Type of Reduction to apply to loss.
      */
-    public MeanSquaredError(Reduction reduction) {
-        super("mean_squared_error", reduction);
+    public MeanSquaredError(Ops tf, Reduction reduction) {
+        super(tf, "mean_squared_error", reduction);
     }
     
      /**
      * Creates a MeanSquaredError with Reduction.AUTO
      * @param name the name for the loss function
      */
-    public MeanSquaredError(String name) {
-        super(name);
+    public MeanSquaredError(Ops tf, String name) {
+        super(tf, name);
     }
 
     /**
@@ -46,18 +46,17 @@ public class MeanSquaredError extends Loss {
      * @param name the name for the loss function
      * @param reduction Type of Reduction to apply to loss.
      */
-    public MeanSquaredError(String name, Reduction reduction) {
-        super(name, reduction);
+    public MeanSquaredError(Ops tf, String name, Reduction reduction) {
+        super(tf, name, reduction);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public <T extends TNumber> Operand<T> call(Ops tf, Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
-        tf = tf.withSubScope(this.getName());
+    public <T extends TNumber> Operand<T> call(Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
         Operand losses = Losses.mean_squared_error(tf, labels, predictions);
-        return super.computeWeightedLoss(tf, losses, getReduction(), sampleWeights);
+        return super.computeWeightedLoss(losses, getReduction(), sampleWeights);
     }
     
     

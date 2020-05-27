@@ -50,10 +50,10 @@ public class BinaryCrossentropyTest {
     @Test
     public void testConfig() {
         System.out.println("testConfig");
-        BinaryCrossentropy instance = new BinaryCrossentropy();
+        BinaryCrossentropy instance = new BinaryCrossentropy(null);
         assertEquals("binary_crossentropy", instance.getName());
 
-        instance = new BinaryCrossentropy("bce_1", Reduction.SUM);
+        instance = new BinaryCrossentropy(null, "bce_1", Reduction.SUM);
         assertEquals("bce_1", instance.getName());
         assertEquals(Reduction.SUM, instance.getReduction());
 
@@ -67,11 +67,11 @@ public class BinaryCrossentropyTest {
         System.out.println("testAllCorrectUnweighted");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
-            BinaryCrossentropy instance = new BinaryCrossentropy();
+            BinaryCrossentropy instance = new BinaryCrossentropy(tf);
             float[] true_np = {1f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(3, 3)));
             
-            Operand loss = instance.call(tf, y_true, y_true);
+            Operand loss = instance.call(y_true, y_true);
             
             sess.run(loss);
             float expected = 0.0F;
@@ -88,9 +88,9 @@ public class BinaryCrossentropyTest {
                 -100.0F, -100.0F, 100.0f
             };
             Operand logits = tf.reshape(tf.constant(logits_np), tf.constant(Shape.of(3, 3)));
-            instance = new BinaryCrossentropy(true);
+            instance = new BinaryCrossentropy(tf, true);
             
-            loss = instance.call(tf, y_true, logits);
+            loss = instance.call(y_true, logits);
             sess.run(loss);
             float expected1 = 0.0F;
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -109,12 +109,12 @@ public class BinaryCrossentropyTest {
         System.out.println("test_unweighted");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
-            BinaryCrossentropy instance = new BinaryCrossentropy();
+            BinaryCrossentropy instance = new BinaryCrossentropy(tf);
             float[] true_np = {1F, 0F, 1F, 0F};
             float[] pred_np = {1F, 1F, 1F, 0F};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 2)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 2)));
-            Operand loss = instance.call(tf, y_true, y_pred);
+            Operand loss = instance.call(y_true, y_pred);
             sess.run(loss);
             float expected = 3.83331F;
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -131,8 +131,8 @@ public class BinaryCrossentropyTest {
             };
             Operand y_true1 = tf.reshape(tf.constant(true_np1), tf.constant(Shape.of(2, 3)));
             Operand logits = tf.reshape(tf.constant(logits_np), tf.constant(Shape.of(2, 3)));
-            instance = new BinaryCrossentropy(true);
-            loss = instance.call(tf, y_true1, logits);
+            instance = new BinaryCrossentropy(tf, true);
+            loss = instance.call(y_true1, logits);
             sess.run(loss);
             float expected1 = 33.33333F;
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -151,13 +151,13 @@ public class BinaryCrossentropyTest {
         System.out.println("test_scalar_weighted");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
-            BinaryCrossentropy instance = new BinaryCrossentropy();
+            BinaryCrossentropy instance = new BinaryCrossentropy(tf);
             float[] true_np = {1F, 0F, 1F, 0F};
             float[] pred_np = {1F, 1F, 1F, 0F};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 2)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 2)));
             Operand sampleWeight = tf.constant(2.3f);
-            Operand loss = instance.call(tf, y_true, y_pred, sampleWeight);
+            Operand loss = instance.call(y_true, y_pred, sampleWeight);
             sess.run(loss);
             float expected = 8.8166F;
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -174,8 +174,8 @@ public class BinaryCrossentropyTest {
             };
             Operand y_true1 = tf.reshape(tf.constant(true_np1), tf.constant(Shape.of(2, 3)));
             Operand logits = tf.reshape(tf.constant(logits_np), tf.constant(Shape.of(2, 3)));
-            instance = new BinaryCrossentropy(true);
-            loss = instance.call(tf, y_true1, logits, sampleWeight);
+            instance = new BinaryCrossentropy(tf, true);
+            loss = instance.call(y_true1, logits, sampleWeight);
             sess.run(loss);
             float expected1 = 76.66667F;
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -191,14 +191,14 @@ public class BinaryCrossentropyTest {
         System.out.println("test_sample_weighted");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
-            BinaryCrossentropy instance = new BinaryCrossentropy();
+            BinaryCrossentropy instance = new BinaryCrossentropy(tf);
             float[] true_np = {1F, 0F, 1F, 0F};
             float[] pred_np = {1F, 1F, 1F, 0F};
             float[] sample_weight_np = {1.2F, 3.4F};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 2)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 2)));
             Operand sampleWeight = tf.reshape(tf.constant(sample_weight_np), tf.constant(Shape.of(2, 1)));
-            Operand loss = instance.call(tf, y_true, y_pred, sampleWeight);
+            Operand loss = instance.call(y_true, y_pred, sampleWeight);
             sess.run(loss);
             float expected = 4.59997F;
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -217,8 +217,8 @@ public class BinaryCrossentropyTest {
             Operand y_true1 = tf.reshape(tf.constant(true_np1), tf.constant(Shape.of(2, 3)));
             Operand logits = tf.reshape(tf.constant(logits_np), tf.constant(Shape.of(2, 3)));
             Operand sampleWeight1 = tf.constant(weights_np);
-            instance = new BinaryCrossentropy(true);
-            loss = instance.call(tf, y_true1, logits, sampleWeight1);
+            instance = new BinaryCrossentropy(tf, true);
+            loss = instance.call(y_true1, logits, sampleWeight1);
             sess.run(loss);
             float expected1 = 100F;
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -243,8 +243,8 @@ public class BinaryCrossentropyTest {
             };
             Operand y_true1 = tf.reshape(tf.constant(true_np1), tf.constant(Shape.of(2, 3)));
             Operand logits = tf.reshape(tf.constant(logits_np), tf.constant(Shape.of(2, 3)));
-            BinaryCrossentropy instance = new BinaryCrossentropy(true, 0.0F, Reduction.NONE);
-            Operand loss = instance.call(tf, y_true1, logits);
+            BinaryCrossentropy instance = new BinaryCrossentropy(tf, true, 0.0F, Reduction.NONE);
+            Operand loss = instance.call(y_true1, logits);
             sess.run(loss);
             float[] expected = {0.F, 66.6666F};
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -267,8 +267,8 @@ public class BinaryCrossentropyTest {
             Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(1, 3)));
             Operand logits = tf.reshape(tf.constant(logits_array), tf.constant(Shape.of(1, 3)));
             
-            BinaryCrossentropy instance = new BinaryCrossentropy(true, label_smoothing);
-            Operand loss = instance.call(tf, y_true, logits);
+            BinaryCrossentropy instance = new BinaryCrossentropy(tf, true, label_smoothing);
+            Operand loss = instance.call(y_true, logits);
             System.out.println(loss.asOutput().shape());
             sess.run(loss);
             float expected =  (100.0F + 50.0F * label_smoothing) / 3.0F;

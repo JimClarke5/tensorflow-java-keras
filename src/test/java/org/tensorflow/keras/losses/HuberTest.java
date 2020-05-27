@@ -49,10 +49,10 @@ public class HuberTest {
      @Test
     public void testConfig() {
          System.out.println("testConfig");
-         Huber instance = new Huber();
+         Huber instance = new Huber(null);
          assertEquals("huber_loss", instance.getName());
          
-          instance = new Huber("huber", Reduction.SUM);
+          instance = new Huber(null, "huber", Reduction.SUM);
           assertEquals("huber", instance.getName());
           assertEquals( Reduction.SUM, instance.getReduction());
           
@@ -67,8 +67,8 @@ public class HuberTest {
             float[] pred_np = {1.f, 0.f, 1.f, 1.f, 0.f, 0.f};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,3)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,3)));
-            Huber instance = new Huber();
-            Operand loss = instance.call(tf, y_true, y_true);
+            Huber instance = new Huber(tf);
+            Operand loss = instance.call(y_true, y_true);
             sess.run(loss);
             float expected = 0.0F;
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -94,8 +94,8 @@ public class HuberTest {
             float[] pred_np = {1.f, 0.f, 1.f, 1.f, 0.f, 0.f};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,3)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,3)));
-            Huber instance = new Huber();
-            Operand loss = instance.call(tf, y_true, y_pred);
+            Huber instance = new Huber(tf);
+            Operand loss = instance.call(y_true, y_pred);
             sess.run(loss);
             float expected = 0.10416666666666669F;
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -118,9 +118,9 @@ public class HuberTest {
             float[] pred_np = {1.f, 0.f, 1.f, 1.f, 0.f, 0.f};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,3)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,3)));
-            Huber instance = new Huber();
+            Huber instance = new Huber(tf);
             Operand sampleWeight = tf.constant(2.3f);
-            Operand loss = instance.call(tf, y_true, y_pred, sampleWeight);
+            Operand loss = instance.call(y_true, y_pred, sampleWeight);
             sess.run(loss);
             float expected = 0.23958333333333337F;
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -143,9 +143,9 @@ public class HuberTest {
             float[] pred_np = {1.f, 0.f, 1.f, 1.f, 0.f, 0.f};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,3)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,3)));
-            Huber instance = new Huber();
+            Huber instance = new Huber(tf);
             Operand sampleWeight =  tf.reshape(tf.constant(sample_narray), tf.constant(Shape.of(2,1)));
-            Operand loss = instance.call(tf, y_true, y_pred, sampleWeight);
+            Operand loss = instance.call(y_true, y_pred, sampleWeight);
             sess.run(loss);
             float expected = 0.22766666666666668F;
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -165,9 +165,9 @@ public class HuberTest {
             float[] pred_np = {1.f, 0.f, 1.f, 1.f, 0.f, 0.f};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,3)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,3)));
-            Huber instance = new Huber();
+            Huber instance = new Huber(tf);
             Operand sampleWeight =  tf.constant(0.F);
-            Operand loss = instance.call(tf, y_true, y_pred, sampleWeight);
+            Operand loss = instance.call(y_true, y_pred, sampleWeight);
             sess.run(loss);
             float expected = 0F;
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -188,9 +188,9 @@ public class HuberTest {
             float[] pred_np = {1.f, 0.f, 1.f, 1.f, 0.f, 0.f};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,3,1)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,3,1)));
-            Huber instance = new Huber();
+            Huber instance = new Huber(tf);
             Operand sampleWeight =  tf.reshape(tf.constant(sample_narray), tf.constant(Shape.of(2,3)));
-            Operand loss = instance.call(tf, y_true, y_pred, sampleWeight);
+            Operand loss = instance.call(y_true, y_pred, sampleWeight);
             
             sess.run(loss);
             float expected = .4025F;

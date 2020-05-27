@@ -23,8 +23,8 @@ public class CategoricalCrossentropy extends Loss {
      * Creates a SparseCategoricalCrossentropy with Reduction.AUTO, labelSmoothing=0.0 and
      * fromLogits=false.
      */
-    public CategoricalCrossentropy() {
-        this("categorical_crossentropy", false, 0.0F, Reduction.AUTO);
+    public CategoricalCrossentropy(Ops tf) {
+        this(tf, "categorical_crossentropy", false, 0.0F, Reduction.AUTO);
     }
 
     /**
@@ -33,8 +33,8 @@ public class CategoricalCrossentropy extends Loss {
      *
      * @param name the name of this loss function
      */
-    public CategoricalCrossentropy(String name) {
-        this(name, false, 0.0F, Reduction.AUTO);
+    public CategoricalCrossentropy(Ops tf, String name) {
+        this(tf, name, false, 0.0F, Reduction.AUTO);
     }
 
     /**
@@ -43,8 +43,8 @@ public class CategoricalCrossentropy extends Loss {
      *
      * @param reduction Type of Reduction to apply to loss.
      */
-    public CategoricalCrossentropy(Reduction reduction) {
-        this("categorical_crossentropy", false, 0.0F, reduction);
+    public CategoricalCrossentropy(Ops tf, Reduction reduction) {
+        this(tf, "categorical_crossentropy", false, 0.0F, reduction);
     }
 
     /**
@@ -54,8 +54,8 @@ public class CategoricalCrossentropy extends Loss {
      * @param name the name of this loss function
      * @param reduction Type of Reduction to apply to loss.
      */
-    public CategoricalCrossentropy(String name, Reduction reduction) {
-        this(name, false, 0.0F, reduction);
+    public CategoricalCrossentropy(Ops tf, String name, Reduction reduction) {
+        this(tf, name, false, 0.0F, reduction);
     }
 
      /**
@@ -63,8 +63,8 @@ public class CategoricalCrossentropy extends Loss {
      *
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
      */
-    public CategoricalCrossentropy(boolean fromLogits) {
-        this("categorical_crossentropy", fromLogits, 0.0F, Reduction.AUTO);
+    public CategoricalCrossentropy(Ops tf, boolean fromLogits) {
+        this(tf, "categorical_crossentropy", fromLogits, 0.0F, Reduction.AUTO);
     }
     
      /**
@@ -73,8 +73,8 @@ public class CategoricalCrossentropy extends Loss {
      * @param name the name of this loss function
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
      */
-    public CategoricalCrossentropy(String name, boolean fromLogits) {
-        this(name, fromLogits, 0.0F, Reduction.AUTO);
+    public CategoricalCrossentropy(Ops tf, String name, boolean fromLogits) {
+        this(tf, name, fromLogits, 0.0F, Reduction.AUTO);
     }
     
     /**
@@ -87,8 +87,8 @@ public class CategoricalCrossentropy extends Loss {
      * towards 0.5. Larger values of label_smoothing correspond to heavier
      * smoothing.
      */
-    public CategoricalCrossentropy(boolean fromLogits, float labelSmoothing) {
-        this("categorical_crossentropy", fromLogits, labelSmoothing, Reduction.AUTO);
+    public CategoricalCrossentropy(Ops tf, boolean fromLogits, float labelSmoothing) {
+        this(tf, "categorical_crossentropy", fromLogits, labelSmoothing, Reduction.AUTO);
     }
 
     /**
@@ -102,8 +102,8 @@ public class CategoricalCrossentropy extends Loss {
      * towards 0.5. Larger values of label_smoothing correspond to heavier
      * smoothing.
      */
-    public CategoricalCrossentropy(String name, boolean fromLogits, float labelSmoothing) {
-        this(name, fromLogits, labelSmoothing, Reduction.AUTO);
+    public CategoricalCrossentropy(Ops tf, String name, boolean fromLogits, float labelSmoothing) {
+        this(tf, name, fromLogits, labelSmoothing, Reduction.AUTO);
     }
 
     /**
@@ -117,8 +117,8 @@ public class CategoricalCrossentropy extends Loss {
      * smoothing.
      * @param reduction Type of Reduction to apply to loss.
      */
-    public CategoricalCrossentropy(boolean fromLogits, float labelSmoothing, Reduction reduction) {
-        this("categorical_crossentropy", fromLogits, labelSmoothing, reduction);
+    public CategoricalCrossentropy(Ops tf, boolean fromLogits, float labelSmoothing, Reduction reduction) {
+        this(tf, "categorical_crossentropy", fromLogits, labelSmoothing, reduction);
     }
 
     /**
@@ -133,8 +133,8 @@ public class CategoricalCrossentropy extends Loss {
      * smoothing.
      * @param reduction Type of Reduction to apply to loss.
      */
-    public CategoricalCrossentropy(String name, boolean fromLogits, float labelSmoothing, Reduction reduction) {
-        super(name, reduction);
+    public CategoricalCrossentropy(Ops tf, String name, boolean fromLogits, float labelSmoothing, Reduction reduction) {
+        super(tf, name, reduction);
         this.fromLogits = fromLogits;
         this.labelSmoothing = labelSmoothing;
     }
@@ -143,10 +143,9 @@ public class CategoricalCrossentropy extends Loss {
      * {@inheritDoc}
      */
     @Override
-    public <T extends TNumber> Operand<T> call(Ops tf, Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
-        tf = tf.withSubScope(this.getName());
+    public <T extends TNumber> Operand<T> call(Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
         Operand losses = Losses.categorical_crossentropy(tf, labels, predictions, fromLogits, labelSmoothing);
-        return super.computeWeightedLoss(tf, losses, getReduction(), sampleWeights);
+        return super.computeWeightedLoss(losses, getReduction(), sampleWeights);
     }
 
 }

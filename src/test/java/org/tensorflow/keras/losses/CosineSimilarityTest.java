@@ -89,10 +89,10 @@ public class CosineSimilarityTest {
     @Test
     public void testConfig() {
         System.out.println("testConfig");
-        CosineSimilarity instance = new CosineSimilarity();
+        CosineSimilarity instance = new CosineSimilarity(null);
         assertEquals("cosine_similarity", instance.getName());
 
-        instance = new CosineSimilarity("cos_loss", Reduction.SUM);
+        instance = new CosineSimilarity(null, "cos_loss", Reduction.SUM);
         assertEquals("cos_loss", instance.getName());
         assertEquals(Reduction.SUM, instance.getReduction());
 
@@ -106,11 +106,11 @@ public class CosineSimilarityTest {
         System.out.println("test_reduction_none");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
-            CosineSimilarity instance = new CosineSimilarity(Reduction.NONE);
+            CosineSimilarity instance = new CosineSimilarity(tf, Reduction.NONE);
             Shape shape = Shape.of(2,3);
             Operand y_true = tf.reshape(tf.constant(np_y_true), tf.constant(shape));
             Operand y_pred = tf.reshape(tf.constant(np_y_pred), tf.constant(shape));
-            Operand loss = instance.call(tf, y_true, y_pred);
+            Operand loss = instance.call(y_true, y_pred);
             sess.run(loss);
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
                 index = 0;
@@ -131,11 +131,11 @@ public class CosineSimilarityTest {
         System.out.println("test_unweighted");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
-            CosineSimilarity instance = new CosineSimilarity();
+            CosineSimilarity instance = new CosineSimilarity(tf);
             Shape shape = Shape.of(2,3);
             Operand y_true = tf.reshape(tf.constant(np_y_true), tf.constant(shape));
             Operand y_pred = tf.reshape(tf.constant(np_y_pred), tf.constant(shape));
-            Operand loss = instance.call(tf, y_true, y_pred);
+            Operand loss = instance.call(y_true, y_pred);
             sess.run(loss);
             float expected = -mean(expectedLoss);
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -155,13 +155,13 @@ public class CosineSimilarityTest {
         System.out.println("test_scalar_weighted");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
-            CosineSimilarity instance = new CosineSimilarity();
+            CosineSimilarity instance = new CosineSimilarity(tf);
             int[] true_np = {1, 9, 2, -5, -2, 6};
             Shape shape = Shape.of(2,3);
             Operand y_true = tf.reshape(tf.constant(np_y_true), tf.constant(shape));
             Operand y_pred = tf.reshape(tf.constant(np_y_pred), tf.constant(shape));
             Operand sampleWeight = tf.constant(2.3f);
-            Operand loss = instance.call(tf, y_true, y_pred, sampleWeight);
+            Operand loss = instance.call(y_true, y_pred, sampleWeight);
             sess.run(loss);
             float expected = -mean(mul(expectedLoss, 2.3f));
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -177,13 +177,13 @@ public class CosineSimilarityTest {
         System.out.println("test_sample_weighted");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
-            CosineSimilarity instance = new CosineSimilarity();
+            CosineSimilarity instance = new CosineSimilarity(tf);
             float[] weights_np = {1.2f, 3.4f};
             Shape shape = Shape.of(2,3);
             Operand y_true = tf.reshape(tf.constant(np_y_true), tf.constant(shape));
             Operand y_pred = tf.reshape(tf.constant(np_y_pred), tf.constant(shape));
             Operand sampleWeight = tf.reshape(tf.constant(weights_np), tf.constant(Shape.of(2, 1)));
-            Operand loss = instance.call(tf, y_true, y_pred, sampleWeight);
+            Operand loss = instance.call(y_true, y_pred, sampleWeight);
             sess.run(loss);
             float expected = -mean(mul(expectedLoss , weights_np));
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -199,12 +199,12 @@ public class CosineSimilarityTest {
         System.out.println("test_zero_weighted");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
-            CosineSimilarity instance = new CosineSimilarity();
+            CosineSimilarity instance = new CosineSimilarity(tf);
             Shape shape = Shape.of(2,3);
             Operand y_true = tf.reshape(tf.constant(np_y_true), tf.constant(shape));
             Operand y_pred = tf.reshape(tf.constant(np_y_pred), tf.constant(shape));
             Operand sampleWeight = tf.constant(0f);
-            Operand loss = instance.call(tf, y_true, y_pred, sampleWeight);
+            Operand loss = instance.call(y_true, y_pred, sampleWeight);
             sess.run(loss);
             float expected = 0F;
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -221,13 +221,13 @@ public class CosineSimilarityTest {
         System.out.println("test_timestep_weighted");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
-            CosineSimilarity instance = new CosineSimilarity();
+            CosineSimilarity instance = new CosineSimilarity(tf);
             Shape shape = Shape.of(2,3,1);
             Operand y_true = tf.reshape(tf.constant(np_y_true), tf.constant(shape));
             Operand y_pred = tf.reshape(tf.constant(np_y_pred), tf.constant(shape));
             float[] weights_np = {3, 6, 5, 0, 4, 2};
             Operand sampleWeight = tf.reshape(tf.constant(weights_np), tf.constant(Shape.of(2, 3)));
-            Operand loss = instance.call(tf, y_true, y_pred, sampleWeight);
+            Operand loss = instance.call(y_true, y_pred, sampleWeight);
             sess.run(loss);
             float expected = -2.0F;
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -244,11 +244,11 @@ public class CosineSimilarityTest {
         System.out.println("test_timestep_weighted");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
-            CosineSimilarity instance = new CosineSimilarity(1);
+            CosineSimilarity instance = new CosineSimilarity(tf, 1);
             Shape shape = Shape.of(2,3);
             Operand y_true = tf.reshape(tf.constant(np_y_true), tf.constant(shape));
             Operand y_pred = tf.reshape(tf.constant(np_y_pred), tf.constant(shape));
-            Operand loss = instance.call(tf, y_true, y_pred);
+            Operand loss = instance.call(y_true, y_pred);
             sess.run(loss);
             float expected = -mean(expectedLoss);
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {

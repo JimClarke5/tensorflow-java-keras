@@ -16,36 +16,50 @@ import org.tensorflow.types.family.TNumber;
 public class Poisson extends Loss {
     /**
      * Creates a Poisson with Reduction.AUTO
+     * 
+     * @param tf the TensorFlow Ops
      */
-    public Poisson() {
-        super("poisson");
+    public Poisson(Ops tf) {
+        super(tf, "poisson");
     }
     
     /**
+     * Creates a Poisson with Reduction.AUTO
+     * 
+     * @param tf the TensorFlow Ops
+     * @param name the name of the loss
+     */
+    public Poisson(Ops tf, String name) {
+        super(tf,name);
+    }
+    /**
      * Creates a Poisson
+     * 
+     * @param tf the TensorFlow Ops
      * @param reduction Type of Reduction to apply to loss.
      */
-    public Poisson(Reduction reduction) {
-        super("logcosh", reduction);
+    public Poisson(Ops tf,Reduction reduction) {
+        super(tf, "logcosh", reduction);
     }
     
     /**
      * Creates a Poisson
+     * 
+     * @param tf the TensorFlow Ops
      * @param name the name of the loss
      * @param reduction Type of Reduction to apply to loss.
      */
-    public Poisson(String name, Reduction reduction) {
-        super(name, reduction);
+    public Poisson(Ops tf, String name, Reduction reduction) {
+        super(tf, name, reduction);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public <T extends TNumber> Operand<T> call(Ops tf,  Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
-        tf = tf.withSubScope(this.getName());
+    public <T extends TNumber> Operand<T> call(Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
         Operand losses = Losses.poisson(tf, labels, predictions);
-        return super.computeWeightedLoss(tf, losses, getReduction(), sampleWeights);
+        return super.computeWeightedLoss(losses, getReduction(), sampleWeights);
     }
     
 }

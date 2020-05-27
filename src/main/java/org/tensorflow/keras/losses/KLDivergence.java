@@ -17,16 +17,16 @@ public class KLDivergence extends Loss {
     /**
      * Creates a KLDivergence with Reduction.AUTO
      */
-    public KLDivergence() {
-        super("kullback_leibler_divergence");
+    public KLDivergence(Ops tf) {
+        super(tf, "kullback_leibler_divergence");
     }
     
     /**
      * Creates a KLDivergence
      * @param reduction Type of Reduction to apply to loss.
      */
-    public KLDivergence(Reduction reduction) {
-        super("kullback_leibler_divergence", reduction);
+    public KLDivergence(Ops tf, Reduction reduction) {
+        super(tf, "kullback_leibler_divergence", reduction);
     }
     
     /**
@@ -34,18 +34,17 @@ public class KLDivergence extends Loss {
      * @param name the name of the loss
      * @param reduction Type of Reduction to apply to loss.
      */
-    public KLDivergence(String name, Reduction reduction) {
-        super(name, reduction);
+    public KLDivergence(Ops tf, String name, Reduction reduction) {
+        super(tf,name, reduction);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public <T extends TNumber> Operand<T> call(Ops tf,  Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
-        tf = tf.withSubScope(this.getName());
+    public <T extends TNumber> Operand<T> call(Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
         Operand losses = Losses.kullback_leibler_divergence(tf, labels, predictions);
-        return super.computeWeightedLoss(tf, losses, getReduction(), sampleWeights);
+        return super.computeWeightedLoss(losses, getReduction(), sampleWeights);
     }
     
 }

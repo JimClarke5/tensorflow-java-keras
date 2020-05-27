@@ -5,9 +5,14 @@
  */
 package org.tensorflow.keras.losses;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.tensorflow.Operand;
 import org.tensorflow.Session;
 import org.tensorflow.keras.losses.impl.LossesImpl;
@@ -18,36 +23,100 @@ import org.tensorflow.op.Ops;
  * @author Jim Clarke
  */
 public class Losses {
-    static Map<String, Supplier<Loss>> map = new HashMap<String, Supplier<Loss>>() {
+    static Map<String, Function<Ops, Loss >> map = new HashMap<String, Function<Ops, Loss >>() {
         {
-            put("kld", KLDivergence::new);
-            put("kullback_leibler_divergence", KLDivergence::new);
-            put("kldivergence", KLDivergence::new);
-            put("huber", Huber::new);
-            put("mae", MeanAbsoluteError::new);
-            put("mean_absolute_error", MeanAbsoluteError::new);
-            put("mape", MeanAbsolutePercentageError::new);
-            put("mean_absolute_percentage_error", MeanAbsolutePercentageError::new);
-            put("mse", MeanSquaredError::new);
-            put("mean_squared_error", MeanSquaredError::new);
-            put("msle", MeanSquaredLogarithmicError::new);
-            put("mean_squared_logarithmic_error", MeanSquaredLogarithmicError::new);
-            put("binary_crossentropy", BinaryCrossentropy::new);
-            put("categorical_crossentropy", CategoricalCrossentropy::new);
-            put("categorical_hinge", CategoricalHinge::new);
-            put("cosine_similarity", CosineSimilarity::new);
-            put("hinge", Hinge::new);
-            put("logcosh", LogCosh::new);
-            put("poisson", Poisson::new);
-            //put("sparse_categorical_crossentropy", sparse_categorical_crossentropy::new);
-            put("squared_hinge", SquaredHinge::new);
+            put("kld", tf -> new KLDivergence(tf));
+            put("kullback_leibler_divergence", tf -> new KLDivergence(tf));
+            put("kldivergence", tf -> new KLDivergence(tf));
+            put("huber", tf -> new Huber(tf));
+            put("mae", tf -> new MeanAbsoluteError(tf));
+            put("mean_absolute_error", tf -> new MeanAbsoluteError(tf));
+            put("mape", tf -> new MeanAbsolutePercentageError(tf));
+            put("mean_absolute_percentage_error", tf -> new MeanAbsolutePercentageError(tf));
+            put("mse", tf -> new MeanSquaredError(tf));
+            put("mean_squared_error", tf -> new MeanSquaredError(tf));
+            put("msle", tf -> new MeanSquaredLogarithmicError(tf));
+            put("mean_squared_logarithmic_error", tf -> new MeanSquaredLogarithmicError(tf));
+            put("binary_crossentropy", tf -> new BinaryCrossentropy(tf));
+            put("categorical_crossentropy", tf -> new CategoricalCrossentropy(tf));
+            put("categorical_hinge", tf -> new CategoricalHinge(tf));
+            put("cosine_similarity", tf -> new CosineSimilarity(tf));
+            put("hinge", tf -> new Hinge(tf));
+            put("logcosh", tf -> new LogCosh(tf));
+            put("poisson", tf -> new Poisson(tf));
+            put("sparse_categorical_crossentropy", tf -> new SparseCategoricalCrossentropy(tf));
+            put("squared_hinge", tf -> new SquaredHinge(tf));
         }
     };
     
-    public static Loss get(String loss) {
-        Supplier<Loss> lossFunction = map.get(loss.toLowerCase());
-        return lossFunction != null ? lossFunction.get() : null;
+    /**
+     * Get an Loss
+     *
+     * @param lossFunction either a String that identifies the
+     * Loss, an Loss class, or an Loss object.
+     * @return the loss object or null if not found.
+     */
+    public static Loss get(Ops tf, Object lossFunction) {
+        return get(tf, lossFunction, null);
     }
+
+    /**
+     * Get an Loss based on a lambda of the form: 
+     * (Ops ops) -> create(Ops ops) 
+     *
+     * @param tf
+     * @param lambda a lambda function
+     * @return the Intializer object
+     */
+    public static Loss get(Ops tf, Function<Ops, Loss > lambda) {
+        return lambda.apply(tf);
+    }
+    
+      /**
+      * Get an Loss  based on a lambda of the form:  () -> create() 
+      * @param lambda a lambda function
+      * @return the Intializer object
+      */
+    public static Loss get( Supplier<Loss > lambda) {
+         return lambda.get();
+    }
+
+    /**
+     * Get an Loss
+     *
+     * @param lossFunction
+     * @param custom_functions a map of Loss lambdas that will be queried
+     * if the loss is not found in the standard keys
+     * @return the Loss object
+     */
+    public static Loss get(Ops tf, Object lossFunction, Map<String, Function<Ops, Loss > > custom_functions) {
+        if (lossFunction != null) {
+            if (lossFunction instanceof String) {
+                String s = lossFunction.toString(); // do this for Java 8 rather than Pattern Matching for instanceof
+                Function<Ops, Loss > function = map.get(s);
+                if (function == null && custom_functions != null) {
+                    function = custom_functions.get(s);
+                }
+                return function != null ? function.apply(tf) : null;
+            } else if (lossFunction instanceof Class) {
+                Class c = (Class) lossFunction; // do this for Java 8 rather than Pattern Matching for instanceof
+                try {
+                    Constructor ctor = c.getConstructor(Ops.class);
+                    return (Loss)ctor.newInstance(tf);
+                } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                    Logger.getLogger(Losses.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else if (lossFunction instanceof Loss) {
+                return (Loss) lossFunction; // do this for Java 8 rather than Pattern Matching for instanceof
+            }
+        } else {
+            return null;
+        }
+
+        throw new IllegalArgumentException(
+                "lossFunction must be a symbolic name, Loss, lamda or a Class object");
+    }
+
     
 
     /**
@@ -394,6 +463,7 @@ public class Losses {
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
+     * @param delta
      * @return the loss
      */
     public static Operand huber(Ops tf, Operand yTrue, Operand yPred, float delta) {
@@ -423,6 +493,20 @@ public class Losses {
     public static Operand poisson(Ops tf, Operand yTrue, Operand yPred) {
         return LossesImpl.poisson(tf, yTrue, yPred);
     }
+    
+     /**
+     * Computes the sparse categorical crossentropy loss.
+     *
+     * @param tf the TensorFlow Ops
+     * @param yTrue true targets
+     * @param yPred predictions
+     * @param fromLogits Whether to interpret yPred as a tensor of logit values
+     * @param axis The dimension along which the entropy is computed.
+     * @return the loss
+     */
+    public static Operand sparse_categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits) {
+        return sparse_categorical_crossentropy(tf, yTrue, yPred, fromLogits, -1);
+    }
 
     /**
      * Computes the sparse categorical crossentropy loss.
@@ -430,10 +514,12 @@ public class Losses {
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
+     * @param fromLogits Whether to interpret yPred as a tensor of logit values
+     * @param axis The dimension along which the entropy is computed.
      * @return the loss
      */
-    public static Operand sparse_categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred) {
-        return LossesImpl.sparse_categorical_crossentropy(tf, yTrue, yPred);
+    public static Operand sparse_categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, int axis) {
+        return LossesImpl.sparse_categorical_crossentropy(tf, yTrue, yPred, fromLogits, axis);
     }
 
     /**

@@ -17,8 +17,8 @@ public class CategoricalHinge extends Loss {
     /**
      * Creates a CategoricalHinge with Reduction.AUTO
      */
-    public CategoricalHinge() {
-        super("categorical_hinge");
+    public CategoricalHinge(Ops tf) {
+        super(tf, "categorical_hinge");
     }
     
     /**
@@ -26,16 +26,16 @@ public class CategoricalHinge extends Loss {
      * 
      * @param name the name of the loss
      */
-    public CategoricalHinge(String name) {
-        super(name);
+    public CategoricalHinge(Ops tf, String name) {
+        super(tf, name);
     }
     
     /**
      * Creates a CategoricalHinge
      * @param reduction Type of Reduction to apply to loss.
      */
-    public CategoricalHinge(Reduction reduction) {
-        super("categorical_hinge", reduction);
+    public CategoricalHinge(Ops tf, Reduction reduction) {
+        super(tf, "categorical_hinge", reduction);
     }
     
     /**
@@ -43,18 +43,17 @@ public class CategoricalHinge extends Loss {
      * @param name the name of the loss
      * @param reduction Type of Reduction to apply to loss.
      */
-    public CategoricalHinge(String name, Reduction reduction) {
-        super(name, reduction);
+    public CategoricalHinge(Ops tf, String name, Reduction reduction) {
+        super(tf, name, reduction);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public <T extends TNumber> Operand<T> call(Ops tf,  Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
-        tf = tf.withSubScope(this.getName());
+    public <T extends TNumber> Operand<T> call(Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
         Operand losses = Losses.categorical_hinge(tf, labels, predictions);
-        return super.computeWeightedLoss(tf, losses, getReduction(), sampleWeights);
+        return super.computeWeightedLoss(losses, getReduction(), sampleWeights);
     }
     
 }

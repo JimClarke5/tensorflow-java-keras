@@ -17,16 +17,16 @@ public class LogCosh extends Loss {
     /**
      * Creates a LogCosh with Reduction.AUTO
      */
-    public LogCosh() {
-        super("logcosh");
+    public LogCosh(Ops tf) {
+        super(tf, "logcosh");
     }
     
     /**
      * Creates a LogCosh
      * @param reduction Type of Reduction to apply to loss.
      */
-    public LogCosh(Reduction reduction) {
-        super("logcosh", reduction);
+    public LogCosh(Ops tf, Reduction reduction) {
+        super(tf, "logcosh", reduction);
     }
     
     /**
@@ -34,18 +34,17 @@ public class LogCosh extends Loss {
      * @param name the name of the loss
      * @param reduction Type of Reduction to apply to loss.
      */
-    public LogCosh(String name, Reduction reduction) {
-        super(name, reduction);
+    public LogCosh(Ops tf, String name, Reduction reduction) {
+        super(tf, name, reduction);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public <T extends TNumber> Operand<T> call(Ops tf,  Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
-        tf = tf.withSubScope(this.getName());
+    public <T extends TNumber> Operand<T> call(Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
         Operand losses = Losses.logcosh(tf, labels, predictions);
-        return super.computeWeightedLoss(tf, losses, getReduction(), sampleWeights);
+        return super.computeWeightedLoss(losses, getReduction(), sampleWeights);
     }
     
 }

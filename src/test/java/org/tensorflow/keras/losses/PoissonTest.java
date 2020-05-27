@@ -52,10 +52,10 @@ public class PoissonTest {
     @Test
     public void testConfig() {
          System.out.println("testConfig");
-         Poisson instance = new Poisson();
+         Poisson instance = new Poisson(null);
          assertEquals("poisson", instance.getName());
          
-          instance = new Poisson("poisson_loss", Reduction.SUM);
+          instance = new Poisson(null, "poisson_loss", Reduction.SUM);
           assertEquals("poisson_loss", instance.getName());
           assertEquals( Reduction.SUM, instance.getReduction());
           
@@ -71,12 +71,12 @@ public class PoissonTest {
         System.out.println("test_unweighted");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
                     Ops tf = Ops.create(graph).withName("test");
-            Poisson instance = new Poisson();
+            Poisson instance = new Poisson(tf);
             float[] pred_np = {1f, 9f, 2f, 5f, 2f, 6f};
             float[] true_np = {4f, 8f, 12f, 8f, 1f, 3f};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,3)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,3)));
-            Operand loss = instance.call(tf, y_true, y_pred);
+            Operand loss = instance.call(y_true, y_pred);
             sess.run(loss);
             float expected = -3.306581945521002F;
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -95,13 +95,13 @@ public class PoissonTest {
         System.out.println("test_scalar_weighted");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
                     Ops tf = Ops.create(graph).withName("test");
-            Poisson instance = new Poisson();
+            Poisson instance = new Poisson(tf);
             float[] pred_np = {1f, 9f, 2f, 5f, 2f, 6f};
             float[] true_np = {4f, 8f, 12f, 8f, 1f, 3f};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,3)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,3)));
             Operand sampleWeight = tf.constant(2.3f);
-            Operand loss = instance.call(tf, y_true, y_pred, sampleWeight);
+            Operand loss = instance.call(y_true, y_pred, sampleWeight);
             sess.run(loss);
             float expected = -7.605138474698304F;
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -117,14 +117,14 @@ public class PoissonTest {
         System.out.println("test_sample_weighted");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
                     Ops tf = Ops.create(graph).withName("test");
-            Poisson instance = new Poisson();
+            Poisson instance = new Poisson(tf);
             float[] pred_np = {1f, 9f, 2f, 5f, 2f, 6f};
             float[] true_np = {4f, 8f, 12f, 8f, 1f, 3f};
             float[] sample_narray = {1.2f, 3.4f};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,3)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,3)));
             Operand sampleWeight =  tf.reshape(tf.constant(sample_narray), tf.constant(Shape.of(2,1)));
-            Operand loss = instance.call(tf, y_true, y_pred, sampleWeight);
+            Operand loss = instance.call(y_true, y_pred, sampleWeight);
             sess.run(loss);
             float expected = -6.147338926788071F;
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -140,13 +140,13 @@ public class PoissonTest {
         System.out.println("test_zero_weighted");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
                     Ops tf = Ops.create(graph).withName("test");
-            Poisson instance = new Poisson();
+            Poisson instance = new Poisson(tf);
             float[] pred_np = {1f, 9f, 2f, 5f, 2f, 6f};
             float[] true_np = {4f, 8f, 12f, 8f, 1f, 3f};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,3)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,3)));
             Operand sampleWeight =  tf.constant(0.F);
-            Operand loss = instance.call(tf, y_true, y_pred, sampleWeight);
+            Operand loss = instance.call(y_true, y_pred, sampleWeight);
             sess.run(loss);
             float expected = 0F;
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
@@ -162,14 +162,14 @@ public class PoissonTest {
         System.out.println("test_timestep_weighted");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
-            Poisson instance = new Poisson(Reduction.AUTO);
+            Poisson instance = new Poisson(tf, Reduction.AUTO);
               float[] pred_np = {1f, 9f, 2f, 5f, 2f, 6f};
             float[] true_np = {4f, 8f, 12f, 8f, 1f, 3f};
             float[] sample_narray = {3f, 6f, 5f, 0f, 4f, 2f};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,3,1)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,3,1)));
             Operand sampleWeight =  tf.reshape(tf.constant(sample_narray), tf.constant(Shape.of(2,3)));
-            Operand loss = instance.call(tf, y_true, y_pred, sampleWeight);
+            Operand loss = instance.call(y_true, y_pred, sampleWeight);
             
             sess.run(loss);
             float expected = -12.263126013890561F;

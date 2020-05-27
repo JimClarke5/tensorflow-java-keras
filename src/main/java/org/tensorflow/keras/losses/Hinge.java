@@ -17,8 +17,8 @@ public class Hinge extends Loss {
     /**
      * Creates a Hinge with Reduction.AUTO
      */
-    public Hinge() {
-        super("hinge");
+    public Hinge(Ops tf) {
+        super(tf,"hinge");
     }
     
     /**
@@ -26,16 +26,16 @@ public class Hinge extends Loss {
      * 
      * @param name the name of the loss
      */
-    public Hinge(String name) {
-        super(name);
+    public Hinge(Ops tf, String name) {
+        super(tf,name);
     }
     
     /**
      * Creates a Hinge
      * @param reduction Type of Reduction to apply to loss.
      */
-    public Hinge(Reduction reduction) {
-        super("hinge", reduction);
+    public Hinge(Ops tf, Reduction reduction) {
+        super(tf,"hinge", reduction);
     }
     
     /**
@@ -43,18 +43,17 @@ public class Hinge extends Loss {
      * @param name the name of the loss
      * @param reduction Type of Reduction to apply to loss.
      */
-    public Hinge(String name, Reduction reduction) {
-        super(name, reduction);
+    public Hinge(Ops tf, String name, Reduction reduction) {
+        super(tf, name, reduction);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public <T extends TNumber> Operand<T> call(Ops tf,  Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
-        tf = tf.withSubScope(this.getName());
+    public <T extends TNumber> Operand<T> call(Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
         Operand losses = Losses.hinge(tf, labels, predictions);
-        return super.computeWeightedLoss(tf, losses, getReduction(), sampleWeights);
+        return super.computeWeightedLoss(losses, getReduction(), sampleWeights);
     }
     
 }

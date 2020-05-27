@@ -14,78 +14,78 @@ import org.tensorflow.types.family.TNumber;
  *
  * @author Jim Clarke
  */
-public class BinaryCrossentropy extends Loss {
+public class SparseCategoricalCrossentropy extends Loss {
 
     private final boolean fromLogits;
     private final float labelSmoothing;
 
     /**
-     * Creates a BinaryCrossentropy with Reduction.AUTO, labelSmoothing=0.0 and
+     * Creates a SparseCategoricalCrossentropy with Reduction.AUTO, labelSmoothing=0.0 and
      * fromLogits=false.
-     *
+     * 
      * @param tf the TensorFlow Ops
      */
-    public BinaryCrossentropy(Ops tf) {
-        this(tf, "binary_crossentropy", false, 0.0F, Reduction.AUTO);
+    public SparseCategoricalCrossentropy(Ops tf) {
+        this(tf, "categorical_crossentropy", false, 0.0F, Reduction.AUTO);
     }
 
     /**
-     * Creates a BinaryCrossentropy with Reduction.AUTO, labelSmoothing=0.0 and
+     * Creates a SparseCategoricalCrossentropy with Reduction.AUTO, labelSmoothing=0.0 and
      * fromLogits=false.
      *
      * @param tf the TensorFlow Ops
      * @param name the name of this loss function
      */
-    public BinaryCrossentropy(Ops tf, String name) {
+    public SparseCategoricalCrossentropy(Ops tf, String name) {
         this(tf, name, false, 0.0F, Reduction.AUTO);
     }
 
     /**
-     * Creates a BinaryCrossentropy with labelSmoothing = 0.0 and
+     * Creates a SparseCategoricalCrossentropy with labelSmoothing = 0.0 and
      * fromLogits=false.
      *
      * @param tf the TensorFlow Ops
      * @param reduction Type of Reduction to apply to loss.
      */
-    public BinaryCrossentropy(Ops tf, Reduction reduction) {
-        this(tf, "binary_crossentropy", false, 0.0F, reduction);
+    public SparseCategoricalCrossentropy(Ops tf, Reduction reduction) {
+        this(tf, "categorical_crossentropy", false, 0.0F, reduction);
     }
 
     /**
-     * Creates a BinaryCrossentropy with labelSmoothing = 0.0 and
+     * Creates a SparseCategoricalCrossentropy with labelSmoothing = 0.0 and
      * fromLogits=false.
      *
      * @param tf the TensorFlow Ops
      * @param name the name of this loss function
      * @param reduction Type of Reduction to apply to loss.
      */
-    public BinaryCrossentropy(Ops tf, String name, Reduction reduction) {
+    public SparseCategoricalCrossentropy(Ops tf, String name, Reduction reduction) {
         this(tf, name, false, 0.0F, reduction);
     }
 
-    /**
-     * Creates a BinaryCrossentropy with Reduction.AUTO,
+     /**
+     * Creates a SparseCategoricalCrossentropy with Reduction.AUTO,
      *
      * @param tf the TensorFlow Ops
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
      */
-    public BinaryCrossentropy(Ops tf, boolean fromLogits) {
-        this(tf, "binary_crossentropy", fromLogits, 0.0F, Reduction.AUTO);
+    public SparseCategoricalCrossentropy(Ops tf, boolean fromLogits) {
+        this(tf, "categorical_crossentropy", fromLogits, 0.0F, Reduction.AUTO);
     }
-
-    /**
-     * Creates a BinaryCrossentropy with Reduction.AUTO,
+    
+     /**
+     * Creates a SparseCategoricalCrossentropy with Reduction.AUTO,
      *
      * @param tf the TensorFlow Ops
      * @param name the name of this loss function
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
      */
-    public BinaryCrossentropy(Ops tf, String name, boolean fromLogits) {
+    public SparseCategoricalCrossentropy(Ops tf, String name, boolean fromLogits) {
         this(tf, name, fromLogits, 0.0F, Reduction.AUTO);
     }
-
+    
     /**
-     * Creates a BinaryCrossentropy with Reduction.AUTO,
+     * Creates a SparseCategoricalCrossentropy with Reduction.AUTO,
      *
      * @param tf the TensorFlow Ops
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
@@ -95,12 +95,12 @@ public class BinaryCrossentropy extends Loss {
      * towards 0.5. Larger values of label_smoothing correspond to heavier
      * smoothing.
      */
-    public BinaryCrossentropy(Ops tf, boolean fromLogits, float labelSmoothing) {
-        this(tf, "binary_crossentropy", fromLogits, labelSmoothing, Reduction.AUTO);
+    public SparseCategoricalCrossentropy(Ops tf, boolean fromLogits, float labelSmoothing) {
+        this(tf, "categorical_crossentropy", fromLogits, labelSmoothing, Reduction.AUTO);
     }
 
     /**
-     * Creates a BinaryCrossentropy with Reduction.AUTO,
+     * Creates a SparseCategoricalCrossentropy with Reduction.AUTO,
      *
      * @param tf the TensorFlow Ops
      * @param name the name of this loss function
@@ -111,12 +111,12 @@ public class BinaryCrossentropy extends Loss {
      * towards 0.5. Larger values of label_smoothing correspond to heavier
      * smoothing.
      */
-    public BinaryCrossentropy(Ops tf, String name, boolean fromLogits, float labelSmoothing) {
+    public SparseCategoricalCrossentropy(Ops tf, String name, boolean fromLogits, float labelSmoothing) {
         this(tf, name, fromLogits, labelSmoothing, Reduction.AUTO);
     }
 
     /**
-     * Creates a BinaryCrossentropy
+     * Creates a SparseCategoricalCrossentropy
      *
      * @param tf the TensorFlow Ops
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
@@ -127,12 +127,12 @@ public class BinaryCrossentropy extends Loss {
      * smoothing.
      * @param reduction Type of Reduction to apply to loss.
      */
-    public BinaryCrossentropy(Ops tf, boolean fromLogits, float labelSmoothing, Reduction reduction) {
-        this(tf, "binary_crossentropy", fromLogits, labelSmoothing, reduction);
+    public SparseCategoricalCrossentropy(Ops tf, boolean fromLogits, float labelSmoothing, Reduction reduction) {
+        this(tf, "categorical_crossentropy", fromLogits, labelSmoothing, reduction);
     }
 
     /**
-     * Creates a BinaryCrossentropy
+     * Creates a SparseCategoricalCrossentropy
      *
      * @param tf the TensorFlow Ops
      * @param name the name of this loss function
@@ -144,7 +144,7 @@ public class BinaryCrossentropy extends Loss {
      * smoothing.
      * @param reduction Type of Reduction to apply to loss.
      */
-    public BinaryCrossentropy(Ops tf, String name, boolean fromLogits, float labelSmoothing, Reduction reduction) {
+    public SparseCategoricalCrossentropy(Ops tf, String name, boolean fromLogits, float labelSmoothing, Reduction reduction) {
         super(tf, name, reduction);
         this.fromLogits = fromLogits;
         this.labelSmoothing = labelSmoothing;
@@ -155,7 +155,7 @@ public class BinaryCrossentropy extends Loss {
      */
     @Override
     public <T extends TNumber> Operand<T> call(Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
-        Operand losses = Losses.binary_crossentropy(tf, labels, predictions, fromLogits, labelSmoothing);
+        Operand losses = Losses.sparse_categorical_crossentropy(tf, labels, predictions, fromLogits);
         return super.computeWeightedLoss(losses, getReduction(), sampleWeights);
     }
 
