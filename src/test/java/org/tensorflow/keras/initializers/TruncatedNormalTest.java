@@ -71,7 +71,7 @@ public class TruncatedNormalTest {
         config.put(TruncatedNormal.MEAN_KEY, MEAN_VALUE);
         config.put(TruncatedNormal.STDDEV_KEY, STDDEV_VALUE);
         config.put(TruncatedNormal.SEED_KEY, SEED);    
-        TruncatedNormal instance = new TruncatedNormal(MEAN_VALUE, STDDEV_VALUE, SEED);
+        TruncatedNormal instance = new TruncatedNormal(null, MEAN_VALUE, STDDEV_VALUE, SEED);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
@@ -87,7 +87,7 @@ public class TruncatedNormalTest {
         config.put(TruncatedNormal.MEAN_KEY, MEAN_VALUE);
         config.put(TruncatedNormal.STDDEV_KEY, STDDEV_VALUE);
         config.put(TruncatedNormal.SEED_KEY, SEED);    
-        TruncatedNormal instance = new TruncatedNormal(config);
+        TruncatedNormal instance = new TruncatedNormal(null, config);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
@@ -108,8 +108,8 @@ public class TruncatedNormalTest {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
             TruncatedNormal<TFloat32> instance = 
-                    new TruncatedNormal(MEAN_VALUE, STDDEV_VALUE, SEED);
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat32.DTYPE);
+                    new TruncatedNormal(tf, MEAN_VALUE, STDDEV_VALUE, SEED);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat32(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
@@ -126,8 +126,8 @@ public class TruncatedNormalTest {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
             TruncatedNormal<TFloat64> instance = 
-                    new TruncatedNormal(MEAN_VALUE, STDDEV_VALUE, SEED);
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat64.DTYPE);
+                    new TruncatedNormal(tf, MEAN_VALUE, STDDEV_VALUE, SEED);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat64(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);

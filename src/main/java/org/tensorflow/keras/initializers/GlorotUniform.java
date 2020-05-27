@@ -15,6 +15,7 @@ limitations under the License.
 package org.tensorflow.keras.initializers;
 
 import java.util.Map;
+import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TType;
 
 /**
@@ -26,25 +27,31 @@ public class GlorotUniform<U extends TType> extends VarianceScaling<U> {
 
     /**
      * Creates a GlorotUniform initializer
+     * 
+     * @param tf the TensorFlow Ops
      */
-    public GlorotUniform() {
-        super(1.0, "fan_avg", "uniform", null);
+    public GlorotUniform(Ops tf) {
+        super(tf, 1.0, "fan_avg", "uniform", null);
     }
     
     /**
-     * Creates a GlorotUniforminitializer
+     * Creates a GlorotUniform initializer
+     * 
+     * @param tf the TensorFlow Ops
      * @param seed the seed for random number generation
      */
-    public GlorotUniform(Long seed) {
-        super(1.0, "fan_avg", "uniform", seed);
+    public GlorotUniform(Ops tf, Long seed) {
+        super(tf, 1.0, "fan_avg", "uniform", seed);
     }
 
     /**
      * create a GlorotUniform initializer
+     * 
+     * @param tf the TensorFlow Ops
      * @param config the config object used to initialize the Initializer values
      */
-    public GlorotUniform(Map<String, Object> config) {
-        super(config);
+    public GlorotUniform(Ops tf, Map<String, Object> config) {
+        super(tf, config);
     }
     
 }

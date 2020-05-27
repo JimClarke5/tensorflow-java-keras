@@ -18,7 +18,6 @@ import java.util.Map;
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.op.Ops;
-import org.tensorflow.op.random.RandomStandardNormal;
 import org.tensorflow.types.TInt64;
 import org.tensorflow.types.family.TType;
 
@@ -37,31 +36,67 @@ public class RandomNormal<U extends TType> extends Initializer<U> {
     private final double stddev;
     private final Long seed;
     
-    public RandomNormal() {
-        this(MEAN_DEFAULT, STDDEV_DEFAULT, null);
+    /**
+     * creates the RandomUniform initializer 
+     * 
+     * @param tf  the TensorFlow Ops
+     */
+    public RandomNormal(Ops tf) {
+        this(tf, MEAN_DEFAULT, STDDEV_DEFAULT, null);
     }
     
-    public RandomNormal(double mean) {
-       this(mean, STDDEV_DEFAULT, null);
+    /**
+     * creates the RandomUniform initializer 
+     * 
+     * @param tf the TensorFlow Ops
+     * @param mean Mean of the random values to generate.
+     */
+    public RandomNormal(Ops tf, double mean) {
+       this(tf, mean, STDDEV_DEFAULT, null);
     }
     
-    public RandomNormal(double mean, double stddev) {
-       this(mean, stddev, null);
+    /**
+     * creates the RandomUniform initializer 
+     * 
+     * @param tf the TensorFlow Ops
+     * @param mean Mean of the random values to generate.
+     * @param stddev  Standard deviation of the random values to generate.
+     */
+    public RandomNormal(Ops tf, double mean, double stddev) {
+       this(tf, mean, stddev, null);
     }
-    public RandomNormal(double mean, double stddev, Long seed) {
-        super();
+    
+    /**
+     * creates the RandomUniform initializer 
+     * 
+     * @param tf the TensorFlow Ops
+     * @param mean Mean of the random values to generate.
+     * @param stddev Standard deviation of the random values to generate.
+     * @param seed  Used to create random seeds. 
+     */
+    public RandomNormal(Ops tf, double mean, double stddev, Long seed) {
+        super(tf);
         this.mean = mean;
         this.stddev = stddev;
         this.seed = seed;
     }
     
-    public RandomNormal(Map<String, Object> config) {
-        super(config);
+    /**
+     * creates the RandomUniform initializer 
+     * 
+     * @param tf the TensorFlow Ops
+     * @param config the settings to initialize this initializer
+     */
+    public RandomNormal(Ops tf, Map<String, Object> config) {
+        super(tf, config);
         this.mean = (double)config.getOrDefault(MEAN_KEY, MEAN_DEFAULT);
         this.stddev = (double)config.getOrDefault(STDDEV_KEY, STDDEV_DEFAULT);
         this.seed = (Long)config.getOrDefault(SEED_KEY, null);
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map<String, Object> getConfig() {
         Map<String, Object> config = super.getConfig();
@@ -71,8 +106,11 @@ public class RandomNormal<U extends TType> extends Initializer<U> {
         return config;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-   public Operand<U> call(Ops tf, Operand<TInt64> dims, DataType<U> dtype) {
+   public Operand<U> call(Operand<TInt64> dims, DataType<U> dtype) {
         long lseed = this.seed == null ? 0L : this.seed;
         long[] seeds = { lseed, 0L };
         Operand distOp = tf.random.statelessRandomNormal(dims, tf.constant(seeds), (DataType)dtype);

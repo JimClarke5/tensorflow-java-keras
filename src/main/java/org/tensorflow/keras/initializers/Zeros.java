@@ -14,13 +14,11 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.initializers;
 
-import java.util.HashMap;
 import java.util.Map;
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.op.Ops;
 import org.tensorflow.types.TInt64;
-import org.tensorflow.types.family.TNumber;
 import org.tensorflow.types.family.TType;
 
 /**
@@ -31,21 +29,24 @@ public class Zeros<U extends TType> extends Initializer<U> {
     
     /**
      * create an Initializer that sets all values to one.
+     * @param tf the TensorFlow Ops
      */
-    public Zeros() {
-        super();
+    public Zeros(Ops tf) {
+        super(tf);
     }
     
     /**
      * create an Initializer that sets all values to one.
+     * 
+     * @param tf the TensorFlow Ops
      * @param config a config object to initialize
      */
-    public Zeros(Map<String, Object> config) {
-        super(config);
+    public Zeros(Ops tf, Map<String, Object> config) {
+        super(tf,config);
     }
     
     @Override
-    public Operand<U> call(Ops tf, Operand<TInt64> dims, DataType<U> dtype) {
+    public Operand<U> call(Operand<TInt64> dims, DataType<U> dtype) {
         return tf.zeros(dims, dtype);
         
     }

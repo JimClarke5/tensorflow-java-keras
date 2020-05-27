@@ -22,7 +22,8 @@ import org.tensorflow.types.TInt64;
 import org.tensorflow.types.family.TType;
 
 /**
- *
+ * Initializer that generates a truncated normal distribution.
+ * 
  * @author Jim Clarke
  */
 public class TruncatedNormal<U extends TType> extends Initializer<U> {
@@ -37,28 +38,58 @@ public class TruncatedNormal<U extends TType> extends Initializer<U> {
     private final double stddev;
     private final Long seed;
     
-    public TruncatedNormal() {
-        this(MEAN_DEFAULT, STDDEV_DEFAULT, null);
+    /**
+     * create a TruncatedNormal Initializer
+     * 
+     * @param tf  the TensorFlow Ops
+     */
+    public TruncatedNormal(Ops tf) {
+        this(tf, MEAN_DEFAULT, STDDEV_DEFAULT, null);
     }
     
-    public TruncatedNormal(double mean, double stddev ) {
-        this(mean, mean, null);
+    /**
+     * create a TruncatedNormal Initializer
+     * 
+     * @param tf the TensorFlow Ops
+     * @param mean Mean of the random values to generate.
+     * @param stddev Standard deviation of the random values to generate.
+     */
+    public TruncatedNormal(Ops tf, double mean, double stddev ) {
+        this(tf, mean, mean, null);
     }
     
-    public TruncatedNormal(double mean, double stddev,Long seed ) {
+    /**
+     * create a TruncatedNormal Initializer
+     * 
+     * @param tf the TensorFlow Ops
+     * @param mean Mean of the random values to generate.
+     * @param stddev Standard deviation of the random values to generate.
+     * @param seed Used to create random seeds
+     */
+    public TruncatedNormal(Ops tf, double mean, double stddev,Long seed ) {
+        super(tf);
         this.mean = mean;
         this.stddev = stddev;
         this.seed = seed;
         
     }
     
-    public TruncatedNormal(Map<String, Object> config) {
-        super(config);
+    /**
+     * create a TruncatedNormal Initializer
+     * 
+     * @param tf the TensorFlow Ops
+     * @param config  the settings to initialize this initializer
+     */
+    public TruncatedNormal(Ops tf, Map<String, Object> config) {
+        super(tf, config);
         this.mean = (double)config.getOrDefault(MEAN_KEY, MEAN_DEFAULT);
         this.stddev =  (double)config.getOrDefault(STDDEV_KEY, STDDEV_DEFAULT);
         this.seed = (Long)config.getOrDefault(SEED_KEY, null);
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map<String, Object> getConfig() {
         Map<String, Object> config = super.getConfig();
@@ -68,8 +99,11 @@ public class TruncatedNormal<U extends TType> extends Initializer<U> {
         return config;
     }       
 
+    /**
+     * {@inheritDoc}
+     */
      @Override
-    public Operand<U> call(Ops tf, Operand<TInt64> dims, DataType<U> dtype) {
+    public Operand<U> call(Operand<TInt64> dims, DataType<U> dtype) {
         long lseed = this.seed == null? 0L : this.seed.longValue();
         long[] seeds = { lseed, 0L };
         Operand distOp = tf.random.statelessTruncatedNormal(dims, tf.constant(seeds), (DataType)dtype);

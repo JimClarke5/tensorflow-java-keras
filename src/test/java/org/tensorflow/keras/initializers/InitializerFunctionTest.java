@@ -60,7 +60,7 @@ public class InitializerFunctionTest {
     }
     
      /**
-     * Test of call method, of class InitializerFunction.
+     * Test of call method, of class OptimizerFunction.
      */
     @Test
     public void testLambdaCallFloat() {
@@ -71,9 +71,9 @@ public class InitializerFunctionTest {
             Shape shape = Shape.of(1);
             
             // Test float
-            InitializerFunction<TFloat32> func  = (ops, dims, dtype) -> {
+            InitializerFunction<TFloat32> func  = (dims, dtype) -> {
                             return  tf.dtypes.cast(tf.constant(floats[0]), dtype);};
-            Operand<TFloat32> operand = func.call(tf,tf.constant(shape.asArray()), TFloat32.DTYPE);
+            Operand<TFloat32> operand = func.call(tf.constant(shape.asArray()), TFloat32.DTYPE);
             float[] actual = new float[floats.length];
             operand.asTensor().data().read(DataBuffers.of(actual));
             assertArrayEquals(floats, actual, EPSILON_F);
@@ -83,7 +83,7 @@ public class InitializerFunctionTest {
     }
     
      /**
-     * Test of call method, of class InitializerFunction.
+     * Test of call method, of class OptimizerFunction.
      */
     @Test
     public void testLambdaCallUInt8() {
@@ -94,9 +94,9 @@ public class InitializerFunctionTest {
             Shape shape = Shape.of(1);
             
             // Test float
-            InitializerFunction<TUint8> func  = (ops, dims, dtype) -> {
+            InitializerFunction<TUint8> func  = (dims, dtype) -> {
                             return  tf.dtypes.cast(tf.constant(bytes[0]), dtype);};
-            Operand<TUint8> operand = func.call(tf,tf.constant(shape.asArray()), TUint8.DTYPE);
+            Operand<TUint8> operand = func.call(tf.constant(shape.asArray()), TUint8.DTYPE);
             byte[] actual = new byte[bytes.length];
             operand.asTensor().data().read(DataBuffers.of(actual));
             assertArrayEquals(bytes, actual);
@@ -107,7 +107,7 @@ public class InitializerFunctionTest {
     
     
      /**
-     * Test of call method, of class InitializerFunction.
+     * Test of call method, of class OptimizerFunction.
      */
     @Test
     public void testLambdaCallInt() {
@@ -118,9 +118,9 @@ public class InitializerFunctionTest {
             Shape shape = Shape.of(1);
             
             // Test float
-            InitializerFunction<TInt32> func  = (ops, dims, dtype) -> {
+            InitializerFunction<TInt32> func  = (dims, dtype) -> {
                             return  tf.dtypes.cast(tf.constant(ints[0]), dtype);};
-            Operand<TInt32> operand = func.call(tf,tf.constant(shape.asArray()), TInt32.DTYPE);
+            Operand<TInt32> operand = func.call(tf.constant(shape.asArray()), TInt32.DTYPE);
             int[] actual = new int[ints.length];
             operand.asTensor().data().read(DataBuffers.of(actual));
             assertArrayEquals(ints, actual);
@@ -131,7 +131,7 @@ public class InitializerFunctionTest {
     
 
     /**
-     * Test of call method, of class InitializerFunction.
+     * Test of call method, of class OptimizerFunction.
      */
     @Test
     public void testLambdaCallLong() {
@@ -142,9 +142,9 @@ public class InitializerFunctionTest {
             Shape shape = Shape.of(1);
             
             // Test float
-            InitializerFunction<TInt64> func  = (ops, dims, dtype) -> {
+            InitializerFunction<TInt64> func  = (dims, dtype) -> {
                             return  tf.dtypes.cast(tf.constant(longs[0]), dtype);};
-            Operand<TInt64> operand = func.call(tf,tf.constant(shape.asArray()), TInt64.DTYPE);
+            Operand<TInt64> operand = func.call(tf.constant(shape.asArray()), TInt64.DTYPE);
             long[] actual = new long[longs.length];
             operand.asTensor().data().read(DataBuffers.of(actual));
             assertArrayEquals(longs, actual);
@@ -161,9 +161,9 @@ public class InitializerFunctionTest {
             Shape shape = Shape.of(1);
             
             // Test float
-            InitializerFunction<TFloat64> func  = (ops, dims, dtype) -> {
+            InitializerFunction<TFloat64> func  = (dims, dtype) -> {
                             return  tf.dtypes.cast(tf.constant(doubles[0]), dtype);};
-            Operand<TFloat64> operand = func.call(tf,tf.constant(shape.asArray()), TFloat64.DTYPE);
+            Operand<TFloat64> operand = func.call(tf.constant(shape.asArray()), TFloat64.DTYPE);
             double[] actual = new double[doubles.length];
             operand.asTensor().data().read(DataBuffers.of(actual));
             assertArrayEquals(doubles, actual, EPSILON_F);

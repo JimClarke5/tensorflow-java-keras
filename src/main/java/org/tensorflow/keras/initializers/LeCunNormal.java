@@ -15,6 +15,7 @@ limitations under the License.
 package org.tensorflow.keras.initializers;
 
 import java.util.Map;
+import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TType;
 
 /**
@@ -26,25 +27,31 @@ public class LeCunNormal<U extends TType> extends VarianceScaling<U> {
 
     /**
      * create an LeCunNormal Initializer
+     * 
+     * @param tf the TensorFlow Ops
      */
-    public LeCunNormal() {
-        super(1.0, "fan_in", "truncated_normal", null);
+    public LeCunNormal(Ops tf) {
+        super(tf, 1.0, "fan_in", "truncated_normal", null);
     }
     
     /**
      * create an LeCunNormal Initializer
+     * 
+     * @param tf the TensorFlow Ops
      * @param seed the seed for random number generation
      */
-    public LeCunNormal(Long seed) {
-        super(1.0, "fan_in", "truncated_normal", seed);
+    public LeCunNormal(Ops tf, Long seed) {
+        super(tf, 1.0, "fan_in", "truncated_normal", seed);
     }
     
     /**
      * create a LeCunNormal initializer
+     * 
+     * @param tf the TensorFlow Ops
      * @param config the config object used to initialize the Initializer values
      */
-    public LeCunNormal(Map<String, Object> config) {
-        super(config);
+    public LeCunNormal(Ops tf, Map<String, Object> config) {
+        super(tf, config);
     }
     
 }

@@ -30,24 +30,28 @@ public class Ones<U extends TType> extends Initializer<U> {
     
     /**
      * create an Initializer that sets all values to one.
+     * 
+     * @param tf the TensorFlow Ops
      */
-    public Ones() {
-        super();
+    public Ones(Ops tf) {
+        super(tf);
     }
     
     /**
      * create an Initializer that sets all values to one.
+     * 
+     * @param tf the TensorFlow Ops
      * @param config a config object to initialize
      */
-    public Ones(Map<String, Object> config) {
-        super(config);
+    public Ones(Ops tf, Map<String, Object> config) {
+        super(tf, config);
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Ops tf, Operand<TInt64> dims, DataType<U> dtype) {
+    public Operand<U> call(Operand<TInt64> dims, DataType<U> dtype) {
         assert(TypeUtils.isNumeric(dtype) || TypeUtils.isBoolean(dtype)) : 
                 "DataType must be numeric or boolean: " + dtype.name();
         return tf.fill(dims, tf.dtypes.cast(tf.constant(1.0), dtype));

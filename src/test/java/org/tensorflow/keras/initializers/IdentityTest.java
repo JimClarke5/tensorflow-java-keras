@@ -66,8 +66,8 @@ public class IdentityTest {
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(10,10);
-            Identity<TInt32> instance = new Identity<>(2.);
-            Operand<TInt32> operand = instance.call(tf, tf.constant(shape.asArray()),  TInt32.DTYPE);
+            Identity<TInt32> instance = new Identity<>(tf, 2.);
+            Operand<TInt32> operand = instance.call(tf.constant(shape.asArray()),  TInt32.DTYPE);
             fail("Should have thrown assertion on Integer type");
         }catch (AssertionError expected) {
             
@@ -96,8 +96,8 @@ public class IdentityTest {
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(10,10);
-            Identity<TFloat32> instance = new Identity<>(2.);
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat32.DTYPE);
+            Identity<TFloat32> instance = new Identity<>(tf, 2.);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat32(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
@@ -126,8 +126,8 @@ public class IdentityTest {
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(10,10);
-            Identity<TFloat64> instance = new Identity<>(2.);
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat64.DTYPE);
+            Identity<TFloat64> instance = new Identity<>(tf, 2.);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat64(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);

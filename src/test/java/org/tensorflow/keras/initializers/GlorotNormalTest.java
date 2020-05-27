@@ -72,7 +72,7 @@ public class GlorotNormalTest {
         config.put(GlorotNormal.MODE_KEY, "fan_avg");
         config.put(GlorotNormal.DISTRIBUTION_KEY, "truncated_normal");
         config.put(GlorotNormal.SEED_KEY, SEED);    
-        GlorotNormal instance = new GlorotNormal(SEED);
+        GlorotNormal instance = new GlorotNormal(null, SEED);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
@@ -89,7 +89,7 @@ public class GlorotNormalTest {
         config.put(GlorotNormal.MODE_KEY, "fan_avg");
         config.put(GlorotNormal.DISTRIBUTION_KEY, "truncated_normal");
         config.put(GlorotNormal.SEED_KEY, SEED);    
-        GlorotNormal instance = new GlorotNormal(config);
+        GlorotNormal instance = new GlorotNormal(null, config);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
@@ -107,14 +107,14 @@ public class GlorotNormalTest {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
             GlorotNormal<TFloat32> instance = 
-                    new GlorotNormal<>(SEED);
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat32.DTYPE);
+                    new GlorotNormal<>(tf, SEED);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
-            counter = 0;
-            operand.asTensor().data().scalars().forEach(s -> {counter++;});
-            assertEquals(shape.size(), counter);
-            // TODO assertArrayEquals(expected, actual, EPSILON_F);
+            //counter = 0;
+            //operand.asTensor().data().scalars().forEach(s -> {counter++;});
+            //assertEquals(shape.size(), counter);
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
     
@@ -128,14 +128,14 @@ public class GlorotNormalTest {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
             GlorotNormal<TFloat64> instance = 
-                    new GlorotNormal<>(SEED);
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat64.DTYPE);
+                    new GlorotNormal<>(tf, SEED);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
-            counter = 0;
-            operand.asTensor().data().scalars().forEach(s -> {counter++;});
-            assertEquals(shape.size(), counter);
-            // TODO assertArrayEquals(expected, actual, EPSILON);
+            //counter = 0;
+            //operand.asTensor().data().scalars().forEach(s -> {counter++;});
+            //assertEquals(shape.size(), counter);
+            assertArrayEquals(expected, actual, EPSILON);
         }
     }
     

@@ -37,27 +37,33 @@ public class Identity<U extends TType> extends Initializer<U> {
     
     /**
      * Creates an Initializer that generates the identity matrix.
+     * 
+     * @param tf the TensorFlow Ops
      */
-    public Identity() {
-        super();
+    public Identity(Ops tf) {
+        super(tf);
         this.gain = GAIN_DEFAULT;
     }
     
     /**
      * Creates an Initializer that generates the identity matrix.
+     * 
+     * @param tf the TensorFlow Ops
      * @param gain the gain to be applied to the (dentiy Matrix
      */
-    public Identity(double gain) {
-        super();
+    public Identity(Ops tf, double gain) {
+        super(tf);
         this.gain = gain;
     }
     
     /**
      *  Creates an Initializer that generates the identity matrix.
+     * 
+     * @param tf the TensorFlow Ops
      * @param config the config object used to initialize this Matrix
      */
-    public Identity(Map<String, Object> config) {
-        super(config);
+    public Identity(Ops tf, Map<String, Object> config) {
+        super(tf, config);
         this.gain = (double)config.getOrDefault(GAIN_KEY, GAIN_DEFAULT);
     }
 
@@ -65,7 +71,7 @@ public class Identity<U extends TType> extends Initializer<U> {
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Ops tf, Operand<TInt64> dims, DataType<U> dtype) {
+    public Operand<U> call(Operand<TInt64> dims, DataType<U> dtype) {
         assert(TypeUtils.isFloating(dtype));
         Shape shape = ShapeUtils.getShape(dims);
         assert(shape.numDimensions() == 2); // Only usable for generating 2D matrices.

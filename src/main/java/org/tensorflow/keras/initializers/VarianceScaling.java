@@ -25,8 +25,10 @@ import org.tensorflow.types.TInt64;
 import org.tensorflow.types.family.TType;
 
 /**
- *
+ * Initializer capable of adapting its scale to the shape of weights tensors.
+ * 
  * @author Jim Clarke
+ * @param <U>
  */
 public class VarianceScaling <U extends TType> extends Initializer<U> {
     
@@ -45,16 +47,33 @@ public class VarianceScaling <U extends TType> extends Initializer<U> {
     private Long seed;
     
     
-    public VarianceScaling() {
-        this(SCALE_DEFAULT, MODE_DEFAULT, DISTRIBUTION_DEFAULT, null);
+    /**
+     * create a VarianceScaling Initializer
+     * @param tf the TensorFlow Ops
+     */
+    public VarianceScaling(Ops tf) {
+        this(tf, SCALE_DEFAULT, MODE_DEFAULT, DISTRIBUTION_DEFAULT, null);
     }
     
-    public VarianceScaling(long seed) {
-        this(SCALE_DEFAULT, MODE_DEFAULT, DISTRIBUTION_DEFAULT, seed);
+    /**
+     * create a VarianceScaling Initializer
+     * @param tf the TensorFlow Ops
+     * @param seed sed to create random seeds.
+     */
+    public VarianceScaling(Ops tf, long seed) {
+        this(tf, SCALE_DEFAULT, MODE_DEFAULT, DISTRIBUTION_DEFAULT, seed);
     }
     
-     public VarianceScaling(double scale, String mode, String distribution, Long seed) {
-         super();
+    /**
+     * create a VarianceScaling Initializer
+     * @param tf the TensorFlow Ops
+     * @param scale Scaling factor (positive float).
+     * @param mode One of "fan_in", "fan_out", "fan_avg".
+     * @param distribution Random distribution to use. One of "truncated_normal", "untruncated_normal" and "uniform".
+     * @param seed Used to create random seeds.
+     */
+     public VarianceScaling(Ops tf, double scale, String mode, String distribution, Long seed) {
+         super(tf);
          assert(scale > 0.0);
          this.scale = scale;
          this.mode = Mode.valueOf(mode);
@@ -63,14 +82,24 @@ public class VarianceScaling <U extends TType> extends Initializer<U> {
          
      }
     
-    public VarianceScaling(Map<String, Object> config) {
-        super(config);
+     
+     /**
+      * create a VarianceScaling Initializer
+      * 
+      * @param tf the TensorFlow Ops
+      * @param config the settings to initialize this initializer
+      */
+    public VarianceScaling(Ops tf,  Map<String, Object> config) {
+        super(tf, config);
         this.scale = (double)config.getOrDefault(SCALE_KEY, SCALE_DEFAULT);
         this.mode =  Mode.valueOf((String)config.getOrDefault(MODE_KEY, MODE_DEFAULT));
         this.distribution = Distribution.valueOf((String)config.getOrDefault(DISTRIBUTION_KEY, DISTRIBUTION_DEFAULT));
         this.seed = (Long)config.getOrDefault(SEED_KEY, null);
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map<String, Object> getConfig() {
         Map<String, Object> config = super.getConfig();
@@ -81,8 +110,11 @@ public class VarianceScaling <U extends TType> extends Initializer<U> {
         return config;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Operand<U> call(Ops tf, Operand<TInt64> dims, DataType<U> dtype) {
+    public Operand<U> call(Operand<TInt64> dims, DataType<U> dtype) {
         assert(TypeUtils.isFloating(dtype));
         Shape shape = ShapeUtils.getShape(dims);
         double lscale = this.scale;

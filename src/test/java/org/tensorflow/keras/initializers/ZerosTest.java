@@ -75,8 +75,8 @@ public class ZerosTest {
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
-            Zeros<TUint8> instance = new Zeros<>();
-            Operand<TUint8> operand = instance.call(tf, tf.constant(shape.asArray()),  TUint8.DTYPE);
+            Zeros<TUint8> instance = new Zeros<>(tf);
+            Operand<TUint8> operand = instance.call(tf.constant(shape.asArray()),  TUint8.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
            // PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -94,8 +94,8 @@ public class ZerosTest {
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
-            Zeros<TInt32> instance = new Zeros<>();
-            Operand<TInt32> operand = instance.call(tf, tf.constant(shape.asArray()),  TInt32.DTYPE);
+            Zeros<TInt32> instance = new Zeros<>(tf);
+            Operand<TInt32> operand = instance.call(tf.constant(shape.asArray()),  TInt32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
            // PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -113,8 +113,8 @@ public class ZerosTest {
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
-            Zeros<TInt64> instance = new Zeros<>();
-            Operand<TInt64> operand = instance.call(tf, tf.constant(shape.asArray()),  TInt64.DTYPE);
+            Zeros<TInt64> instance = new Zeros<>(tf);
+            Operand<TInt64> operand = instance.call(tf.constant(shape.asArray()),  TInt64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
            //PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -133,8 +133,8 @@ public class ZerosTest {
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
-            Zeros<TFloat32> instance = new Zeros<>();
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat32.DTYPE);
+            Zeros<TFloat32> instance = new Zeros<>(tf);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
@@ -153,8 +153,8 @@ public class ZerosTest {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
            
-            Zeros<TFloat64> instance = new Zeros<>();
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat64.DTYPE);
+            Zeros<TFloat64> instance = new Zeros<>(tf);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);
@@ -171,8 +171,8 @@ public class ZerosTest {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
            
-            Zeros<TString> instance = new Zeros<>();
-            Operand<TString> operand = instance.call(tf, tf.constant(shape.asArray()),  TString.DTYPE);
+            Zeros<TString> instance = new Zeros<>(tf);
+            Operand<TString> operand = instance.call(tf.constant(shape.asArray()),  TString.DTYPE);
             counter = 0;
             operand.asTensor().data().scalars().forEach(s -> {counter++; assertTrue(s.getObject().isEmpty());});
             assertEquals(counter, 2*2);
@@ -186,15 +186,19 @@ public class ZerosTest {
     @Test
     public void testCallBool() {
         System.out.println("call Boolean");
+        boolean[] expected = { false, false, false, false};
+        boolean[] actual = { true, true, true, true };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
            
-            Zeros<TBool> instance = new Zeros<>();
-            Operand<TBool> operand = instance.call(tf, tf.constant(shape.asArray()),  TBool.DTYPE);
-            counter = 0;
-            operand.asTensor().data().scalars().forEach(s -> {counter++; assertFalse(s.getBoolean());});
-            assertEquals(counter, 2*2);
+            Zeros<TBool> instance = new Zeros<>(tf);
+            Operand<TBool> operand = instance.call(tf.constant(shape.asArray()),  TBool.DTYPE);
+            //counter = 0;
+            //operand.asTensor().data().scalars().forEach(s -> {/*counter++;*/ assertFalse(s.getBoolean());});
+            //assertEquals(counter, 2*2);
+            operand.asTensor().data().read(DataBuffers.of(actual));
+            assertArrayEquals(expected, actual);
         }
     }
     

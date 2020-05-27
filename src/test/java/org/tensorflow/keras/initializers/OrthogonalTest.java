@@ -70,7 +70,7 @@ public class OrthogonalTest {
         Map<String, Object> config = new HashMap<>();
         config.put(Orthogonal.GAIN_KEY, GAIN_VALUE);
         config.put(Orthogonal.SEED_KEY, SEED);    
-        Orthogonal instance = new Orthogonal(GAIN_VALUE,  SEED);
+        Orthogonal instance = new Orthogonal(null, GAIN_VALUE,  SEED);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
@@ -85,7 +85,7 @@ public class OrthogonalTest {
         Map<String, Object> config = new HashMap<>();
         config.put(Orthogonal.GAIN_KEY, GAIN_VALUE);
         config.put(Orthogonal.SEED_KEY, SEED);    
-        Orthogonal instance = new Orthogonal(config);
+        Orthogonal instance = new Orthogonal(null, config);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
@@ -100,8 +100,8 @@ public class OrthogonalTest {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(10,10);
             Orthogonal<TInt32> instance = 
-                    new Orthogonal(GAIN_VALUE,  SEED);
-            Operand<TInt32> operand = instance.call(tf, tf.constant(shape.asArray()),  TInt32.DTYPE);
+                    new Orthogonal(tf, GAIN_VALUE,  SEED);
+            Operand<TInt32> operand = instance.call(tf.constant(shape.asArray()),  TInt32.DTYPE);
             fail("Should jave thown assertion on Integer type");
         }catch (AssertionError expected) {
             
@@ -140,8 +140,8 @@ public class OrthogonalTest {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(10,10);
             Orthogonal<TFloat32> instance = 
-                    new Orthogonal(GAIN_VALUE,  SEED);
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat32.DTYPE);
+                    new Orthogonal(tf, GAIN_VALUE,  SEED);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat32(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
@@ -187,8 +187,8 @@ public class OrthogonalTest {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(10,10);
             Orthogonal<TFloat64> instance = 
-                    new Orthogonal(GAIN_VALUE,  SEED);
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat64.DTYPE);
+                    new Orthogonal(tf, GAIN_VALUE,  SEED);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat64(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);

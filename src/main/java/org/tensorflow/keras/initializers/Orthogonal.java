@@ -42,36 +42,44 @@ public class Orthogonal<U extends TType> extends Initializer<U> {
     
     /**
      * Creates an Orthogonal Initializer
+     * 
+     * @param tf the TensorFlow Ops
      */
-    public Orthogonal() {
-        this(GAIN_DEFAULT, null);
+    public Orthogonal(Ops tf) {
+        this(tf, GAIN_DEFAULT, null);
     }
     
     /**
      * Creates an Orthogonal Initializer
+     * 
+     * @param tf the TensorFlow Ops
      * @param gain the gain to be applied to the Matrix
      */
-    public Orthogonal(double gain) {
-        this(gain, null);
+    public Orthogonal(Ops tf, double gain) {
+        this(tf, gain, null);
     }
     
     /**
      * Creates an Orthogonal Initializer
+     * 
+     * @param tf the TensorFlow Ops
      * @param gain the gain to be applied to the Matrix
      * @param seed the seed for random number generation
      */
-    public Orthogonal(double gain, Long seed) {
-        super();
+    public Orthogonal(Ops tf, double gain, Long seed) {
+        super(tf);
         this.gain = gain;
         this.seed = seed;
     }
     
      /**
      * create a Orthogonal initializer
+     * 
+     * @param tf the TensorFlow Ops
      * @param config the config object used to initialize the Initializer values
      */
-    public Orthogonal(Map<String, Object> config) {
-        super(config);
+    public Orthogonal(Ops tf, Map<String, Object> config) {
+        super(tf, config);
         this.gain = (double)config.getOrDefault(GAIN_KEY, GAIN_DEFAULT);
         this.seed = (Long)config.getOrDefault(SEED_KEY, null);
     }
@@ -91,7 +99,7 @@ public class Orthogonal<U extends TType> extends Initializer<U> {
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Ops tf, Operand<TInt64> dims, DataType<U> dtype) {
+    public Operand<U> call(Operand<TInt64> dims, DataType<U> dtype) {
         assert TypeUtils.isFloating(dtype) : String.format("Expected floating point type, got %s.",dtype);
         Shape dimsShape = ShapeUtils.getShape(dims);
         assert(dimsShape.numDimensions() >= 2): "The tensor to initialize must be at least two-dimensional";

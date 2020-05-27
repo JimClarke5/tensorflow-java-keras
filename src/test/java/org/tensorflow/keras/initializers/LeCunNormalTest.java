@@ -72,7 +72,7 @@ public class LeCunNormalTest {
         config.put(LeCunNormal.MODE_KEY, "fan_in");
         config.put(LeCunNormal.DISTRIBUTION_KEY, "truncated_normal");
         config.put(LeCunNormal.SEED_KEY, SEED);    
-        LeCunNormal instance = new LeCunNormal(SEED);
+        LeCunNormal instance = new LeCunNormal(null, SEED);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
@@ -89,7 +89,7 @@ public class LeCunNormalTest {
         config.put(LeCunNormal.MODE_KEY, "fan_in");
         config.put(LeCunNormal.DISTRIBUTION_KEY, "truncated_normal");
         config.put(LeCunNormal.SEED_KEY, SEED);    
-        LeCunNormal instance = new LeCunNormal(config);
+        LeCunNormal instance = new LeCunNormal(null, config);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
@@ -107,14 +107,14 @@ public class LeCunNormalTest {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
             LeCunNormal<TFloat32> instance = 
-                    new LeCunNormal<>(SEED);
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat32.DTYPE);
+                    new LeCunNormal<>(tf, SEED);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
-            counter = 0;
-            operand.asTensor().data().scalars().forEach(s -> {counter++;});
-            assertEquals(shape.size(), counter);
-            // TODO assertArrayEquals(expected, actual, EPSILON_F);
+            //counter = 0;
+            //operand.asTensor().data().scalars().forEach(s -> {counter++;});
+            //assertEquals(shape.size(), counter);
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
     
@@ -127,14 +127,14 @@ public class LeCunNormalTest {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
             LeCunNormal<TFloat64> instance = 
-                    new LeCunNormal<>(SEED);
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat64.DTYPE);
+                    new LeCunNormal<>(tf, SEED);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
-            counter = 0;
-            operand.asTensor().data().scalars().forEach(s -> {counter++;});
-            assertEquals(shape.size(), counter);
-            // TODO assertArrayEquals(expected, actual, EPSILON);
+            //counter = 0;
+            //operand.asTensor().data().scalars().forEach(s -> {counter++;});
+            //assertEquals(shape.size(), counter);
+            assertArrayEquals(expected, actual, EPSILON);
         }
     }
     

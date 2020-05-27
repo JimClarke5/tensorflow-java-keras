@@ -31,27 +31,28 @@ public class Constant<U extends TType> extends Initializer<U> {
     public final String VALUE_KEY = "value";
     public final String BOOL_VALUE_KEY = "bvalue";
 
-    private final Double value;
-    private final Boolean bvalue;
+    private final Object numberOrBoolean;
     
     /** 
      * creates an Initializer that generates tensors with a constant value.
+     * 
+     * @param tf the TensorFlow Ops
      * @param value a number value
      */
-    public Constant(double value) {
-        super();
-        this.value = value;
-        bvalue = null;
+    public Constant(Ops tf, Number value) {
+        super(tf);
+        this.numberOrBoolean = value;
     }
     
     /**
      * creates an Initializer that generates tensors with a constant value.
+     * 
+     * @param tf the TensorFlow Ops
      * @param bvalue a boolean value
      */
-     public Constant(boolean bvalue) {
-        super();
-        this.bvalue = bvalue;
-        this.value = null;
+     public Constant(Ops tf, Boolean value) {
+        super(tf);
+        this.numberOrBoolean = value;
     }
     
     
@@ -59,10 +60,9 @@ public class Constant<U extends TType> extends Initializer<U> {
      *  Creates an Initializer that generates tensors with a constant value.
      * @param config the config object used to initialize this Matrix
      */
-    public Constant(Map<String, Object> config) {
-        super(config);
-        this.value = (Double)config.get(VALUE_KEY);
-        this.bvalue = (Boolean)config.get(BOOL_VALUE_KEY);
+    public Constant(Ops tf, Map<String, Object> config) {
+        super(tf, config);
+        this.numberOrBoolean = config.get(VALUE_KEY);
     }
 
     /**
@@ -71,8 +71,7 @@ public class Constant<U extends TType> extends Initializer<U> {
     @Override
     public Map<String, Object> getConfig() {
         Map<String, Object> config = super.getConfig();
-        config.put(VALUE_KEY, value);
-        config.put(BOOL_VALUE_KEY, bvalue);
+        config.put(VALUE_KEY, numberOrBoolean);
         return config;
     }
     
@@ -82,13 +81,15 @@ public class Constant<U extends TType> extends Initializer<U> {
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Ops tf, Operand<TInt64> dims, DataType<U> dtype) {
+    public Operand<U> call(Operand<TInt64> dims, DataType<U> dtype) {
         assert(TypeUtils.isNumeric(dtype) || TypeUtils.isBoolean(dtype)) : 
                 "DataType must be numeric or boolean: " + dtype.name();
-        if(this.value != null) {
-            return tf.fill(dims, tf.dtypes.cast(tf.constant(value), dtype));
+        if(this.numberOrBoolean instanceof Number) {
+            return tf.fill(dims, tf.dtypes.cast(tf.constant(((Number)this.numberOrBoolean).doubleValue()), dtype));
+        }else if(this.numberOrBoolean instanceof Boolean) {
+            return tf.fill(dims, tf.dtypes.cast(tf.constant(((Boolean)this.numberOrBoolean).booleanValue()), dtype));
         }else {
-            return tf.fill(dims, tf.dtypes.cast(tf.constant(this.bvalue), dtype));
+            throw new UnsupportedOperationException("Value must be a Number or Boolean: " + this.numberOrBoolean.getClass().getName());
         }
     }
     

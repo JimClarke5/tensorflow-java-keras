@@ -72,7 +72,7 @@ public class HeNormalTest {
         config.put(HeNormal.MODE_KEY, "fan_in");
         config.put(HeNormal.DISTRIBUTION_KEY, "truncated_normal");
         config.put(HeNormal.SEED_KEY, SEED);    
-        HeNormal instance = new HeNormal(SEED);
+        HeNormal instance = new HeNormal(null, SEED);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
@@ -89,7 +89,7 @@ public class HeNormalTest {
         config.put(HeNormal.MODE_KEY, "fan_in");
         config.put(HeNormal.DISTRIBUTION_KEY, "truncated_normal");
         config.put(HeNormal.SEED_KEY, SEED);    
-        HeNormal instance = new HeNormal(config);
+        HeNormal instance = new HeNormal(null, config);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
@@ -102,19 +102,19 @@ public class HeNormalTest {
     public void testCall_Float() {
         System.out.println("call Float");
         float[] actual = { 0,0, 0, 0};
-        float[] expected = { -0.30498484F, 1.7562706F,  0.18460506F,    1.4413407F };
+        float[] expected = { -0.7408917F, -0.41477704F, -0.11133519F, -0.45044965F };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
             HeNormal<TFloat32> instance = 
-                    new HeNormal<>(SEED);
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat32.DTYPE);
+                    new HeNormal<>(tf, SEED);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
-            counter = 0;
-            operand.asTensor().data().scalars().forEach(s -> {counter++;});
-            assertEquals(counter, 2*2);
-            //TODO assertArrayEquals(expected, actual, EPSILON_F);
+            //counter = 0;
+            //operand.asTensor().data().scalars().forEach(s -> {counter++;});
+            //assertEquals(counter, 2*2);
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
     
@@ -124,21 +124,20 @@ public class HeNormalTest {
         double[] actual = { 0,0, 0, 0};
         // these numbers are different than Python's for the same operation.
         // not sure what that is all about unless they are using different random number generator.
-        double[] expected = { 1.6693504289843908, 0.0409164557312389,
-                            -0.7368632367241962, -1.662451754236649 };
+        double[] expected = { 2.117256561466521, -1.7661437620712939,
+            -0.7650439080001085, 0.6889186518780481 };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
             HeNormal<TFloat64> instance = 
-                    new HeNormal<>(SEED);
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat64.DTYPE);
+                    new HeNormal<>(tf, SEED);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
-            counter = 0;
-            operand.asTensor().data().scalars().forEach(s -> {counter++;});
-            assertEquals(shape.size(), counter);
-            // TODO 
-            //TOFO assertArrayEquals(expected, actual, EPSILON);
+            //ounter = 0;
+            //operand.asTensor().data().scalars().forEach(s -> {counter++;});
+            //assertEquals(shape.size(), counter);
+            assertArrayEquals(expected, actual, EPSILON);
         }
     }
     

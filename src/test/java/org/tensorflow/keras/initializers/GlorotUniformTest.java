@@ -72,7 +72,7 @@ public class GlorotUniformTest {
         config.put(GlorotUniform.MODE_KEY, "fan_avg");
         config.put(GlorotUniform.DISTRIBUTION_KEY, "uniform");
         config.put(GlorotUniform.SEED_KEY, SEED);    
-        GlorotUniform instance = new GlorotUniform(SEED);
+        GlorotUniform instance = new GlorotUniform(null, SEED);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
@@ -89,7 +89,7 @@ public class GlorotUniformTest {
         config.put(GlorotUniform.MODE_KEY, "fan_avg");
         config.put(GlorotUniform.DISTRIBUTION_KEY, "uniform");
         config.put(GlorotUniform.SEED_KEY, SEED);    
-        GlorotUniform instance = new GlorotUniform(config);
+        GlorotUniform instance = new GlorotUniform(null, config);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
@@ -102,19 +102,19 @@ public class GlorotUniformTest {
     public void testCall_Float() {
         System.out.println("call Float");
         float[] actual = { 0,0, 0, 0};
-        float[] expected = {0.35824084F, 1.1912297F, 0.037676133F, 0.6003696F };
+        float[] expected = {0.9266439F, 0.8190767F, 1.1268647F, 0.6596042F };
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
             GlorotUniform<TFloat32> instance = 
-                    new GlorotUniform<>(SEED);
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat32.DTYPE);
+                    new GlorotUniform<>(tf, SEED);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
-            counter = 0;
-            operand.asTensor().data().scalars().forEach(s -> {counter++;});
-            assertEquals(counter, 2*2);
-            //assertArrayEquals(expected, actual, EPSILON_F);
+            //ounter = 0;
+            //operand.asTensor().data().scalars().forEach(s -> {counter++;});
+            //assertEquals(counter, 2*2);
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
     
@@ -122,21 +122,21 @@ public class GlorotUniformTest {
     public void testCall_Double() {
         System.out.println("call Double");
         double[] actual = { 0,0, 0, 0};
-        double[] expected = { 0.4164372412494076, 0.3014095030803002, 
-                            0.10232585621644692, 0.7709579042005174 };
+        double[] expected = { 0.06468193804916589, 0.44170328686673477,
+            0.06711059208157763, 0.6278720842445181};
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
             GlorotUniform<TFloat64> instance = 
-                    new GlorotUniform<>(SEED);
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat64.DTYPE);
+                    new GlorotUniform<>(tf, SEED);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
-            counter = 0;
-            operand.asTensor().data().scalars().forEach(s -> {counter++;});
-            assertEquals(shape.size(), counter);
+            //counter = 0;
+            //operand.asTensor().data().scalars().forEach(s -> {counter++;});
+            //assertEquals(shape.size(), counter);
             
-           // assertArrayEquals(expected, actual, EPSILON);
+            assertArrayEquals(expected, actual, EPSILON);
         }
     }
     

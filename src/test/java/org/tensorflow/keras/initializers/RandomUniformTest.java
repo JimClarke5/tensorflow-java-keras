@@ -74,7 +74,7 @@ public class RandomUniformTest {
         config.put(RandomUniform.MINVAL_KEY, MIN_VALUE);
         config.put(RandomUniform.MAXVAL_KEY, MAX_VALUE);
         config.put(RandomUniform.SEED_KEY, SEED);    
-        RandomUniform instance = new RandomUniform(MIN_VALUE, MAX_VALUE, SEED);
+        RandomUniform instance = new RandomUniform(null, MIN_VALUE, MAX_VALUE, SEED);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
@@ -90,7 +90,7 @@ public class RandomUniformTest {
         config.put(RandomUniform.MINVAL_KEY, MIN_VALUE);
         config.put(RandomUniform.MAXVAL_KEY, MAX_VALUE);
         config.put(RandomUniform.SEED_KEY, SEED);    
-        RandomUniform instance = new RandomUniform(config);
+        RandomUniform instance = new RandomUniform(null, config);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
@@ -108,8 +108,8 @@ public class RandomUniformTest {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
             RandomUniform<TInt32> instance = 
-                    new RandomUniform<>(MIN_VALUE, MAX_VALUE, SEED);
-            Operand<TInt32> operand = instance.call(tf, tf.constant(shape.asArray()),  TInt32.DTYPE);
+                    new RandomUniform<>(tf, MIN_VALUE, MAX_VALUE, SEED);
+            Operand<TInt32> operand = instance.call(tf.constant(shape.asArray()),  TInt32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -129,8 +129,8 @@ public class RandomUniformTest {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
             RandomUniform<TFloat32> instance = 
-                    new RandomUniform<>(MIN_VALUE, MAX_VALUE, SEED);
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat32.DTYPE);
+                    new RandomUniform<>(tf, MIN_VALUE, MAX_VALUE, SEED);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat32(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
@@ -147,8 +147,8 @@ public class RandomUniformTest {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
             RandomUniform<TFloat64> instance = 
-                    new RandomUniform<>(MIN_VALUE, MAX_VALUE, SEED);
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat64.DTYPE);
+                    new RandomUniform<>(tf, MIN_VALUE, MAX_VALUE, SEED);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat64(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);

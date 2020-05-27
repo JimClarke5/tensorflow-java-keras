@@ -16,6 +16,7 @@ package org.tensorflow.keras.initializers;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TType;
 
 /**
@@ -30,21 +31,26 @@ public abstract class Initializer<U extends TType> implements InitializerFunctio
     
     private final Map<String, Object> config;
     
+    protected final Ops tf;
+    
     /** 
      * Create an Initializer
+     * @param tf the TensorFlow Ops
      */
-    protected Initializer() {
-        this.config = new HashMap<>();
+    protected Initializer(Ops tf) {
+        this(tf, new HashMap<>());
     }
     
-    
+    // TODO do we need this.
     /**
      *  Create an Initializer
      * 
+     * @param tf the TensorFlow Ops
      * @param config the config mao opbject
      */
-    protected Initializer(Map<String, Object> config) {
+    protected Initializer(Ops tf, Map<String, Object> config) {
         this.config = config;
+        this.tf = tf;
     }
     
     
@@ -53,6 +59,13 @@ public abstract class Initializer<U extends TType> implements InitializerFunctio
      */
     public Map<String, Object> getConfig() {
         return config;
+    }
+
+    /**
+     * @return the tf
+     */
+    public Ops getTf() {
+        return tf;
     }
 
 

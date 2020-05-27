@@ -16,6 +16,7 @@ package org.tensorflow.keras.initializers;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
@@ -23,28 +24,30 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import org.tensorflow.EagerSession;
+import org.tensorflow.op.Ops;
 
 /**
  *
  * @author Jim Clarke
  */
 public class InitializersTest {
-    
+
     public InitializersTest() {
     }
-    
+
     @BeforeAll
     public static void setUpClass() {
     }
-    
+
     @AfterAll
     public static void tearDownClass() {
     }
-    
+
     @BeforeEach
     public void setUp() {
     }
-    
+
     @AfterEach
     public void tearDown() {
     }
@@ -55,55 +58,70 @@ public class InitializersTest {
     @Test
     public void testGet_Object_String() {
         System.out.println("get");
-        String  initializerFunction = "identity";
-        Initializer result = Initializers.get(initializerFunction);
-        assertNotNull(result);
-        assertTrue(result instanceof Identity);
+        String initializerFunction = "identity";
+        try ( EagerSession session = EagerSession.create()) {
+            Ops tf = Ops.create(session);
+            Initializer result = Initializers.get(tf, initializerFunction);
+            assertNotNull(result);
+            assertTrue(result instanceof Identity);
+        }
     }
-    
+
     /**
      * Test of get method, of class Initializers.
      */
     @Test
     public void testGet_Object_Lambda() {
         System.out.println("get");
-        Initializer result = Initializers.get(HeNormal::new);
-        assertNotNull(result);
-        assertTrue(result instanceof HeNormal);
+        try ( EagerSession session = EagerSession.create()) {
+            Ops tf = Ops.create(session);
+            Initializer result = Initializers.get(tf, ops -> new HeNormal(ops));
+            assertNotNull(result);
+            assertTrue(result instanceof HeNormal);
+        }
     }
-    
+
     /**
      * Test of get method, of class Initializers.
      */
     @Test
     public void testGet_Object_Class() {
         System.out.println("get");
-        Initializer result = Initializers.get(Ones.class);
-        assertNotNull(result);
-        assertTrue(result instanceof Ones);
+        try ( EagerSession session = EagerSession.create()) {
+            Ops tf = Ops.create(session);
+            Initializer result = Initializers.get(tf, Ones.class);
+            assertNotNull(result);
+            assertTrue(result instanceof Ones);
+        }
     }
-    
+
     /**
      * Test of get method, of class Initializers.
      */
     @Test
     public void testGet_Object_Initializer() {
         System.out.println("get");
-        Zeros initializerFunction =new Zeros();
-        Initializer result = Initializers.get(initializerFunction);
-        assertNotNull(result);
-        assertTrue(result instanceof Zeros);
+        try ( EagerSession session = EagerSession.create()) {
+            Ops tf = Ops.create(session);
+            Function<Ops, Initializer> initializerFunction = ops -> new Zeros(ops);
+            Initializer result = Initializers.get(tf, initializerFunction);
+            assertNotNull(result);
+            assertTrue(result instanceof Zeros);
+        }
     }
-    
+
     /**
      * Test of get method, of class Initializers.
      */
     @Test
     public void testGet_Object_Unknown() {
         System.out.println("get");
-        String initializerFunction = "bogus";
-        Initializer result = Initializers.get(initializerFunction);
-        assertNull(result);
+        try ( EagerSession session = EagerSession.create()) {
+            Ops tf = Ops.create(session);
+            String initializerFunction = "bogus";
+            Initializer result = Initializers.get(tf, initializerFunction);
+            assertNull(result);
+        }
     }
 
     /**
@@ -112,12 +130,15 @@ public class InitializersTest {
     @Test
     public void testGet_Object_Map() {
         System.out.println("get");
-        Map<String, Supplier<Initializer> > custom_functions = new HashMap<String, Supplier<Initializer> >();
-        custom_functions.put("foobar", TruncatedNormal::new);
-        String initializerFunction = "foobar";
-        Initializer result = Initializers.get(initializerFunction, custom_functions);
-        assertNotNull(result);
-        assertTrue(result instanceof TruncatedNormal);
+        try ( EagerSession session = EagerSession.create()) {
+            Ops tf = Ops.create(session);
+            Map<String, Function<Ops, Initializer>> custom_functions = new HashMap<String, Function<Ops, Initializer>>();
+            custom_functions.put("foobar", ops -> new TruncatedNormal(ops));
+            String initializerFunction = "foobar";
+            Initializer result = Initializers.get(tf, initializerFunction, custom_functions);
+            assertNotNull(result);
+            assertTrue(result instanceof TruncatedNormal);
+        }
     }
-    
+
 }

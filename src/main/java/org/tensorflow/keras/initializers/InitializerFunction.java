@@ -18,7 +18,6 @@ import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.op.Ops;
 import org.tensorflow.types.TInt64;
-import org.tensorflow.types.family.TNumber;
 import org.tensorflow.types.family.TType;
 
 /**
@@ -35,11 +34,10 @@ public interface InitializerFunction<U extends TType> {
     /**
      *  The call operation for the initializer
      * 
-     * @param tf the tensorflow Ops
      * @param dims the shape dimensions
      * @param dtype the data type
      * @return  An operand for the initialization.
      */
-    public Operand<U> call(Ops tf, Operand<TInt64> dims, DataType<U> dtype);
+    public Operand<U> call(Operand<TInt64> dims, DataType<U> dtype);
     
 }

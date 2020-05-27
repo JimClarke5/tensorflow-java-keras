@@ -15,6 +15,7 @@ limitations under the License.
 package org.tensorflow.keras.initializers;
 
 import java.util.Map;
+import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TNumber;
 import org.tensorflow.types.family.TType;
 
@@ -27,25 +28,31 @@ public class HeNormal<U extends TType> extends VarianceScaling<U> {
 
     /**
      * Creates an HeNormal Initializer
+     * 
+     * @param tf the TensorFlow Ops
      */
-    public HeNormal() {
-        super(2.0, "fan_in", "truncated_normal", null);
+    public HeNormal(Ops tf) {
+        super(tf, 2.0, "fan_in", "truncated_normal", null);
     }
 
     /**
      * Creates an HeNormal Initializer
+     * 
+     * @param tf the TensorFlow Ops
      * @param seed the seed for random number generation
      */
-    public HeNormal(Long seed) {
-        super(2.0, "fan_in", "truncated_normal", seed);
+    public HeNormal(Ops tf, Long seed) {
+        super(tf, 2.0, "fan_in", "truncated_normal", seed);
     }
 
     /**
      * create a HeNormal initializer
+     * 
+     * @param tf the TensorFlow Ops
      * @param config the config object used to initialize the Initializer values
      */
-    public HeNormal(Map<String, Object> config) {
-        super(config);
+    public HeNormal(Ops tf, Map<String, Object> config) {
+        super(tf, config);
     }
 
 }

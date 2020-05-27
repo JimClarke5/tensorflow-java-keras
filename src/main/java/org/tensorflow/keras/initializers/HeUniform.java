@@ -15,6 +15,7 @@ limitations under the License.
 package org.tensorflow.keras.initializers;
 
 import java.util.Map;
+import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TType;
 
 /**
@@ -26,25 +27,31 @@ public class HeUniform<U extends TType> extends VarianceScaling<U> {
 
     /**
      * Creates an HeUniform Initializer
+     * 
+     * @param tf the TensorFlow Ops
      */
-    public HeUniform() {
-        super(2.0, "fan_in", "uniform", null);
+    public HeUniform(Ops tf) {
+        super(tf, 2.0, "fan_in", "uniform", null);
     }
     
     /**
      * Creates an HeUniform Initializer
+     * 
+     * @param tf the TensorFlow Ops
      * @param seed the seed for random number generation
      */
-    public HeUniform(Long seed) {
-        super(2.0, "fan_in", "uniform", seed);
+    public HeUniform(Ops tf, Long seed) {
+        super(tf, 2.0, "fan_in", "uniform", seed);
     }
     
     /**
      * creates an HeUniform Initializer
+     * 
+     * @param tf the TensorFlow Ops
      * @param config  the config object used to initialize the Initializer values
      */
-    public HeUniform(Map<String, Object> config) {
-        super(config);
+    public HeUniform(Ops tf, Map<String, Object> config) {
+        super(tf, config);
     }
     
 }

@@ -38,27 +38,57 @@ public class RandomUniform <U extends TType> extends Initializer<U> {
     private final Double maxval;
     private final Long seed;
     
-    public RandomUniform() {
-        this(MINVAL_DEFAULT, MAXVAL_DEFAULT, null);
+    /**
+     * creates a RandomUniform initializer
+     * 
+     * @param tf the TensorFlow Ops
+     */
+    public RandomUniform(Ops tf) {
+        this(tf, MINVAL_DEFAULT, MAXVAL_DEFAULT, null);
     }
     
-    public RandomUniform(double minval, double maxval) {
-       this(minval, maxval, null);
+    /**
+     * creates a RandomUniform initializer
+     * 
+     * @param tf the TensorFlow Ops
+     * @param minval Lower bound of the range of random values to generate (inclusive).
+     * @param maxval Upper bound of the range of random values to generate (exclusive).
+     */
+    public RandomUniform(Ops tf, double minval, double maxval) {
+       this(tf, minval, maxval, null);
     }
-    public RandomUniform(double minval, double maxval, Long seed) {
-        super();
+    
+    /**
+     * creates a RandomUniform initializer
+     * 
+     * @param tf the TensorFlow Ops
+     * @param minval Lower bound of the range of random values to generate (inclusive).
+     * @param maxval Upper bound of the range of random values to generate (exclusive).
+     * @param seed Used to create random seeds.
+     */
+    public RandomUniform(Ops tf, double minval, double maxval, Long seed) {
+        super(tf);
         this.minval = minval;
         this.maxval = maxval;
         this.seed = seed;
     }
     
-    public RandomUniform(Map<String, Object> config) {
-        super(config);
+    /**
+     * creates a RandomUniform initializer
+     * 
+     * @param tf the TensorFlow Ops
+     * @param config the settings to initialize this initializer
+     */
+    public RandomUniform(Ops tf, Map<String, Object> config) {
+        super(tf, config);
         this.minval = (double)config.getOrDefault(MINVAL_KEY, MINVAL_DEFAULT);
         this.maxval = (double)config.getOrDefault(MAXVAL_KEY, MAXVAL_DEFAULT);
         this.seed = (Long)config.getOrDefault(SEED_KEY, null);
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Map<String, Object> getConfig() {
         Map<String, Object> config = super.getConfig();
@@ -68,8 +98,11 @@ public class RandomUniform <U extends TType> extends Initializer<U> {
         return config;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Operand<U> call(Ops tf, Operand<TInt64> dims, DataType<U> dtype) {
+    public Operand<U> call(Operand<TInt64> dims, DataType<U> dtype) {
         double range = this.maxval - this.minval;
         double mean =  range/ 2.0;
         Operand distOp;

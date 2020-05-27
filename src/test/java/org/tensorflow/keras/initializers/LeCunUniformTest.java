@@ -72,7 +72,7 @@ public class LeCunUniformTest {
         config.put(LeCunUniform.MODE_KEY, "fan_in");
         config.put(LeCunUniform.DISTRIBUTION_KEY, "uniform");
         config.put(LeCunUniform.SEED_KEY, SEED);    
-        LeCunUniform instance = new LeCunUniform(SEED);
+        LeCunUniform instance = new LeCunUniform(null, SEED);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
@@ -89,7 +89,7 @@ public class LeCunUniformTest {
         config.put(LeCunUniform.MODE_KEY, "fan_in");
         config.put(LeCunUniform.DISTRIBUTION_KEY, "uniform");
         config.put(LeCunUniform.SEED_KEY, SEED);    
-        LeCunUniform instance = new LeCunUniform(config);
+        LeCunUniform instance = new LeCunUniform(null, config);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
@@ -107,14 +107,14 @@ public class LeCunUniformTest {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
             LeCunUniform<TFloat32> instance = 
-                    new LeCunUniform<>(SEED);
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat32.DTYPE);
+                    new LeCunUniform<>(tf, SEED);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
-            counter = 0;
-            operand.asTensor().data().scalars().forEach(s -> {counter++;});
-            assertEquals(shape.size(), counter);
-            // TODO assertArrayEquals(expected, actual, EPSILON_F);
+            //counter = 0;
+            //operand.asTensor().data().scalars().forEach(s -> {counter++;});
+            //assertEquals(shape.size(), counter);
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
     
@@ -128,14 +128,14 @@ public class LeCunUniformTest {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
             LeCunUniform<TFloat64> instance = 
-                    new LeCunUniform<>(SEED);
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat64.DTYPE);
+                    new LeCunUniform<>(tf, SEED);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
-            counter = 0;
-            operand.asTensor().data().scalars().forEach(s -> {counter++;});
-            assertEquals(shape.size(), counter);
-            // TODO assertArrayEquals(expected, actual, EPSILON);
+            //counter = 0;
+            //operand.asTensor().data().scalars().forEach(s -> {counter++;});
+            //assertEquals(shape.size(), counter);
+           assertArrayEquals(expected, actual, EPSILON);
         }
     }
     

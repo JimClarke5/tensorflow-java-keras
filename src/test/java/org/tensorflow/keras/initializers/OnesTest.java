@@ -75,8 +75,8 @@ public class OnesTest {
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
-            Ones<TUint8> instance = new Ones<>();
-            Operand<TUint8> operand = instance.call(tf, tf.constant(shape.asArray()),  TUint8.DTYPE);
+            Ones<TUint8> instance = new Ones<>(tf);
+            Operand<TUint8> operand = instance.call(tf.constant(shape.asArray()),  TUint8.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
            // PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -94,8 +94,8 @@ public class OnesTest {
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
-            Ones<TInt32> instance = new Ones<>();
-            Operand<TInt32> operand = instance.call(tf, tf.constant(shape.asArray()),  TInt32.DTYPE);
+            Ones<TInt32> instance = new Ones<>(tf);
+            Operand<TInt32> operand = instance.call(tf.constant(shape.asArray()),  TInt32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
            // PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -113,8 +113,8 @@ public class OnesTest {
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
-            Ones<TInt64> instance = new Ones<>();
-            Operand<TInt64> operand = instance.call(tf, tf.constant(shape.asArray()),  TInt64.DTYPE);
+            Ones<TInt64> instance = new Ones<>(tf);
+            Operand<TInt64> operand = instance.call(tf.constant(shape.asArray()),  TInt64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
            // PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual);
@@ -133,8 +133,8 @@ public class OnesTest {
         try (EagerSession session = EagerSession.create()) {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
-            Ones<TFloat32> instance = new Ones<>();
-            Operand<TFloat32> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat32.DTYPE);
+            Ones<TFloat32> instance = new Ones<>(tf);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
@@ -153,8 +153,8 @@ public class OnesTest {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
            
-            Ones<TFloat64> instance = new Ones<>();
-            Operand<TFloat64> operand = instance.call(tf, tf.constant(shape.asArray()),  TFloat64.DTYPE);
+            Ones<TFloat64> instance = new Ones<>(tf);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);
@@ -171,10 +171,29 @@ public class OnesTest {
            Ops tf = Ops.create(session);
             Shape shape = Shape.of(2,2);
            
-            Ones<TString> instance = new Ones<>();
-            Operand<TString> operand = instance.call(tf, tf.constant(shape.asArray()),  TString.DTYPE);
+            Ones<TString> instance = new Ones<>(tf);
+            Operand<TString> operand = instance.call(tf.constant(shape.asArray()),  TString.DTYPE);
             fail("AssertionError should have been thrown for TString");
         }catch(AssertionError expected) {
+        }
+    }
+    
+    @Test
+    public void testCallBool() {
+        System.out.println("call Boolean");
+        boolean[] expected = { true, true, true, true };
+        boolean[] actual = { false, false, false, false};
+        try (EagerSession session = EagerSession.create()) {
+           Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2,2);
+           
+            Ones<TBool> instance = new Ones<>(tf);
+            Operand<TBool> operand = instance.call(tf.constant(shape.asArray()),  TBool.DTYPE);
+            //counter = 0;
+            //operand.asTensor().data().scalars().forEach(s -> {/*counter++;*/ assertFalse(s.getBoolean());});
+            //assertEquals(counter, 2*2);
+            operand.asTensor().data().read(DataBuffers.of(actual));
+            assertArrayEquals(expected, actual);
         }
     }
     

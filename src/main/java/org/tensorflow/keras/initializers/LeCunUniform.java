@@ -15,6 +15,7 @@ limitations under the License.
 package org.tensorflow.keras.initializers;
 
 import java.util.Map;
+import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TType;
 
 /**
@@ -26,25 +27,31 @@ public class LeCunUniform<U extends TType> extends VarianceScaling<U> {
 
     /**
      * Creates the LeCun uniform initializer.
+     * 
+     * @param tf the TensorFlow Ops
      */
-    public LeCunUniform() {
-        super(1.0, "fan_in", "uniform", null);
+    public LeCunUniform(Ops tf) {
+        super(tf, 1.0, "fan_in", "uniform", null);
     }
     
     /**
      * Creates the LeCun uniform initializer.
+     * 
+     * @param tf the TensorFlow Ops
      * @param seed the seed for random number generation
      */
-    public LeCunUniform(Long seed) {
-        super(1.0, "fan_in", "uniform", seed);
+    public LeCunUniform(Ops tf, Long seed) {
+        super(tf, 1.0, "fan_in", "uniform", seed);
     }
     
     /**
      * Creates the LeCun uniform initializer.
+     * 
+     * @param tf the TensorFlow Ops
      * @param config the config object used to initialize the Initializer values
      */
-    public LeCunUniform(Map<String, Object> config) {
-        super(config);
+    public LeCunUniform(Ops tf, Map<String, Object> config) {
+        super(tf, config);
     }
     
 }
