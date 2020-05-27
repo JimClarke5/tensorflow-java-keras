@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.tensorflow.op.Ops;
@@ -61,13 +62,23 @@ public class Initializers {
     }
     
      /**
-      * Get an Initializer
+      * Get an Initializer using a lamda of the form (Ops ops) -> create(Ops ops) 
+      * @param tf the TensorFlow Ops
+      * @param lambda a lambda function
+      * @return the Intializer
+      */
+    public static Initializer get(Ops tf, Function<Ops, Initializer > lambda) {
+         return lambda.apply(tf);
+    } 
+    
+     /**
+      * Get an Initializer using a lamda of the form () -> create() 
       * @param tf the TensorFlow Ops
       * @param lambda a lamda function
       * @return the Intializer object
       */
-    public static Initializer get(Ops tf, Function<Ops, Initializer > lambda) {
-         return lambda.apply(tf);
+    public static Initializer get( Supplier<Initializer > lambda) {
+         return lambda.get();
     }
     
     /**
