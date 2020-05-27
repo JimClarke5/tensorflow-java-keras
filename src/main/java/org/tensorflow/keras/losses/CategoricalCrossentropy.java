@@ -20,7 +20,7 @@ public class CategoricalCrossentropy extends Loss {
     private final float labelSmoothing;
 
     /**
-     * Creates a BinaryCrossentropy with Reduction.AUTO, labelSmoothing=0.0 and
+     * Creates a SparseCategoricalCrossentropy with Reduction.AUTO, labelSmoothing=0.0 and
      * fromLogits=false.
      */
     public CategoricalCrossentropy() {
@@ -28,7 +28,7 @@ public class CategoricalCrossentropy extends Loss {
     }
 
     /**
-     * Creates a BinaryCrossentropy with Reduction.AUTO, labelSmoothing=0.0 and
+     * Creates a SparseCategoricalCrossentropy with Reduction.AUTO, labelSmoothing=0.0 and
      * fromLogits=false.
      *
      * @param name the name of this loss function
@@ -38,7 +38,7 @@ public class CategoricalCrossentropy extends Loss {
     }
 
     /**
-     * Creates a BinaryCrossentropy with labelSmoothing = 0.0 and
+     * Creates a SparseCategoricalCrossentropy with labelSmoothing = 0.0 and
      * fromLogits=false.
      *
      * @param reduction Type of Reduction to apply to loss.
@@ -48,7 +48,7 @@ public class CategoricalCrossentropy extends Loss {
     }
 
     /**
-     * Creates a BinaryCrossentropy with labelSmoothing = 0.0 and
+     * Creates a SparseCategoricalCrossentropy with labelSmoothing = 0.0 and
      * fromLogits=false.
      *
      * @param name the name of this loss function
@@ -59,7 +59,7 @@ public class CategoricalCrossentropy extends Loss {
     }
 
      /**
-     * Creates a BinaryCrossentropy with Reduction.AUTO,
+     * Creates a SparseCategoricalCrossentropy with Reduction.AUTO,
      *
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
      */
@@ -68,7 +68,7 @@ public class CategoricalCrossentropy extends Loss {
     }
     
      /**
-     * Creates a BinaryCrossentropy with Reduction.AUTO,
+     * Creates a SparseCategoricalCrossentropy with Reduction.AUTO,
      *
      * @param name the name of this loss function
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
@@ -78,7 +78,7 @@ public class CategoricalCrossentropy extends Loss {
     }
     
     /**
-     * Creates a BinaryCrossentropy with Reduction.AUTO,
+     * Creates a SparseCategoricalCrossentropy with Reduction.AUTO,
      *
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
      * @param labelSmoothing Float in [0, 1]. When 0, no smoothing occurs. When
@@ -92,7 +92,7 @@ public class CategoricalCrossentropy extends Loss {
     }
 
     /**
-     * Creates a BinaryCrossentropy with Reduction.AUTO,
+     * Creates a SparseCategoricalCrossentropy with Reduction.AUTO,
      *
      * @param name the name of this loss function
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
@@ -107,7 +107,7 @@ public class CategoricalCrossentropy extends Loss {
     }
 
     /**
-     * Creates a BinaryCrossentropy
+     * Creates a SparseCategoricalCrossentropy
      *
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
      * @param labelSmoothing Float in [0, 1]. When 0, no smoothing occurs. When
@@ -122,7 +122,7 @@ public class CategoricalCrossentropy extends Loss {
     }
 
     /**
-     * Creates a BinaryCrossentropy
+     * Creates a SparseCategoricalCrossentropy
      *
      * @param name the name of this loss function
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
