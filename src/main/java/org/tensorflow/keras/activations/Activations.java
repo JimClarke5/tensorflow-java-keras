@@ -59,7 +59,8 @@ public class Activations {
     }
 
     /**
-     * Get an Activation based on a lambda
+     * Get an Activation based on a lambda of the form: 
+     * (Ops ops) -> create(Ops ops) 
      *
      * @param tf
      * @param lambda a lambda function
@@ -70,7 +71,7 @@ public class Activations {
     }
     
       /**
-      * Get an Activation
+      * Get an Activation  based on a lambda of the form:  () -> create() 
       * @param lambda a lambda function
       * @return the Intializer object
       */
