@@ -272,9 +272,12 @@ public class LossesImpl {
             ),  tf.constant(-1));
     }
 
-    // TODO
-    public static Operand sparse_categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public static Operand sparse_categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, int axis) {
+        DataType dtype = yPred.asOutput().dataType();
+        Operand[] ops = preamble(tf, yTrue, yPred, null);
+        yPred = ops[PRED];
+        yTrue = ops[TRUE];
+        return K.sparse_categorical_crossentropy(tf, yTrue, yPred, fromLogits, axis);
     }
 
     public static Operand squared_hinge(Ops tf, Operand yTrue, Operand yPred) {

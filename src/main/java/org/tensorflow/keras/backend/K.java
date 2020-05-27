@@ -5,20 +5,21 @@
  */
 package org.tensorflow.keras.backend;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
-import org.tensorflow.Session;
-import org.tensorflow.Tensor;
 import org.tensorflow.keras.losses.impl.LossesImpl;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
+import org.tensorflow.op.Scope;
+import org.tensorflow.op.core.NoOp;
 import org.tensorflow.op.core.ReduceSum;
-import org.tensorflow.op.core.Stack;
 import org.tensorflow.op.core.Variable;
 import org.tensorflow.op.math.Mean;
 import org.tensorflow.op.nn.SoftmaxCrossEntropyWithLogits;
+import org.tensorflow.op.nn.SparseSoftmaxCrossEntropyWithLogits;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TBfloat16;
 import org.tensorflow.types.TBool;
@@ -112,7 +113,7 @@ public class K {
         );
         
     }
-    // Not sure if this is right or how to do it.
+    //TODO Not sure if this is right or how to do it.
     private static Operand  backtrackIdentity(Operand output) {
        // while(!output.op().type().equals("Identity"))
         //    output = output.op().output(0);
@@ -156,14 +157,14 @@ public class K {
     public static Operand categorical_crossentropy(Ops tf, Operand target, Operand output, boolean fromLogits, int axis) {
         
         if(fromLogits) {
-            return softmax_cross_entropy_with_logits_v2(tf, target, output);
+            return softmax_cross_entropy_with_logits(tf, target, output);
         }
         if(!(output instanceof Variable) && (!tf.scope().env().isEager())) {
             //TODO output = backtrackIdentity(output); doesn't seem to work with Java version.
             if(output.op().type().equals("Softmax")) {
                 assert output.op().numOutputs() == 1;
                 output = output.op().output(0);
-                 Operand op = softmax_cross_entropy_with_logits_v2(tf, target, output);
+                 Operand op = softmax_cross_entropy_with_logits(tf, target, output);
                  return op;
             }
         }
@@ -179,6 +180,77 @@ public class K {
                 tf.constant(axis), ReduceSum.keepDims(Boolean.FALSE));
         return tf.math.neg(cce);
     }
+    
+    public static Operand flatten(Ops tf, Operand t) {
+        Shape shape = Shape.of(1L);
+        return tf.reshape(t, tf.constant(shape));
+        
+    }
+    
+    
+    public static Operand sparse_categorical_crossentropy(Ops tf, Operand target, Operand output, boolean fromLogits, int axis) {
+        DataType dType = output.asOutput().dataType();
+        if(!(output instanceof Variable) && (!tf.scope().env().isEager())) {
+            //TODO output = backtrackIdentity(output); doesn't seem to work with Java version.
+            if(output.op().type().equals("Softmax")) {
+                assert output.op().numOutputs() == 1;
+                // When softmax activation function is used for output operation, we
+                // use logits from the softmax function directly to compute loss in order
+                // to prevent collapsing zero when training.
+                //TODO assert len(output.op.inputs) == 1
+                //TODO output = output.op.inputs[0]
+                fromLogits = true;
+            }
+        }
+        if(!fromLogits) {
+            Operand epsilonConst = epsilonConstant(tf,dType);
+            Operand one = one(tf, dType);
+            Operand oneMinusEpsilonConst = tf.math.sub(one, epsilonConst);
+            output = tf.clipByValue(output, epsilonConst, oneMinusEpsilonConst);
+            output = tf.math.log(output);
+        }
+        Shape outputShape = output.asOutput().shape();
+        int outputRank = outputShape.numDimensions();
+        axis %= outputRank;
+        if(axis != outputRank - 1){
+            //TODO permutation = list(
+            //TODO itertools.chain(range(axis), range(axis + 1, output_rank), [axis]))
+            List<Operand<TInt32>> permutationList = new ArrayList<>();
+            for(int i = 0; i < axis; i++)
+                permutationList.add(tf.constant(i));
+            for(int i = axis+1; i < outputRank; i++)
+                permutationList.add(tf.constant(i));
+            permutationList.add(tf.constant(axis));
+            //TODO output = array_ops.transpose(output, perm=permutation)
+            output =  tf.linalg.transpose( output, 
+                tf.concat( permutationList, tf.constant(0))
+            );
+        }
+        
+        target = tf.dtypes.cast(target, TInt64.DTYPE);
+        // TODO Try to adjust the shape so that rank of labels = rank of logits - 1.
+        // TODO output_shape = array_ops.shape_v2(output)
+        Shape targetShape = target.asOutput().shape();
+        int targetRank = targetShape.numDimensions();
+        
+        boolean updateShape = targetRank != outputRank - 1;
+        if(updateShape) { // TODO check to see if this is right
+            target = tf.reshape(target, tf.constant(-1L)); // flatten
+            Shape newShape = Shape.of();
+            output = tf.reshape(output, tf.constant(new long[]{-1L, outputShape.size(outputShape.numDimensions()-1)}));
+        }
+
+        Operand loss = sparse_softmax_cross_entropy_with_logits(tf, target, output);
+        if (outputRank >= 3) {
+            long[] dims = outputShape.asArray();
+            long[] newDims = new long[dims.length-1];
+            System.arraycopy(dims, 0, newDims, 0, newDims.length);
+            loss = tf.reshape(loss, tf.constant(newDims));
+        }
+        return loss;
+    }
+    
+   
     
     private static int[] allAxis(Operand op) {
         int rank = op.asOutput().shape().numDimensions();
@@ -247,10 +319,11 @@ public class K {
         
     }
     
-    public static Operand softmax_cross_entropy_with_logits_v2(Ops tf, Operand labels, Operand logits) {
-        return softmax_cross_entropy_with_logits_v2(tf, labels, logits, -1);
+    // TODO these are "nn" ops
+    public static Operand softmax_cross_entropy_with_logits(Ops tf, Operand labels, Operand logits) {
+        return softmax_cross_entropy_with_logits(tf, labels, logits, -1);
     }
-    public static Operand softmax_cross_entropy_with_logits_v2(Ops tf, Operand labels, Operand logits, int axis) {
+    public static Operand softmax_cross_entropy_with_logits(Ops tf, Operand labels, Operand logits, int axis) {
         Operand minusOne = tf.constant(-1);
         Operand precise_logits = logits;
         Operand one = tf.constant(1L);
@@ -273,9 +346,7 @@ public class K {
 
         Shape inputShape = precise_logits.asOutput().shape();
         precise_logits = flattenOuterDims(tf, precise_logits);
-        System.out.println("precise_logits.shape: " + precise_logits.asOutput().shape());
         labels = flattenOuterDims(tf, labels);
-        System.out.println("labels.shape: " + labels.asOutput().shape());
         SoftmaxCrossEntropyWithLogits smax = tf.nn.softmaxCrossEntropyWithLogits(
                 precise_logits,  labels);
         Operand cost = smax.loss();
@@ -302,6 +373,67 @@ public class K {
             cost = tf.dtypes.cast(cost, logits.asOutput().dataType());
         return cost;
     }
+    /**
+     * omputes sparse softmax cross entropy between `logits` and `labels`.
+     * 
+     * @param labels `Tensor` of shape `[d_0, d_1, ..., d_{r-1}]` (where `r` is rank of
+     * `labels` and result) and dtype `int32` or `int64`. Each entry in `labels`
+     * must be an index in `[0, num_classes)`. Other values will raise an
+     * exception when this op is run on CPU, and return `NaN` for corresponding
+     * loss and gradient rows on GPU.
+     * @param logits Per-label activations (typically a linear output) of shape
+     * `[d_0, d_1, ..., d_{r-1}, num_classes]` and dtype `float16`, `float32`, or
+     * `float64`. These activation energies are interpreted as unnormalized log
+     * probabilities.
+     * @return A `Tensor` of the same shape as `labels` and of the same type as `logits`
+     * with the softmax cross entropy loss.
+     */
+    public static Operand sparse_softmax_cross_entropy_with_logits(Ops tf, Operand labels, Operand logits) {
+        Operand precise_logits = logits;
+        boolean convertToFloat32 = logits.asOutput().dataType() == TFloat16.DTYPE ||
+                logits.asOutput().dataType() == TBfloat16.DTYPE;
+        if(convertToFloat32 )
+            precise_logits = tf.dtypes.cast(logits, TFloat32.DTYPE);
+        Shape labelsShape = labels.asOutput().shape();
+        Shape logitsShape = logits.asOutput().shape();
+        Operand labels_shape = tf.shape(labels);
+        boolean staticShapesFullyDefined = !labelsShape.hasUnknownDimension();
+        if(logitsShape.numDimensions() == 0) {
+            throw new IllegalArgumentException(
+                    String.format("Logits cannot be scalars - received shape %s.", logitsShape));
+        }
+        if(staticShapesFullyDefined && !labelsShape.equals(logitsShape)) {
+            throw new IllegalArgumentException(
+                    String.format("Shape mismatch: The shape of labels (received %s) " +
+                       "should equal the shape of logits except for the last " +
+                       "dimension (received %s).", 
+                            labelsShape, logitsShape));
+        }
+        if(logitsShape.numDimensions() == 2) {
+            SparseSoftmaxCrossEntropyWithLogits smax = tf.nn.sparseSoftmaxCrossEntropyWithLogits(logits, labels);
+            Operand loss = smax.loss();
+            if(logits.asOutput().dataType() == TFloat16.DTYPE) {
+                loss = tf.dtypes.cast(loss, TFloat16.DTYPE);
+            }
+            return loss;
+        }
+        
+        List<Operand> shapeChecks = new ArrayList<>();
+        if(!staticShapesFullyDefined){
+          
+            //tf.assertThat(tf.math.equal(tf.shape(labels),  tf.shape(logits)));
+        }
+        List<Op> updateOperations = new ArrayList<>();
+        Scope scope = tf.scope();
+        scope = scope.withName("sparse_softmax_cross_entropy_with_logits");
+        scope = scope.withControlDependencies(updateOperations);
+        //TODO 
+        return null;
+        
+
+    }
+     
+     /// END nn OPS
     
     //TODO for debug, remove when done
     
