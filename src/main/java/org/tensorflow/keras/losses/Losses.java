@@ -40,7 +40,7 @@ public class Losses {
             put("logcosh", LogCosh::new);
             put("poisson", Poisson::new);
             //put("sparse_categorical_crossentropy", sparse_categorical_crossentropy::new);
-            //put("squared_hinge", squared_hinge::new);
+            put("squared_hinge", SquaredHinge::new);
         }
     };
     
