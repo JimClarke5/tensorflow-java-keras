@@ -50,7 +50,7 @@ public class SmartCondTest {
      */
     @Test
     public void testCondOp() {
-        System.out.println("cond");
+        System.out.println("testCondOp");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
             Constant pred = tf.constant(true);
@@ -71,10 +71,10 @@ public class SmartCondTest {
     
     @Test
     public void testCondOp2() {
-        System.out.println("cond");
+        System.out.println("testCondOp2");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
-            Constant pred = tf.constant(1);
+            Constant pred = tf.constant(true);
             sess.run(pred);
             
             Supplier<Operand> true_fn = () -> tf.constant(true);
@@ -92,10 +92,10 @@ public class SmartCondTest {
     
     @Test
     public void testCondOpPoint1() {
-        System.out.println("cond");
+        System.out.println("testCondOpPoint1");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
-            Constant pred = tf.constant(0.1);
+            Operand pred = tf.math.equal(tf.constant(0.1), tf.constant(1.0));
             sess.run(pred);
             
             Supplier<Operand> true_fn = () -> tf.constant(true);
@@ -112,10 +112,10 @@ public class SmartCondTest {
     
     @Test
     public void testCondOpString() {
-        System.out.println("cond");
+        System.out.println("testCondOpString");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
-            Constant pred = tf.constant("TRUE");
+            Operand pred = tf.math.equal(tf.constant("TRUE"), tf.constant("TRUE"));
             
             Supplier<Operand> true_fn = () -> tf.constant(true);
             Supplier<Operand> false_fn = () ->  tf.constant(false);
@@ -134,7 +134,7 @@ public class SmartCondTest {
      */
     @Test
     public void testCondBoolean() {
-        System.out.println("cond");
+        System.out.println("testCondBoolean");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
             boolean pred = false;
@@ -157,7 +157,7 @@ public class SmartCondTest {
      */
     @Test
     public void testCondInt() {
-        System.out.println("cond");
+        System.out.println("testCondInt");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
             int pred = 1;
@@ -180,7 +180,7 @@ public class SmartCondTest {
      */
     @Test
     public void testCondFloat1() {
-        System.out.println("cond");
+        System.out.println("testCondFloat1");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
             float pred = 1.0F;
@@ -202,7 +202,7 @@ public class SmartCondTest {
      */
     @Test
     public void testCondFloat0_1() {
-        System.out.println("cond");
+        System.out.println("testCondFloat0_1");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
             float pred = 0.1F;
@@ -224,8 +224,8 @@ public class SmartCondTest {
      * Test of cond method, of class SmartCond.
      */
     @Test
-    public void testCondFloatString() {
-        System.out.println("cond");
+    public void testCondString() {
+        System.out.println("testCondString");
         try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
             String pred = "true";
