@@ -50,8 +50,9 @@ public class Losses {
     };
     
     /**
-     * Get an Loss
+     * Get a Loss
      *
+     * @param tf The TensorFlow Ops
      * @param lossFunction either a String that identifies the
      * Loss, an Loss class, or an Loss object.
      * @return the loss object or null if not found.
@@ -61,10 +62,10 @@ public class Losses {
     }
 
     /**
-     * Get an Loss based on a lambda of the form: 
+     * Get a Loss based on a lambda of the form: 
      * (Ops ops) -> create(Ops ops) 
      *
-     * @param tf
+     * @param tf The TensorFlow Ops
      * @param lambda a lambda function
      * @return the Intializer object
      */
@@ -73,7 +74,7 @@ public class Losses {
     }
     
       /**
-      * Get an Loss  based on a lambda of the form:  () -> create() 
+      * Get a Loss  based on a lambda of the form:  () -> create() 
       * @param lambda a lambda function
       * @return the Intializer object
       */
@@ -82,8 +83,9 @@ public class Losses {
     }
 
     /**
-     * Get an Loss
+     * Get a Loss
      *
+     * @param tf The TensorFlow Ops
      * @param lossFunction
      * @param custom_functions a map of Loss lambdas that will be queried
      * if the loss is not found in the standard keys
