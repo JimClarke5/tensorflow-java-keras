@@ -56,7 +56,7 @@ public class LossesTest {
      */
     @Test
     public void testGet_Ops_Object() {
-        System.out.println("get");
+        System.out.println("testGet_Ops_Object");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             String lossFunction = "kld";
@@ -80,7 +80,7 @@ public class LossesTest {
      */
     @Test
     public void testGet_Ops_Function() {
-        System.out.println("get");
+        System.out.println("testGet_Ops_Function");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             Function<Ops, Loss> lambda = (ops) -> new LogCosh(ops);
@@ -96,7 +96,7 @@ public class LossesTest {
      */
     @Test
     public void testGet_Supplier() {
-        System.out.println("get");
+        System.out.println("testGet_Supplier");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             Supplier<Loss> lambda = () -> new MeanSquaredError(tf);
@@ -111,7 +111,7 @@ public class LossesTest {
      */
     @Test
     public void testGet_3args() {
-        System.out.println("get");
+        System.out.println("testGet_3args");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             String lossFunction = "logits_scce";
@@ -129,7 +129,7 @@ public class LossesTest {
      */
     @Test
     public void testKLD() {
-        System.out.println("KLD");
+        System.out.println("test KLD");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] pred_np = {.4f, .9f, .12f, .36f, .3f, .4f};
@@ -148,7 +148,7 @@ public class LossesTest {
      */
     @Test
     public void testKld() {
-        System.out.println("kld");
+        System.out.println("test kld");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] pred_np = {.4f, .9f, .12f, .36f, .3f, .4f};
@@ -167,7 +167,7 @@ public class LossesTest {
      */
     @Test
     public void testKullback_leibler_divergence() {
-        System.out.println("kullback_leibler_divergence");
+        System.out.println("test kullback_leibler_divergence");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] pred_np = {.4f, .9f, .12f, .36f, .3f, .4f};
@@ -186,7 +186,7 @@ public class LossesTest {
      */
     @Test
     public void testMAE() {
-        System.out.println("MAE"); 
+        System.out.println("test MAE"); 
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
@@ -205,7 +205,7 @@ public class LossesTest {
      */
     @Test
     public void testMae() {
-        System.out.println("mae");
+        System.out.println("test mae");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
@@ -224,7 +224,7 @@ public class LossesTest {
      */
     @Test
     public void testMean_absolute_error() {
-        System.out.println("mean_absolute_error");
+        System.out.println("test mean_absolute_error");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
@@ -243,7 +243,7 @@ public class LossesTest {
      */
     @Test
     public void testMAPE() {
-        System.out.println("MAPE");
+        System.out.println("test MAPE");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
@@ -262,7 +262,7 @@ public class LossesTest {
      */
     @Test
     public void testMape() {
-        System.out.println("mape");
+        System.out.println("test mape");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
@@ -281,7 +281,7 @@ public class LossesTest {
      */
     @Test
     public void testMean_absolute_percentage_error() {
-        System.out.println("mean_absolute_percentage_error");
+        System.out.println("test mean_absolute_percentage_error");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
@@ -300,7 +300,7 @@ public class LossesTest {
      */
     @Test
     public void testMSE() {
-        System.out.println("MSE");
+        System.out.println("test MSE");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
@@ -319,7 +319,7 @@ public class LossesTest {
      */
     @Test
     public void testMse() {
-        System.out.println("mse");
+        System.out.println("test mse");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
@@ -338,7 +338,7 @@ public class LossesTest {
      */
     @Test
     public void testMean_squared_error() {
-        System.out.println("mean_squared_error");
+        System.out.println("test mean_squared_error");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
@@ -357,7 +357,7 @@ public class LossesTest {
      */
     @Test
     public void testMSLE() {
-        System.out.println("MSLE");
+        System.out.println("test MSLE");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
@@ -376,7 +376,7 @@ public class LossesTest {
      */
     @Test
     public void testMsle() {
-        System.out.println("msle");
+        System.out.println("test msle");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
@@ -395,7 +395,7 @@ public class LossesTest {
      */
     @Test
     public void testMean_squared_logarithmic_error() {
-        System.out.println("mean_squared_logarithmic_error");
+        System.out.println("test mean_squared_logarithmic_error");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
@@ -414,7 +414,7 @@ public class LossesTest {
      */
     @Test
     public void testBinary_crossentropy_3args() {
-        System.out.println("testBinary_crossentropy_3args");
+        System.out.println("test testBinary_crossentropy_3args");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             
@@ -434,7 +434,7 @@ public class LossesTest {
      */
     @Test
     public void testBinary_crossentropy_4args_1() {
-        System.out.println("testBinary_crossentropy_4args_1");
+        System.out.println("test testBinary_crossentropy_4args_1");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_np1 = {1F, 0F, 1F, 0F, 1F, 1F};
@@ -597,7 +597,7 @@ public class LossesTest {
      */
     @Test
     public void testCategorical_hinge() {
-        System.out.println("categorical_hinge");
+        System.out.println("test categorical_hinge");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             int[] true_np = {1, 9, 2, -5};
@@ -616,7 +616,7 @@ public class LossesTest {
      */
     @Test
     public void testCosine_similarity() {
-        System.out.println("cosine_similarity");
+        System.out.println("test cosine_similarity");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_np = {
@@ -641,7 +641,7 @@ public class LossesTest {
      */
     @Test
     public void testHinge() {
-        System.out.println("hinge");
+        System.out.println("test hinge");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_np = {0f, 1f, 0f, 1f, 0f, 0f, 1f, 1f};
@@ -660,7 +660,7 @@ public class LossesTest {
      */
     @Test
     public void testHuber() {
-        System.out.println("huber");
+        System.out.println("test huber");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_np = {.9f, .2f, .2f, .8f, .4f, .6f};
@@ -680,7 +680,7 @@ public class LossesTest {
      */
     @Test
     public void testLogcosh() {
-        System.out.println("logcosh");
+        System.out.println("test logcosh");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] pred_np = {1f, 9f, 2f, -5f, -2f, 6f};
@@ -699,7 +699,7 @@ public class LossesTest {
      */
     @Test
     public void testPoisson() {
-        System.out.println("poisson");
+        System.out.println("test poisson");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] pred_np = {1f, 9f, 2f, 5f, 2f, 6f};
@@ -718,7 +718,7 @@ public class LossesTest {
      */
     @Test
     public void testSparse_categorical_crossentropy_4args() {
-        System.out.println("sparse_categorical_crossentropy");
+        System.out.println("test sparse_categorical_crossentropy");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             boolean fromLogits = false;
@@ -742,7 +742,7 @@ public class LossesTest {
      */
     @Test
     public void testSparse_categorical_crossentropy_5args() {
-        System.out.println("sparse_categorical_crossentropy");
+        System.out.println("test sparse_categorical_crossentropy");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             boolean fromLogits = true;
@@ -769,7 +769,7 @@ public class LossesTest {
      */
     @Test
     public void testSquared_hinge() {
-        System.out.println("squared_hinge");
+        System.out.println("test squared_hinge");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_np = {0, 1, 0, 1, 0, 0, 1, 1};

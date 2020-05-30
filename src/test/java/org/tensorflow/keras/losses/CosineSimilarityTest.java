@@ -115,7 +115,6 @@ public class CosineSimilarityTest {
             try ( Tensor<TFloat32> result = sess.runner().fetch(loss).run().get(0).expect(TFloat32.DTYPE)) {
                 index = 0;
                 result.data().scalars().forEach(f -> {
-                    System.out.printf("%d -> %f\n", index, f.getFloat());
                     assertEquals(-expectedLoss[index], f.getFloat(), epsilon);
                     index++;
                 });

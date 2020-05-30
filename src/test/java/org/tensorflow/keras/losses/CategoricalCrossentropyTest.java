@@ -244,7 +244,6 @@ public class CategoricalCrossentropyTest {
             
             CategoricalCrossentropy instance = new CategoricalCrossentropy(tf, true, label_smoothing);
             Operand loss = instance.call(y_true, logits);
-            System.out.println(loss.asOutput().shape());
             float expected =  400.0F * label_smoothing / 3.0F;
             testSession.evaluate(expected, loss);
         } catch (Exception expected) {
