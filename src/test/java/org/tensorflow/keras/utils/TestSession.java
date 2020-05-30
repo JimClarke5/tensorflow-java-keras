@@ -18,6 +18,7 @@ import org.tensorflow.types.family.TNumber;
  */
 public abstract class TestSession implements Closeable {
     protected float epsilon = 1e-5F;
+    protected boolean debug;
     
     public enum Mode { EAGER, GRAPH; }
             
@@ -38,6 +39,8 @@ public abstract class TestSession implements Closeable {
     }
     
     public abstract <T extends TNumber>void evaluate(Number[] expected, Operand<T> input);
+    
+    public abstract <T extends TNumber>void evaluate(Operand<T> expected, Operand<T> input);
     
     
     public abstract Ops getTF();
@@ -61,6 +64,20 @@ public abstract class TestSession implements Closeable {
     
     @Override
     public abstract void close();
+
+    /**
+     * @return the debug
+     */
+    public boolean isDebug() {
+        return debug;
+    }
+
+    /**
+     * @param debug the debug to set
+     */
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
     
     
     

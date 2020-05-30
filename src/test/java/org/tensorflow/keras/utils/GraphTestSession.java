@@ -5,7 +5,6 @@
  */
 package org.tensorflow.keras.utils;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -80,6 +79,14 @@ public class GraphTestSession extends TestSession {
         DataType dtype = input.asOutput().dataType();
         if(dtype == TFloat32.DTYPE) {
             AtomicInteger index = new AtomicInteger();
+            if(debug) {
+                try ( Tensor<TFloat32> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TFloat32.DTYPE)) {
+                    result.data().scalars().forEach(f -> {
+                        System.out.printf("%d). %f\n", index.incrementAndGet(), f.getFloat());
+                    });
+                }
+            }
+            index.set(0);
             try ( Tensor<TFloat32> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TFloat32.DTYPE)) {
                     result.data().scalars().forEach(f -> {
                         assertEquals(expected[index.get()].floatValue(), f.getFloat(), epsilon);
@@ -89,6 +96,14 @@ public class GraphTestSession extends TestSession {
             }
         }else if(dtype == TFloat64.DTYPE) {
             AtomicInteger index = new AtomicInteger();
+                       if(debug) {
+                try ( Tensor<TFloat64> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TFloat64.DTYPE)) {
+                    result.data().scalars().forEach(f -> {
+                        System.out.printf("%d). %f\n", index.incrementAndGet(), f.getDouble());
+                    });
+                }
+            }
+            index.set(0);
             try ( Tensor<TFloat64> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TFloat64.DTYPE)) {
                     result.data().scalars().forEach(f -> {
                         assertEquals(expected[index.get()].doubleValue(), f.getDouble(), epsilon);
@@ -98,6 +113,14 @@ public class GraphTestSession extends TestSession {
             }
         }else if(dtype == TInt32.DTYPE) {
             AtomicInteger index = new AtomicInteger();
+                       if(debug) {
+                try ( Tensor<TInt32> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TInt32.DTYPE)) {
+                    result.data().scalars().forEach(f -> {
+                        System.out.printf("%d). %d\n", index.incrementAndGet(), f.getInt());
+                    });
+                }
+            }
+            index.set(0);
             try ( Tensor<TInt32> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TInt32.DTYPE)) {
                     result.data().scalars().forEach(f -> {
                         assertEquals(expected[index.get()].intValue(), f.getInt());
@@ -108,11 +131,96 @@ public class GraphTestSession extends TestSession {
         } else if(dtype == TInt64.DTYPE) {
             Operand<TInt64> o = (Operand<TInt64>)input;
             AtomicInteger index = new AtomicInteger();
+            if(debug) {
+                try ( Tensor<TInt64> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TInt64.DTYPE)) {
+                    result.data().scalars().forEach(f -> {
+                        System.out.printf("%d). %d\n", index.incrementAndGet(), f.getLong());
+                    });
+                }
+            }
+            index.set(0);
             try ( Tensor<TInt64> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TInt64.DTYPE)) {
                     result.data().scalars().forEach(f -> {
                         assertEquals(expected[index.get()].longValue(), f.getLong());
                         if(!scalarExpected)
                        index.incrementAndGet();
+                    });
+            }
+        }else {
+            fail("Unexpected DataType: " + dtype);
+        }
+    }
+    
+    @Override
+    public <T extends TNumber> void evaluate(Operand<T> expected, Operand<T> input) {
+        this.getGraphSession().run(expected);
+        this.getGraphSession().run(input);
+        
+        assert(input.asTensor().shape().equals(expected.asTensor().shape()));
+        
+        DataType dtype = input.asOutput().dataType();
+        if(dtype == TFloat32.DTYPE) {
+            AtomicInteger index = new AtomicInteger();
+            final Operand<TFloat32> finalExpected = (Operand<TFloat32>)expected;
+            if(debug) {
+                try ( Tensor<TFloat32> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TFloat32.DTYPE)) {
+                    result.data().scalars().forEachIndexed((idx,f) -> {
+                        System.out.printf("%d). %f <==> %f\n", index.incrementAndGet(), finalExpected.data().getFloat(idx), f.getFloat());
+                    });
+                }
+            }
+            index.set(0);
+            try ( Tensor<TFloat32> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TFloat32.DTYPE)) {
+                    result.data().scalars().forEachIndexed((idx, f) -> {
+                        assertEquals(finalExpected.data().getFloat(idx), f.getFloat(), epsilon);
+                    });
+            }
+        }else if(dtype == TFloat64.DTYPE) {
+                        AtomicInteger index = new AtomicInteger();
+            final Operand<TFloat64> finalExpected = (Operand<TFloat64>)expected;
+            if(debug) {
+                try ( Tensor<TFloat64> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TFloat64.DTYPE)) {
+                    result.data().scalars().forEachIndexed((idx,f) -> {
+                        System.out.printf("%d). %f <==> %f\n", index.incrementAndGet(), finalExpected.data().getDouble(idx), f.getDouble());
+                    });
+                }
+            }
+            index.set(0);
+            try ( Tensor<TFloat64> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TFloat64.DTYPE)) {
+                    result.data().scalars().forEachIndexed((idx, f) -> {
+                        assertEquals(finalExpected.data().getDouble(idx), f.getDouble(), epsilon);
+                    });
+            }
+        }else if(dtype == TInt32.DTYPE) {
+                        AtomicInteger index = new AtomicInteger();
+            final Operand<TInt32> finalExpected = (Operand<TInt32>)expected;
+            if(debug) {
+                try ( Tensor<TInt32> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TInt32.DTYPE)) {
+                    result.data().scalars().forEachIndexed((idx,f) -> {
+                        System.out.printf("%d). %f <==> %f\n", index.incrementAndGet(), finalExpected.data().getInt(idx), f.getInt());
+                    });
+                }
+            }
+            index.set(0);
+            try ( Tensor<TInt32> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TInt32.DTYPE)) {
+                    result.data().scalars().forEachIndexed((idx, f) -> {
+                        assertEquals(finalExpected.data().getInt(idx), f.getInt());
+                    });
+            }
+        } else if(dtype == TInt64.DTYPE) {
+                        AtomicInteger index = new AtomicInteger();
+            final Operand<TInt64> finalExpected = (Operand<TInt64>)expected;
+            if(debug) {
+                try ( Tensor<TInt64> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TInt64.DTYPE)) {
+                    result.data().scalars().forEachIndexed((idx,f) -> {
+                        System.out.printf("%d). %f <==> %f\n", index.incrementAndGet(), finalExpected.data().getLong(idx), f.getLong());
+                    });
+                }
+            }
+            index.set(0);
+            try ( Tensor<TInt64> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TInt64.DTYPE)) {
+                    result.data().scalars().forEachIndexed((idx, f) -> {
+                        assertEquals(finalExpected.data().getLong(idx), f.getLong(), epsilon);
                     });
             }
         }else {
