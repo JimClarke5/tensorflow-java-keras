@@ -23,8 +23,6 @@ import org.tensorflow.types.TFloat32;
  * @author Jim Clarke
  */
 public class CategoricalCrossentropyTest {
-    int index;
-    float epsilon = 1e-4F;
     Mode tf_mode = Mode.EAGER;
     
     public CategoricalCrossentropyTest() {

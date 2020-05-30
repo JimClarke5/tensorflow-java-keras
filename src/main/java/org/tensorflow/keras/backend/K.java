@@ -11,10 +11,7 @@ import java.util.List;
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.keras.losses.impl.LossesImpl;
-import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
-import org.tensorflow.op.Scope;
-import org.tensorflow.op.core.NoOp;
 import org.tensorflow.op.core.ReduceSum;
 import org.tensorflow.op.core.Variable;
 import org.tensorflow.op.math.Mean;
@@ -193,7 +190,7 @@ public class K {
         if(!(output instanceof Variable) && (!tf.scope().env().isEager())) {
             //TODO output = backtrackIdentity(output); doesn't seem to work with Java version.
             if(output.op().type().equals("Softmax")) {
-                assert output.op().numOutputs() == 1;
+                //assert output.op().numOutputs() == 1;
                 // When softmax activation function is used for output operation, we
                 // use logits from the softmax function directly to compute loss in order
                 // to prevent collapsing zero when training.
@@ -212,16 +209,17 @@ public class K {
         Shape outputShape = output.asOutput().shape();
         int outputRank = outputShape.numDimensions();
         axis %= outputRank;
+        if(axis < 0)
+            axis += outputRank;
         if(axis != outputRank - 1){
             //TODO permutation = list(
             //TODO itertools.chain(range(axis), range(axis + 1, output_rank), [axis]))
+
+            int[] axisNew = moveAxisToEnd(axis, outputRank);
             List<Operand<TInt32>> permutationList = new ArrayList<>();
-            for(int i = 0; i < axis; i++)
+            for(int i : axisNew) {
                 permutationList.add(tf.constant(i));
-            for(int i = axis+1; i < outputRank; i++)
-                permutationList.add(tf.constant(i));
-            permutationList.add(tf.constant(axis));
-            //TODO output = array_ops.transpose(output, perm=permutation)
+            }
             output =  tf.linalg.transpose( output, 
                 tf.concat( permutationList, tf.constant(0))
             );
@@ -229,19 +227,19 @@ public class K {
         
         target = tf.dtypes.cast(target, TInt64.DTYPE);
         // TODO Try to adjust the shape so that rank of labels = rank of logits - 1.
-        // TODO output_shape = array_ops.shape_v2(output)
+        outputShape = output.asOutput().shape();
         Shape targetShape = target.asOutput().shape();
         int targetRank = targetShape.numDimensions();
         
         boolean updateShape = targetRank != outputRank - 1;
         if(updateShape) { // TODO check to see if this is right
             target = tf.reshape(target, tf.constant(-1L)); // flatten
-            Shape newShape = Shape.of();
             output = tf.reshape(output, tf.constant(new long[]{-1L, outputShape.size(outputShape.numDimensions()-1)}));
         }
 
+        // call nn.nn.sparse_softmax_cross_entropy_with_logits_v2
         Operand loss = sparse_softmax_cross_entropy_with_logits(tf, target, output);
-        if (outputRank >= 3) {
+        if (updateShape && outputRank >= 3) {
             long[] dims = outputShape.asArray();
             long[] newDims = new long[dims.length-1];
             System.arraycopy(dims, 0, newDims, 0, newDims.length);
@@ -285,7 +283,7 @@ public class K {
         
         //Shape logitsShape = logits.asOutput().shape();
         //long lastDimSize = logitsShape.size(logitsShape.numDimensions()-1);
-        if(!tf.scope().env().isEager()) {
+        //if(!tf.scope().env().isEager()) {
             Shape shape = logits.asOutput().shape();
             int ndims = shape.numDimensions();
             if(!shape.hasUnknownDimension()) {
@@ -304,7 +302,7 @@ public class K {
                     return tf.reshape(logits, tf.constant(outputShape.asArray()));
                 }
             }
-        }
+        //}
         
         Operand rank = tf.dtypes.cast(tf.rank(logits),TInt64.DTYPE);
         Operand rankMinusOne = tf.math.sub(rank, one);
@@ -319,11 +317,44 @@ public class K {
         
     }
     
+    private static int[] moveAxisToEnd(int axis, int outputRank) {
+        int[] axisNew = new int[outputRank];
+         for(int i = 0; i < axis; i++) {
+             axisNew[i] = i;
+         }
+         for(int i = axis+1; i < outputRank; i++) {
+             axisNew[i-1] = i;
+         }
+         axisNew[outputRank-1] = axis;
+         return axisNew;
+            
+    }
+    
+    // TODO, maybe part of Shape
+    private static boolean shapeIsCompatible(Shape a, Shape b) {
+        if(a.numDimensions() != b.numDimensions()) {
+            return false;
+        }
+        for(int i = 0; i < a.numDimensions();i++) {
+            long aSize = a.size(i);
+            long bSize = b.size(i);
+            if( aSize != Shape.UNKNOWN_SIZE &&
+                    bSize != Shape.UNKNOWN_SIZE &&
+                    aSize != bSize)
+                return false;
+        }
+        return true;
+    }
+    
     // TODO these are "nn" ops
     public static Operand softmax_cross_entropy_with_logits(Ops tf, Operand labels, Operand logits) {
         return softmax_cross_entropy_with_logits(tf, labels, logits, -1);
     }
     public static Operand softmax_cross_entropy_with_logits(Ops tf, Operand labels, Operand logits, int axis) {
+        axis = axis % logits.asOutput().shape().numDimensions();
+        if(axis < 0)
+            axis += logits.asOutput().shape().numDimensions();
+                
         Operand minusOne = tf.constant(-1);
         Operand precise_logits = logits;
         Operand one = tf.constant(1L);
@@ -373,9 +404,78 @@ public class K {
             cost = tf.dtypes.cast(cost, logits.asOutput().dataType());
         return cost;
     }
+    
+    
+    //TODO SHould these be in Shape, thes implemenations are basic and not totally robust.
+    // like head but is not limited to first dimension
+    public static Shape head(Shape oldShape, int axis) {
+        axis %= oldShape.numDimensions();
+        if(axis < 0)
+            axis += oldShape.numDimensions();
+        long[] array = oldShape.asArray();
+        long[] newArray = new long[axis];
+        for(int i = 0; i < axis; i++) {
+            newArray[i] = array[i];
+        }
+        return Shape.of(newArray);
+    }
+    public static Shape tail(Shape oldShape, int axis) {
+        axis %= oldShape.numDimensions();
+        if(axis < 0)
+            axis += oldShape.numDimensions();
+        long[] array = oldShape.asArray();
+        long[] newArray = new long[oldShape.numDimensions()- axis];
+        for(int i = axis, j = 0; i < array.length; i++, j++) {
+            newArray[j] = array[i];
+        }
+        return Shape.of(newArray);
+    }
+    
+    /**
+     * Reshapes the shape by eliminating trailing Dimensions.
+     * @param oldShape
+     * @param axis
+     * @return the new shape
+     */
+    public static Shape squeeze(Shape oldShape, int axis) {
+        axis %= oldShape.numDimensions();
+        if(axis < 0)
+            axis = oldShape.numDimensions() + axis;
+        long[] array = oldShape.asArray();
+        long[] newArray = new long[axis];
+        for(int i = 0; i < axis-1; i++) {
+            newArray[i] = array[i];
+        }
+        long sum = array[axis-1];
+        for(int i = axis; i < array.length; i++) {
+            sum *= array[i];
+        }
+        newArray[axis-1] = sum;
+        return Shape.of(newArray);
+    }
+    
+    public static Shape shorten(Shape oldShape, int count) {
+        
+        count %= oldShape.numDimensions();
+        if(count < 0)
+            count += oldShape.numDimensions();
+        long[] array = oldShape.asArray();
+        long[] newArray = new long[array.length - count];
+        System.arraycopy(array, 0, newArray, 0, count);
+        return Shape.of(newArray);
+    }
+    
+    public static Shape append(Shape shape, long lastDimension) {
+        long[] array = shape.asArray();
+        long[] narray = new long[array.length + 1];
+        System.arraycopy(array, 0, narray, 0, array.length);
+        narray[array.length] = lastDimension;
+        return Shape.of(narray);
+    }
     /**
      * omputes sparse softmax cross entropy between `logits` and `labels`.
      * 
+     * @param tf
      * @param labels `Tensor` of shape `[d_0, d_1, ..., d_{r-1}]` (where `r` is rank of
      * `labels` and result) and dtype `int32` or `int64`. Each entry in `labels`
      * must be an index in `[0, num_classes)`. Other values will raise an
@@ -389,6 +489,9 @@ public class K {
      * with the softmax cross entropy loss.
      */
     public static Operand sparse_softmax_cross_entropy_with_logits(Ops tf, Operand labels, Operand logits) {
+        //assert shapeIsCompatible(labels.asOutput().shape(), logits.asOutput().shape()):
+        //        String.format("Shapes %s and %s are incompatible", 
+        //                labels.asOutput().shape(), logits.asOutput().shape());
         Operand precise_logits = logits;
         boolean convertToFloat32 = logits.asOutput().dataType() == TFloat16.DTYPE ||
                 logits.asOutput().dataType() == TBfloat16.DTYPE;
@@ -397,20 +500,25 @@ public class K {
         Shape labelsShape = labels.asOutput().shape();
         Shape logitsShape = logits.asOutput().shape();
         Operand labels_shape = tf.shape(labels);
-        boolean staticShapesFullyDefined = !labelsShape.hasUnknownDimension();
+        // TODO
+        //Shape newLogitsShape = squeeze(logitsShape, -1);
+        Shape logitsShortened = shorten(logitsShape, -1);
+        boolean staticShapesFullyDefined = !labelsShape.hasUnknownDimension() &&
+               ! logitsShape.hasUnknownDimension();
         if(logitsShape.numDimensions() == 0) {
             throw new IllegalArgumentException(
                     String.format("Logits cannot be scalars - received shape %s.", logitsShape));
         }
-        if(staticShapesFullyDefined && !labelsShape.equals(logitsShape)) {
+        if(staticShapesFullyDefined && !labelsShape.equals(logitsShortened)) {
             throw new IllegalArgumentException(
                     String.format("Shape mismatch: The shape of labels (received %s) " +
                        "should equal the shape of logits except for the last " +
                        "dimension (received %s).", 
                             labelsShape, logitsShape));
         }
+        // Check if no reshapes are required.
         if(logitsShape.numDimensions() == 2) {
-            SparseSoftmaxCrossEntropyWithLogits smax = tf.nn.sparseSoftmaxCrossEntropyWithLogits(logits, labels);
+            SparseSoftmaxCrossEntropyWithLogits smax = tf.nn.sparseSoftmaxCrossEntropyWithLogits(precise_logits, labels);
             Operand loss = smax.loss();
             if(logits.asOutput().dataType() == TFloat16.DTYPE) {
                 loss = tf.dtypes.cast(loss, TFloat16.DTYPE);
@@ -419,20 +527,38 @@ public class K {
         }
         
         List<Operand> shapeChecks = new ArrayList<>();
-        if(!staticShapesFullyDefined){
-          
+        //if(!staticShapesFullyDefined){
+        //    Shape logitsD = squeeze()
             //tf.assertThat(tf.math.equal(tf.shape(labels),  tf.shape(logits)));
-        }
+        //}
+        
+        // Reshape logits to 2 dim, labels to 1 dim.
+        
+        long numClassses = logitsShape.size(logitsShape.numDimensions()-1);
+        
+        precise_logits = tf.reshape(precise_logits,tf.constant(new long[] {-1, numClassses}));
+        labels = tf.reshape(labels, tf.constant(-1));
+        SparseSoftmaxCrossEntropyWithLogits smax = tf.nn.sparseSoftmaxCrossEntropyWithLogits(precise_logits, labels);
+        Operand cost = smax.loss();
+        cost = tf.reshape(cost, labels_shape);
+        if(logits.asOutput().dataType() == TFloat16.DTYPE) {
+                cost = tf.dtypes.cast(cost, TFloat16.DTYPE);
+            }
+        
+        
+        // TODO how to change this to Operand
+        /***********************
         List<Op> updateOperations = new ArrayList<>();
+        updateOperations.add(cost);
         Scope scope = tf.scope();
         scope = scope.withName("sparse_softmax_cross_entropy_with_logits");
         scope = scope.withControlDependencies(updateOperations);
-        //TODO 
-        return null;
-        
-
+        return NoOp.create(scope);
+        * ***************/
+        return cost;
     }
-     
+    
+    
      /// END nn OPS
     
     //TODO for debug, remove when done
@@ -440,5 +566,7 @@ public class K {
     private static void debug( String prefix, Operand operand) {
         LossesImpl.debug(prefix, operand);
     }
+
+    
     
 }

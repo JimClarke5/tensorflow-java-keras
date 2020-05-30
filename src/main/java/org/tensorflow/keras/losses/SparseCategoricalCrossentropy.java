@@ -15,6 +15,8 @@ import org.tensorflow.types.family.TNumber;
  * @author Jim Clarke
  */
 public class SparseCategoricalCrossentropy extends Loss {
+    
+    public static final String DEFAULT_NAME = "sparse_categorical_crossentropy";
 
     private final boolean fromLogits;
     private final float labelSmoothing;
@@ -26,7 +28,7 @@ public class SparseCategoricalCrossentropy extends Loss {
      * @param tf the TensorFlow Ops
      */
     public SparseCategoricalCrossentropy(Ops tf) {
-        this(tf, "categorical_crossentropy", false, 0.0F, Reduction.AUTO);
+        this(tf, DEFAULT_NAME, false, 0.0F, Reduction.AUTO);
     }
 
     /**
@@ -48,7 +50,7 @@ public class SparseCategoricalCrossentropy extends Loss {
      * @param reduction Type of Reduction to apply to loss.
      */
     public SparseCategoricalCrossentropy(Ops tf, Reduction reduction) {
-        this(tf, "categorical_crossentropy", false, 0.0F, reduction);
+        this(tf, DEFAULT_NAME, false, 0.0F, reduction);
     }
 
     /**
@@ -70,7 +72,7 @@ public class SparseCategoricalCrossentropy extends Loss {
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
      */
     public SparseCategoricalCrossentropy(Ops tf, boolean fromLogits) {
-        this(tf, "categorical_crossentropy", fromLogits, 0.0F, Reduction.AUTO);
+        this(tf, DEFAULT_NAME, fromLogits, 0.0F, Reduction.AUTO);
     }
     
      /**
@@ -96,7 +98,7 @@ public class SparseCategoricalCrossentropy extends Loss {
      * smoothing.
      */
     public SparseCategoricalCrossentropy(Ops tf, boolean fromLogits, float labelSmoothing) {
-        this(tf, "categorical_crossentropy", fromLogits, labelSmoothing, Reduction.AUTO);
+        this(tf, DEFAULT_NAME, fromLogits, labelSmoothing, Reduction.AUTO);
     }
 
     /**
@@ -128,7 +130,7 @@ public class SparseCategoricalCrossentropy extends Loss {
      * @param reduction Type of Reduction to apply to loss.
      */
     public SparseCategoricalCrossentropy(Ops tf, boolean fromLogits, float labelSmoothing, Reduction reduction) {
-        this(tf, "categorical_crossentropy", fromLogits, labelSmoothing, reduction);
+        this(tf, DEFAULT_NAME, fromLogits, labelSmoothing, reduction);
     }
 
     /**
