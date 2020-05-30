@@ -25,9 +25,6 @@ import org.tensorflow.types.TFloat32;
  */
 public class BinaryCrossentropyTest {
 
-    int index;
-    float epsilon = 1e-4F;
-    
     private Mode tf_mode = Mode.EAGER;
 
     public BinaryCrossentropyTest() {
