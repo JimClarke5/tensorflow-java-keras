@@ -19,7 +19,6 @@ import org.tensorflow.Operand;
 import org.tensorflow.keras.initializers.RandomUniform;
 import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Ops;
-import org.tensorflow.op.core.Placeholder;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TInt32;
@@ -134,8 +133,8 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] pred_np = {.4f, .9f, .12f, .36f, .3f, .4f};
             float[] true_np = {.5f, .8f, .12f, .7f, .43f, .8f};
-            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,3)));
+            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 3)));
+            Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Operand loss = Losses.KLD(tf, y_true, y_pred);
             Float[] expected = {0.017345406F, 1.1748023F};
             testSession.evaluate(expected, loss);
@@ -153,8 +152,8 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] pred_np = {.4f, .9f, .12f, .36f, .3f, .4f};
             float[] true_np = {.5f, .8f, .12f, .7f, .43f, .8f};
-            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,3)));
+            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 3)));
+            Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Operand loss = Losses.kld(tf, y_true, y_pred);
             Float[] expected = {0.017345406F, 1.1748023F};
             testSession.evaluate(expected, loss);
@@ -172,8 +171,8 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] pred_np = {.4f, .9f, .12f, .36f, .3f, .4f};
             float[] true_np = {.5f, .8f, .12f, .7f, .43f, .8f};
-            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,3)));
+            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 3)));
+            Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Operand loss = Losses.kullback_leibler_divergence(tf, y_true, y_pred);
             Float[] expected = {0.017345406F, 1.1748023F};
             testSession.evaluate(expected, loss);
@@ -186,13 +185,13 @@ public class LossesTest {
      */
     @Test
     public void testMAE() {
-        System.out.println("test MAE"); 
+        System.out.println("test MAE");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
             float[] pred_array = {4f, 8f, 12f, 8f, 1f, 3f};
-            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2,3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2,3)));
+            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2, 3)));
+            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2, 3)));
             Operand loss = Losses.MAE(tf, y_true, y_pred);
             Float[] expected = {4.6666665F, 6.3333335F};
             testSession.evaluate(expected, loss);
@@ -210,8 +209,8 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
             float[] pred_array = {4f, 8f, 12f, 8f, 1f, 3f};
-            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2,3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2,3)));
+            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2, 3)));
+            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2, 3)));
             Operand loss = Losses.mae(tf, y_true, y_pred);
             Float[] expected = {4.6666665F, 6.3333335F};
             testSession.evaluate(expected, loss);
@@ -229,8 +228,8 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
             float[] pred_array = {4f, 8f, 12f, 8f, 1f, 3f};
-            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2,3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2,3)));
+            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2, 3)));
+            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2, 3)));
             Operand loss = Losses.mean_absolute_error(tf, y_true, y_pred);
             Float[] expected = {4.6666665F, 6.3333335F};
             testSession.evaluate(expected, loss);
@@ -248,8 +247,8 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
             float[] pred_array = {4f, 8f, 12f, 8f, 1f, 3f};
-            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2,3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2,3)));
+            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2, 3)));
+            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2, 3)));
             Operand loss = Losses.MAPE(tf, y_true, y_pred);
             Float[] expected = {270.37034782F, 153.33333F};
             testSession.evaluate(expected, loss);
@@ -267,8 +266,8 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
             float[] pred_array = {4f, 8f, 12f, 8f, 1f, 3f};
-            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2,3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2,3)));
+            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2, 3)));
+            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2, 3)));
             Operand loss = Losses.mape(tf, y_true, y_pred);
             Float[] expected = {270.37034782F, 153.33333F};
             testSession.evaluate(expected, loss);
@@ -286,8 +285,8 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
             float[] pred_array = {4f, 8f, 12f, 8f, 1f, 3f};
-            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2,3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2,3)));
+            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2, 3)));
+            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2, 3)));
             Operand loss = Losses.mean_absolute_percentage_error(tf, y_true, y_pred);
             Float[] expected = {270.37034782F, 153.33333F};
             testSession.evaluate(expected, loss);
@@ -305,8 +304,8 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
             float[] pred_array = {4f, 8f, 12f, 8f, 1f, 3f};
-            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2,3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2,3)));
+            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2, 3)));
+            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2, 3)));
             Operand loss = Losses.MSE(tf, y_true, y_pred);
             Float[] expected = {36.666668F, 62.333332F};
             testSession.evaluate(expected, loss);
@@ -324,8 +323,8 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
             float[] pred_array = {4f, 8f, 12f, 8f, 1f, 3f};
-            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2,3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2,3)));
+            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2, 3)));
+            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2, 3)));
             Operand loss = Losses.mse(tf, y_true, y_pred);
             Float[] expected = {36.666668F, 62.333332F};
             testSession.evaluate(expected, loss);
@@ -343,8 +342,8 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
             float[] pred_array = {4f, 8f, 12f, 8f, 1f, 3f};
-            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2,3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2,3)));
+            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2, 3)));
+            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2, 3)));
             Operand loss = Losses.mean_squared_error(tf, y_true, y_pred);
             Float[] expected = {36.666668F, 62.333332F};
             testSession.evaluate(expected, loss);
@@ -362,8 +361,8 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
             float[] pred_array = {4f, 8f, 12f, 8f, 1f, 3f};
-            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2,3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2,3)));
+            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2, 3)));
+            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2, 3)));
             Operand loss = Losses.MSLE(tf, y_true, y_pred);
             Float[] expected = {1.00027791F, 1.87380626F};
             testSession.evaluate(expected, loss);
@@ -381,8 +380,8 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
             float[] pred_array = {4f, 8f, 12f, 8f, 1f, 3f};
-            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2,3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2,3)));
+            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2, 3)));
+            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2, 3)));
             Operand loss = Losses.msle(tf, y_true, y_pred);
             Float[] expected = {1.00027791F, 1.87380626F};
             testSession.evaluate(expected, loss);
@@ -400,8 +399,8 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] true_array = {1f, 9f, 2f, -5f, -2f, 6f};
             float[] pred_array = {4f, 8f, 12f, 8f, 1f, 3f};
-            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2,3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2,3)));
+            Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(2, 3)));
+            Operand y_pred = tf.reshape(tf.constant(pred_array), tf.constant(Shape.of(2, 3)));
             Operand loss = Losses.mean_squared_logarithmic_error(tf, y_true, y_pred);
             Float[] expected = {1.00027791F, 1.87380626F};
             testSession.evaluate(expected, loss);
@@ -417,7 +416,7 @@ public class LossesTest {
         System.out.println("test testBinary_crossentropy_3args");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
-            
+
             float[] true_np = {1F, 0F, 1F, 0F};
             float[] pred_np = {1F, 1F, 1F, 0F};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 2)));
@@ -444,7 +443,7 @@ public class LossesTest {
             };
             Operand y_true = tf.reshape(tf.constant(true_np1), tf.constant(Shape.of(2, 3)));
             Operand logits = tf.reshape(tf.constant(logits_np), tf.constant(Shape.of(2, 3)));
-            Operand loss = Losses.binary_crossentropy(tf, y_true, logits,true);
+            Operand loss = Losses.binary_crossentropy(tf, y_true, logits, true);
             Float[] expected = {0.F, 66.666664F};
             testSession.evaluate(expected, loss);
 
@@ -464,7 +463,7 @@ public class LossesTest {
             float[] pred_np = {1F, 1F, 1F, 0F};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 2)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 2)));
-            Operand loss = Losses.binary_crossentropy(tf, y_true, y_pred,labelSmoothing);
+            Operand loss = Losses.binary_crossentropy(tf, y_true, y_pred, labelSmoothing);
             Float[] expected = {7.666619F, 15.379093F};
             testSession.evaluate(expected, loss);
 
@@ -503,7 +502,7 @@ public class LossesTest {
         System.out.println("testCategorical_crossentropy_3args");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
-            
+
             float[] true_np = {1, 0, 0, 0, 1, 0, 0, 0, 1};
             float[] pred_np = {
                 .9F, .05F, .05F,
@@ -602,10 +601,10 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             int[] true_np = {1, 9, 2, -5};
             float[] pred_np = {4F, 8F, 12F, 8F};
-            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,2)));
-            Operand y_pred= tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,2)));
+            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 2)));
+            Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 2)));
             Operand loss = Losses.categorical_hinge(tf, y_true, y_pred);
-            Float[] expected = { 0.0F, 65.0F};
+            Float[] expected = {0.0F, 65.0F};
             testSession.evaluate(expected, loss);
 
         }
@@ -627,10 +626,10 @@ public class LossesTest {
                 4F, 8F, 12F,
                 8F, 1F, 3F
             };
-            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,3)));
-            Operand y_pred= tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,3)));
+            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 3)));
+            Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Operand loss = Losses.cosine_similarity(tf, y_true, y_pred);
-            Float[] expected = { -0.720488F,   0.3460499F };
+            Float[] expected = {-0.720488F, 0.3460499F};
             testSession.evaluate(expected, loss);
 
         }
@@ -646,10 +645,10 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] true_np = {0f, 1f, 0f, 1f, 0f, 0f, 1f, 1f};
             float[] pred_np = {-0.3f, 0.2f, -0.1f, 1.6f, -0.25f, -1.f, 0.5f, 0.6f};
-            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,4)));
-            Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,4)));
+            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 4)));
+            Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 4)));
             Operand loss = Losses.hinge(tf, y_true, y_pred);
-            Float[] expected = { 0.6F,   0.412500F };
+            Float[] expected = {0.6F, 0.412500F};
             testSession.evaluate(expected, loss);
 
         }
@@ -665,11 +664,11 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] true_np = {.9f, .2f, .2f, .8f, .4f, .6f};
             float[] pred_np = {1.f, 0.f, 1.f, 1.f, 0.f, 0.f};
-            Operand yTrue = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,3)));
-            Operand yPred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,3)));
+            Operand yTrue = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 3)));
+            Operand yPred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             float delta = 1.0F;
             Operand loss = Losses.huber(tf, yTrue, yPred, delta);
-            Float[] expected = { 0.115000F,   0.093333F };
+            Float[] expected = {0.115000F, 0.093333F};
             testSession.evaluate(expected, loss);
 
         }
@@ -685,10 +684,10 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] pred_np = {1f, 9f, 2f, -5f, -2f, 6f};
             float[] true_np = {4f, 8f, 12f, 8f, 1f, 3f};
-            Operand yTrue = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,3)));
-            Operand yPred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,3)));
+            Operand yTrue = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 3)));
+            Operand yPred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Operand loss = Losses.logcosh(tf, yTrue, yPred);
-            Float[] expected = { 4.016654F,   5.641836F };
+            Float[] expected = {4.016654F, 5.641836F};
             testSession.evaluate(expected, loss);
 
         }
@@ -704,10 +703,10 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] pred_np = {1f, 9f, 2f, 5f, 2f, 6f};
             float[] true_np = {4f, 8f, 12f, 8f, 1f, 3f};
-            Operand yTrue = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,3)));
-            Operand yPred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,3)));
+            Operand yTrue = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 3)));
+            Operand yPred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Operand loss = Losses.poisson(tf, yTrue, yPred);
-            Float[] expected = { -4.631855F,   -1.981310F };
+            Float[] expected = {-4.631855F, -1.981310F};
             testSession.evaluate(expected, loss);
 
         }
@@ -722,7 +721,7 @@ public class LossesTest {
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             boolean fromLogits = false;
-            int[] true_np = { 0, 1, 2};
+            int[] true_np = {0, 1, 2};
             float[] pred_np = {
                 .9F, .05F, .05F,
                 .5F, .89F, .6F,
@@ -731,7 +730,7 @@ public class LossesTest {
             Operand yTrue = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(3, 1)));
             Operand yPred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(3, 3)));
             Operand loss = Losses.sparse_categorical_crossentropy(tf, yTrue, yPred, fromLogits);
-            Float[] expected = { 0.105361F, 0.804668F,  0.061875F };
+            Float[] expected = {0.105361F, 0.804668F, 0.061875F};
             testSession.evaluate(expected, loss);
 
         }
@@ -747,7 +746,7 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             boolean fromLogits = true;
             int axis = 1;
-            int[] true_np = { 0, 1, 2};
+            int[] true_np = {0, 1, 2};
             // Test with logits.
             float[] logits_np = {
                 8.F, 1.F, 1.F,
@@ -756,9 +755,9 @@ public class LossesTest {
             };
             Operand yTrue = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(3, 1)));
             Operand logits = tf.reshape(tf.constant(logits_np), tf.constant(Shape.of(3, 3)));
-            
+
             Operand loss = Losses.sparse_categorical_crossentropy(tf, yTrue, logits, fromLogits, axis);
-            Float[] expected = { 0.001822F,   0.000459F, 0.169846F };
+            Float[] expected = {0.001822F, 0.000459F, 0.169846F};
             testSession.evaluate(expected, loss);
 
         }
@@ -774,64 +773,62 @@ public class LossesTest {
             Ops tf = testSession.getTF();
             float[] true_np = {0, 1, 0, 1, 0, 0, 1, 1};
             float[] pred_np = {-0.3f, 0.2f, -0.1f, 1.6f, -0.25f, -1.f, 0.5f, 0.6f};
-            Operand yTrue = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2,4)));
-            Operand yPred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2,4)));
+            Operand yTrue = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 4)));
+            Operand yPred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 4)));
             Operand loss = Losses.squared_hinge(tf, yTrue, yPred);
-            Float[] expected = { 0.485000F,   0.243125F };
+            Float[] expected = {0.485000F, 0.243125F};
             testSession.evaluate(expected, loss);
 
         }
     }
-    
-    @Test 
+
+    @Test
     public void test_categorical_crossentropy_loss() {
         System.out.println("test_categorical_crossentropy_loss");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             Operand<TInt32> target = tf.random.randomUniformInt(
-                    tf.constant(Shape.of(5,1)), tf.constant(0), tf.constant(1));
+                    tf.constant(Shape.of(5, 1)), tf.constant(0), tf.constant(1));
             RandomUniform ru = new RandomUniform(tf);
-            Operand<TFloat32> logits = ru.call(tf.constant(Shape.of(5,1)), TFloat32.DTYPE);
+            Operand<TFloat32> logits = ru.call(tf.constant(Shape.of(5, 1)), TFloat32.DTYPE);
             Operand softmaxOutput = tf.nn.softmax(logits);
             Operand output_from_logit = Losses.categorical_crossentropy(tf, target, logits, true);
-            Operand outputFromSoftMax =  Losses.categorical_crossentropy(tf, target, softmaxOutput, false);
+            Operand outputFromSoftMax = Losses.categorical_crossentropy(tf, target, softmaxOutput, false);
             testSession.evaluate(output_from_logit, outputFromSoftMax);
         }
     }
-    
-    
-    
+
     @Test
     public void test_sparse_categorical_crossentropy_loss() {
         System.out.println("test_sparse_categorical_crossentropy_loss");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             Operand<TInt32> target = tf.random.randomUniformInt(
-                    tf.constant(Shape.of(5,1)), tf.constant(0), tf.constant(1));
+                    tf.constant(Shape.of(5, 1)), tf.constant(0), tf.constant(1));
             RandomUniform ru = new RandomUniform(tf);
-            Operand<TFloat32> logits = ru.call(tf.constant(Shape.of(5,1)), TFloat32.DTYPE);
+            Operand<TFloat32> logits = ru.call(tf.constant(Shape.of(5, 1)), TFloat32.DTYPE);
             Operand softmaxOutput = tf.nn.softmax(logits);
             Operand output_from_logit = Losses.sparse_categorical_crossentropy(tf, target, logits, true);
-            Operand outputFromSoftMax =  Losses.sparse_categorical_crossentropy(tf, target, softmaxOutput, false);
+            Operand outputFromSoftMax = Losses.sparse_categorical_crossentropy(tf, target, softmaxOutput, false);
             testSession.evaluate(output_from_logit, outputFromSoftMax);
-            
+
         }
     }
-    
+
     @Test
     public void test_binary_crossentropy_loss() {
         System.out.println("test_binary_crossentropy_loss");
         try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             Operand<TInt32> target = tf.random.randomUniformInt(
-                    tf.constant(Shape.of(5,1)), tf.constant(0), tf.constant(1));
+                    tf.constant(Shape.of(5, 1)), tf.constant(0), tf.constant(1));
             RandomUniform ru = new RandomUniform(tf);
-            Operand<TFloat32> logits = ru.call(tf.constant(Shape.of(5,1)), TFloat32.DTYPE);
+            Operand<TFloat32> logits = ru.call(tf.constant(Shape.of(5, 1)), TFloat32.DTYPE);
             Operand sigmoidOutput = tf.math.sigmoid(logits);
             Operand output_from_logit = Losses.sparse_categorical_crossentropy(tf, target, logits, true);
-            Operand outputFromSigmoid =  Losses.sparse_categorical_crossentropy(tf, target, sigmoidOutput, false);
+            Operand outputFromSigmoid = Losses.sparse_categorical_crossentropy(tf, target, sigmoidOutput, false);
             testSession.evaluate(output_from_logit, outputFromSigmoid);
-            
+
         }
     }
 

@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.Operand;
-import org.tensorflow.Tensor;
 import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.keras.utils.TestSession.Mode;
 import org.tensorflow.op.Ops;
@@ -69,9 +68,9 @@ public class BinaryCrossentropyTest {
             BinaryCrossentropy instance = new BinaryCrossentropy(tf);
             float[] true_np = {1f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(3, 3)));
-            
+
             Operand<TFloat32> loss = instance.call(y_true, y_true);
-            
+
             float expected = 0.0F;
             testSession.evaluate(expected, loss);
             System.out.println("============ LOGITS =================");
@@ -83,7 +82,7 @@ public class BinaryCrossentropyTest {
             };
             Operand logits = tf.reshape(tf.constant(logits_np), tf.constant(Shape.of(3, 3)));
             instance = new BinaryCrossentropy(tf, true);
-            
+
             loss = instance.call(y_true, logits);
             testSession.evaluate(expected, loss);
         }
@@ -218,11 +217,11 @@ public class BinaryCrossentropyTest {
             float[] logits_array = {100.0f, -100.0f, -100.0f};
             Operand y_true = tf.reshape(tf.constant(true_array), tf.constant(Shape.of(1, 3)));
             Operand logits = tf.reshape(tf.constant(logits_array), tf.constant(Shape.of(1, 3)));
-            
+
             BinaryCrossentropy instance = new BinaryCrossentropy(tf, true, label_smoothing);
             Operand loss = instance.call(y_true, logits);
             System.out.println(loss.asOutput().shape());
-            float expected =  (100.0F + 50.0F * label_smoothing) / 3.0F;
+            float expected = (100.0F + 50.0F * label_smoothing) / 3.0F;
             testSession.evaluate(expected, loss);
         } catch (Exception expected) {
 
