@@ -436,7 +436,6 @@ public class LossesImpl {
     public static void debug(String prefix, Operand operand) {
         
         if(session != null) {
-            System.out.printf("%s Shape: %s\n", prefix, operand.asOutput().shape());
             if(operand.asOutput().dataType() == TInt64.DTYPE) {
                 try ( Tensor<TInt64> result = session.runner().fetch(operand).run().get(0).expect(TInt64.DTYPE)) {
                         result.data().scalars().forEachIndexed((idx,f) -> {
