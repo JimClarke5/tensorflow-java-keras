@@ -133,7 +133,9 @@ public class LossesImpl {
     
     private static Operand smoothLabelsCatX(Ops tf, Operand yTrue, float labelSmoothing) {
         Constant smoothing = tf.constant(labelSmoothing);
-        Operand numClasses = tf.dtypes.cast(tf.constant(yTrue.asOutput().shape().size(1)), yTrue.asOutput().dataType());
+        Shape yTrueShape = yTrue.asOutput().shape();
+        int yNdims = yTrueShape.numDimensions();
+        Operand numClasses = tf.dtypes.cast(tf.constant(yTrue.asOutput().shape().size(yNdims-1)), yTrue.asOutput().dataType());
         Constant oneMinusSomoothing = tf.constant(1.F - labelSmoothing);
         return tf.math.add(  
                 tf.math.mul(yTrue, oneMinusSomoothing),
@@ -141,17 +143,17 @@ public class LossesImpl {
     }
     
     public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred) {
-        return categorical_crossentropy(tf, yTrue, yPred, false, 0.F);
+        return categorical_crossentropy(tf, yTrue, yPred, false, 0.F, -1);
     }
     public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits) {
-        return categorical_crossentropy(tf, yTrue, yPred, fromLogits, 0.F);
+        return categorical_crossentropy(tf, yTrue, yPred, fromLogits, 0.F, -1);
     }
     
     public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, float labelSmoothing) {
-        return categorical_crossentropy(tf, yTrue, yPred, false,labelSmoothing);
+        return categorical_crossentropy(tf, yTrue, yPred, false,labelSmoothing, -1);
     }
     
-    public static Operand categorical_crossentropy(final Ops tf,  Operand yTrue, Operand yPred, boolean fromLogits, float labelSmoothing) {
+    public static Operand categorical_crossentropy(final Ops tf,  Operand yTrue, Operand yPred, boolean fromLogits, float labelSmoothing, int axis) {
         Operand[] ops = preamble(tf, yTrue, yPred, null);
         yPred = ops[PRED];
         yTrue = ops[TRUE];
@@ -160,7 +162,7 @@ public class LossesImpl {
                         smoothLabelsCatX(tf, yTrue, labelSmoothing),
                         yTrue);
         
-        return  K.categorical_crossentropy(tf, yTrue, yPred, fromLogits);
+        return  K.categorical_crossentropy(tf, yTrue, yPred, fromLogits, axis);
     }
 
     public static Operand categorical_hinge(Ops tf, Operand yTrue, Operand yPred) {
@@ -188,7 +190,7 @@ public class LossesImpl {
     
     
     // TODO this was tf.math.l2_normalize in TF Python
-    private static Operand l2Normalize(Ops tf, Operand  x, int axis) {
+    public static Operand l2Normalize(Ops tf, Operand  x, int axis) {
         Operand square_sum = tf.reduceSum(tf.math.square(x), tf.constant(axis),ReduceSum.keepDims(Boolean.TRUE));
         Operand x_inv_norm = tf.math.rsqrt(tf.math.maximum(square_sum, 
                 tf.dtypes.cast(tf.constant(1e-12F), x.asOutput().dataType())));
