@@ -373,7 +373,7 @@ public class Losses {
      * @return the loss
      */
     public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred) {
-        return categorical_crossentropy(tf, yTrue, yPred, false, 0.0F);
+        return categorical_crossentropy(tf, yTrue, yPred, false, 0.0F, -1);
     }
     
      /**
@@ -386,7 +386,7 @@ public class Losses {
      * @return the loss
      */
     public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits) {
-        return categorical_crossentropy(tf, yTrue, yPred, fromLogits, 0.0F);
+        return categorical_crossentropy(tf, yTrue, yPred, fromLogits, 0.0F, -1);
     }
     
      /**
@@ -403,7 +403,7 @@ public class Losses {
      * @return the loss
      */
     public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, float labelSmoothing) {
-        return categorical_crossentropy(tf, yTrue, yPred, false,labelSmoothing);
+        return categorical_crossentropy(tf, yTrue, yPred, false,labelSmoothing, -1);
     }
 
     /**
@@ -420,8 +420,8 @@ public class Losses {
      * to heavier smoothing.
      * @return the loss
      */
-    public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, float labelSmoothing) {
-        return LossesImpl.categorical_crossentropy(tf, yTrue, yPred, fromLogits, labelSmoothing);
+    public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, float labelSmoothing, int axis) {
+        return LossesImpl.categorical_crossentropy(tf, yTrue, yPred, fromLogits, labelSmoothing,axis);
     }
 
     /**
