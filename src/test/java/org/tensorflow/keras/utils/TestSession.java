@@ -5,10 +5,15 @@
  */
 package org.tensorflow.keras.utils;
 
-import java.io.Closeable;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Writer;
 import org.tensorflow.EagerSession;
 import org.tensorflow.Operand;
+import org.tensorflow.Output;
 import org.tensorflow.Session;
+import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TNumber;
 
@@ -16,7 +21,7 @@ import org.tensorflow.types.family.TNumber;
  *
  * @author Jim Clarke
  */
-public abstract class TestSession implements Closeable {
+public abstract class TestSession implements AutoCloseable {
     protected float epsilon = 1e-5F;
     protected boolean debug;
     
@@ -34,13 +39,69 @@ public abstract class TestSession implements Closeable {
         return mode == Mode.EAGER?  createEagerSession() : createGraphSession();
     }
     
+    public void initialize() {
+        // empty
+    }
+    
+    public void run(Op op) {
+        
+    }
+    
     public <T extends TNumber> void evaluate(Number expected, Operand<T> input) {
         evaluate(new Number[]{ expected } , input);
     }
+    public <T extends TNumber> void evaluate(Number expected, Op input) {
+        evaluate(new Number[]{ expected } , input);
+    }
     
-    public abstract <T extends TNumber>void evaluate(Number[] expected, Operand<T> input);
+    public <T extends TNumber> void evaluate(Number[] expected, Op input) {
+        Output output = input.op().output(0);
+        evaluate(expected, output);
+    }
     
-    public abstract <T extends TNumber>void evaluate(Operand<T> expected, Operand<T> input);
+    public <T extends TNumber> void evaluate(Number[] expected, Operand<T> input) {
+        Output output = input.asOutput();
+        evaluate(expected, output);
+    }
+    
+    public abstract <T extends TNumber>void evaluate(Number[] expected, Output<T> input);
+    
+    
+    public <T extends TNumber> void evaluate(Operand<T> expected, Op input) {
+        Output output = input.op().output(0);
+        evaluate(expected, output);
+    }
+    
+    public <T extends TNumber> void evaluate(Operand<T> expected, Operand<T> input) {
+        evaluate(expected.asOutput(), input.asOutput());
+    }
+    
+    public abstract <T extends TNumber>void evaluate(Output<T> expected, Output<T> input);
+    
+    
+    public <T extends TNumber>void print(OutputStream out, Operand<T> input){
+         print(new PrintWriter(new OutputStreamWriter(out)), input.asOutput());
+    }
+    
+    public <T extends TNumber>void print(OutputStream out, Op input){
+         print(new PrintWriter(new OutputStreamWriter(out)), input.op().output(0));
+    }
+    
+    public <T extends TNumber>void print(OutputStream out, Output<T> input){
+         print(new PrintWriter(new OutputStreamWriter(out)), input);
+    }
+    
+    public <T extends TNumber>void print(Writer writer, Operand<T> input){
+         print(new PrintWriter(writer), input.asOutput());
+    }
+    
+    public <T extends TNumber>void print(Writer writer, Op input){
+         print(new PrintWriter(writer), input.op().output(0));
+    }
+    public <T extends TNumber>void print(Writer writer, Output<T> input){
+         print(new PrintWriter(writer), input);
+    }
+    public abstract <T extends TNumber>void print(PrintWriter writer, Output<T> input);
     
     
     public abstract Ops getTF();
