@@ -26,6 +26,7 @@ import org.tensorflow.types.TInt32;
 import org.tensorflow.types.TInt64;
 import org.tensorflow.types.family.TNumber;
 import org.tensorflow.types.family.TType;
+import org.tensorflow.op.core.Stack;
 
 /**
  *
@@ -216,13 +217,7 @@ public class K {
             //TODO itertools.chain(range(axis), range(axis + 1, output_rank), [axis]))
 
             int[] axisNew = moveAxisToEnd(axis, outputRank);
-            List<Operand<TInt32>> permutationList = new ArrayList<>();
-            for(int i : axisNew) {
-                permutationList.add(tf.constant(i));
-            }
-            output =  tf.linalg.transpose( output, 
-                tf.concat( permutationList, tf.constant(0))
-            );
+            output =  tf.linalg.transpose( output, tf.constant(axisNew));
         }
         
         target = tf.dtypes.cast(target, TInt64.DTYPE);
