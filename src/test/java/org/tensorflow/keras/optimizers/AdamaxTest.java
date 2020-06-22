@@ -1,8 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/* Copyright 2020 The TensorFlow Authors. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+=======================================================================*/
 package org.tensorflow.keras.optimizers;
 
 import java.util.ArrayList;
@@ -30,7 +39,7 @@ import static org.tensorflow.keras.optimizers.Adamax.LEARNING_RATE_DEFAULT;
 import static org.tensorflow.keras.optimizers.Adamax.LEARNING_RATE_KEY;
 import static org.tensorflow.keras.optimizers.Adamax.SECOND_MOMENT;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
-import org.tensorflow.keras.utils.NP;
+import org.tensorflow.keras.utils.ND;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Assign;
@@ -254,12 +263,12 @@ public class AdamaxTest {
         float alpha1 = alpha / oneMinusBeta1Pow;
         
         //beta1 * m + (1 - beta1) * g_t;
-        m = NP.add(NP.mul(beta1, m), NP.mul(oneMinusBeta1, grads_np));
+        m = ND.add(ND.mul(beta1, m), ND.mul(oneMinusBeta1, grads_np));
        // np.maximum(beta2 * v, np.abs(g_t)) 
-        v = NP.max(NP.mul(beta2, v), NP.abs(grads_np));
+        v = ND.max(ND.mul(beta2, v), ND.abs(grads_np));
         //param_t = param - (alpha / (1 - beta1**(t + 1))) * (m_t / (v_t + epsilon))
-        var_np = NP.sub(var_np, 
-           NP.mul(alpha1, NP.div(m, NP.add(v, espilon))));
+        var_np = ND.sub(var_np, 
+           ND.mul(alpha1, ND.div(m, ND.add(v, espilon))));
                 
         FloatNdArray[] result = new FloatNdArray[3];
         result[VAR] = var_np;

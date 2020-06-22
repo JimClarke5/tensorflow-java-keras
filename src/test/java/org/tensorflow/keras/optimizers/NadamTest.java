@@ -1,8 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/* Copyright 2020 The TensorFlow Authors. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+=======================================================================*/
 package org.tensorflow.keras.optimizers;
 
 import java.util.ArrayList;
@@ -30,7 +39,7 @@ import static org.tensorflow.keras.optimizers.Nadam.FIRST_MOMENT;
 import static org.tensorflow.keras.optimizers.Nadam.LEARNING_RATE_DEFAULT;
 import static org.tensorflow.keras.optimizers.Nadam.SECOND_MOMENT;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
-import org.tensorflow.keras.utils.NP;
+import org.tensorflow.keras.utils.ND;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Assign;
@@ -215,29 +224,17 @@ public class NadamTest {
                     });
                     
                 }
-                NP.print("mcache B4",mcache );
-                mcache = NP.mul(mcache, momentum);
-                NP.print("mcache AF",mcache );
+                mcache = ND.mul(mcache, momentum);
                 FloatNdArray[] resultsNP = nadam_update_numpy(var0_np, grads0_np, step, m0, v0,mcache);
                 var0_np = resultsNP[VAR];
                 m0 = resultsNP[M];
                 v0 = resultsNP[V];
                 
-                System.out.println("=========================");
-                NP.print("var0_np", var0_np);
-                NP.print("m0", m0);
-                NP.print("v0", v0);
-                System.out.println("=========================");
                 
                 resultsNP = nadam_update_numpy(var1_np, grads1_np, step, m1, v1,mcache);
                 var1_np = resultsNP[VAR];
                 m1 = resultsNP[M];
                 v1 = resultsNP[V];
-                 System.out.println("=========================");
-                NP.print("var1_np", var1_np);
-                NP.print("m1", m1);
-                NP.print("v1", v1);
-                System.out.println("=========================");
                 
                 
                // get m0
@@ -245,7 +242,6 @@ public class NadamTest {
                     index = 0;
                     final FloatNdArray m0_final = m0;
                     result.data().scalars().forEach(f-> {
-                        System.out.printf("Check m0: %f => %f\n", m0_final.getFloat(index),  f.getFloat());
                         assertEquals(m0_final.getFloat(index), f.getFloat(), epsilon1);
                         index++;
                     } );
@@ -257,7 +253,6 @@ public class NadamTest {
                     index = 0;
                     final FloatNdArray m1_final = m1;
                     result.data().scalars().forEach(f-> {
-                        System.out.printf("Check m1: %f => %f\n", m1_final.getFloat(index),  f.getFloat());
                         assertEquals(m1_final.getFloat(index), f.getFloat(), epsilon1);
                         index++;
                     } );
@@ -269,7 +264,6 @@ public class NadamTest {
                     index = 0;
                     final FloatNdArray v0_final = v0;
                     result.data().scalars().forEach(f-> {
-                        System.out.printf("Check  v0: %f => %f\n", v0_final.getFloat(index),  f.getFloat());
                         assertEquals(v0_final.getFloat(index), f.getFloat(), epsilon1);
                         index++;
                     } );
@@ -281,7 +275,6 @@ public class NadamTest {
                     index = 0;
                     final FloatNdArray v1_final = v1;
                     result.data().scalars().forEach(f-> {
-                        System.out.printf("Check  v1: %f => %f\n", v1_final.getFloat(index),  f.getFloat());
                         assertEquals(v1_final.getFloat(index), f.getFloat(), epsilon1);
                         index++;
                     } );
@@ -293,7 +286,6 @@ public class NadamTest {
                     index = 0;
                     final FloatNdArray var0_final = var0_np;
                     result.data().scalars().forEach(f-> {
-                        System.out.printf("Check var0: %f => %f\n", var0_final.getFloat(index),  f.getFloat());
                         assertEquals(var0_final.getFloat(index), f.getFloat(), epsilon1);
                         index++;
                     } );
@@ -306,7 +298,6 @@ public class NadamTest {
                     index = 0;
                     final FloatNdArray var1_final = var1_np;
                     result.data().scalars().forEach(f-> {
-                        System.out.printf("Check var1: %f => %f\n", var1_final.getFloat(index),  f.getFloat());
                         assertEquals(var1_final.getFloat(index), f.getFloat(), epsilon1);
                         index++;
                     } );
@@ -322,7 +313,7 @@ public class NadamTest {
 
     private FloatNdArray update_m_cache(FloatNdArray mcache, int t) {
         float mu_t = 0.9F * (1.0F - 0.5F * (float)Math.pow(0.96, (0.004 * (t + 1))));
-        return NP.mul(mu_t, mcache);
+        return ND.mul(mu_t, mcache);
     }
 
     private FloatNdArray[] nadam_update_numpy(FloatNdArray var_np, FloatNdArray grads_np, 
@@ -334,15 +325,15 @@ public class NadamTest {
         float epsilon=1e-8F;
         float mu_t = beta1 * (1F - 0.5F * (float)Math.pow(0.96, 0.004 * (t + 1)) );
         float mu_t_1 = beta1 * (1F - 0.5F * (float)Math.pow(0.96, (0.004 * (t + 2))) );
-        FloatNdArray m_cache_t_1 = NP.mul(m_cache , mu_t_1);
-        FloatNdArray g_prime_t = NP.div(grads_np,  NP.sub(1.0F, m_cache));
-        FloatNdArray m_t = NP.add( NP.mul(beta1,  m ),  NP.mul((1 - beta1) ,  grads_np));
-        FloatNdArray v_t = NP.add( NP.mul(beta2 , v) , NP.mul((1 - beta2), NP.square(grads_np)));
+        FloatNdArray m_cache_t_1 = ND.mul(m_cache , mu_t_1);
+        FloatNdArray g_prime_t = ND.div(grads_np,  ND.sub(1.0F, m_cache));
+        FloatNdArray m_t = ND.add(ND.mul(beta1,  m ),  ND.mul((1 - beta1) ,  grads_np));
+        FloatNdArray v_t = ND.add(ND.mul(beta2 , v) , ND.mul((1 - beta2), ND.square(grads_np)));
         
-        FloatNdArray m_prime_t = NP.div(m_t , NP.sub(1.F, m_cache_t_1));
-        FloatNdArray v_prime_t =  NP.div(v_t , 1.F-(float)Math.pow(beta2, t + 1));
-        FloatNdArray m_bar_t = NP.add(NP.mul((1 - mu_t), g_prime_t),  NP.mul(mu_t_1, m_prime_t));
-        FloatNdArray param_t = NP.sub(var_np, NP.div(NP.mul(alpha, m_bar_t),   NP.add(NP.sqrt(v_prime_t), epsilon) ));
+        FloatNdArray m_prime_t = ND.div(m_t , ND.sub(1.F, m_cache_t_1));
+        FloatNdArray v_prime_t =  ND.div(v_t , 1.F-(float)Math.pow(beta2, t + 1));
+        FloatNdArray m_bar_t = ND.add(ND.mul((1 - mu_t), g_prime_t),  ND.mul(mu_t_1, m_prime_t));
+        FloatNdArray param_t = ND.sub(var_np, ND.div(ND.mul(alpha, m_bar_t),   ND.add(ND.sqrt(v_prime_t), epsilon) ));
          
         FloatNdArray[] results = new FloatNdArray[3];
         results[VAR] = param_t;

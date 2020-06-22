@@ -1,8 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/* Copyright 2020 The TensorFlow Authors. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+=======================================================================*/
 package org.tensorflow.keras.optimizers;
 
 import java.util.ArrayList;
@@ -32,7 +41,7 @@ import static org.tensorflow.keras.optimizers.RMSProp.EPSILON_DEFAULT;
 import static org.tensorflow.keras.optimizers.RMSProp.EPSILON_KEY;
 import static org.tensorflow.keras.optimizers.RMSProp.MOMENTUM_DEFAULT;
 import static org.tensorflow.keras.optimizers.RMSProp.MOMENTUM_KEY;
-import org.tensorflow.keras.utils.NP;
+import org.tensorflow.keras.utils.ND;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Assign;
@@ -146,8 +155,6 @@ public class RMSPropTest {
                 float epsilon = (float) _test_param_values[run][3];
                 boolean centered = (boolean) _test_param_values[run][4];
                 
-                System.out.printf("\nRMSProp: learningRate=%f, decay=%f, momentum=%f, epsilon=%f, centered=%s\n",
-                        learningRate, decay, momentum, epsilon, centered);
 
                 RMSProp instance = new RMSProp(graph,
                         learningRate,
@@ -226,7 +233,6 @@ public class RMSPropTest {
                             index = 0;
                             final FloatNdArray ftmp = mg0_np;
                             result.data().scalars().forEach(f -> {
-                                System.out.printf("mg0_np: %f, mg0: %f\n",ftmp.getFloat(index), f.getFloat());
                                 assertEquals(ftmp.getFloat(index++), f.getFloat(), epsilon1);
                                     });
                         }
@@ -234,7 +240,6 @@ public class RMSPropTest {
                             index = 0;
                             final FloatNdArray ftmp = mg1_np;
                             result.data().scalars().forEach(f -> {
-                                System.out.printf("mg1_np: %f, mg1: %f\n",ftmp.getFloat(index), f.getFloat());
                                 assertEquals(ftmp.getFloat(index++), f.getFloat(), epsilon1);
                              });
                         }
@@ -244,7 +249,6 @@ public class RMSPropTest {
                             index = 0;
                             final FloatNdArray ftmp = mom0_np;
                             result.data().scalars().forEach(f -> {
-                               System.out.printf("mom0_np: %f, mom0: %f\n",ftmp.getFloat(index), f.getFloat());
                                 assertEquals(ftmp.getFloat(index++), f.getFloat(), epsilon1);
                                     });
                         }
@@ -252,7 +256,6 @@ public class RMSPropTest {
                             index = 0;
                             final FloatNdArray ftmp = mom1_np;
                             result.data().scalars().forEach(f -> {
-                               System.out.printf("mom1_np: %f, mom1: %f\n",ftmp.getFloat(index), f.getFloat());
                                 assertEquals(ftmp.getFloat(index++), f.getFloat(), epsilon1);
                              });
                         }
@@ -264,7 +267,6 @@ public class RMSPropTest {
                         final FloatNdArray ftmp = rms0_np;
                         result.data().scalars().forEach(
                                 f -> {
-                                    System.out.printf("rms0_np: %f, rms0: %f\n",ftmp.getFloat(index), f.getFloat());
                                     assertEquals(ftmp.getFloat(index++), f.getFloat(), epsilon1);
                                 }
                         );
@@ -276,7 +278,6 @@ public class RMSPropTest {
                         
                         result.data().scalars().forEach(
                                 f -> {
-                                    System.out.printf("rms1_np: %f, rms1: %f\n",ftmp.getFloat(index), f.getFloat());
                                     assertEquals(ftmp.getFloat(index++), f.getFloat(), epsilon1);
                                 }
                         );                    
@@ -285,7 +286,6 @@ public class RMSPropTest {
                         index = 0;
                         final FloatNdArray ftmp = var0_np;
                         result.data().scalars().forEach(f -> {
-                            System.out.printf("var0_np: %f, var0: %f\n",ftmp.getFloat(index), f.getFloat());
                             assertEquals(ftmp.getFloat(index++), f.getFloat(), epsilon1);
                          });
                     }
@@ -295,7 +295,6 @@ public class RMSPropTest {
                         index = 0;
                         final FloatNdArray ftmp = var1_np;
                         result.data().scalars().forEach(f -> {
-                            System.out.printf("var1_np: %f, var1: %f\n",ftmp.getFloat(index), f.getFloat());
                             assertEquals(ftmp.getFloat(index++), f.getFloat(), epsilon1);
                          });
                     }
@@ -318,7 +317,7 @@ public class RMSPropTest {
         if (centered) {
             result[MG_T] = calcMG(mg_np, grad_np, decay);
             //rms_t - mg_t * mg_t
-            denom_t = NP.sub(result[RMS_T], NP.square(result[MG_T]));
+            denom_t = ND.sub(result[RMS_T], ND.square(result[MG_T]));
         } else {
             result[MG_T] = mg_np;
             denom_t = rms_np;
@@ -327,15 +326,15 @@ public class RMSPropTest {
             //momentum * mom + lr * g / (np.sqrt(denom_t + epsilon))
             result[MOM_T] = calcMom(momentum, mom, lr, grad_np, denom_t, epsilon);
             //var_t = var - mom_t
-            result[VAR_T] = NP.sub(var_np, result[MOM_T]);
+            result[VAR_T] = ND.sub(var_np, result[MOM_T]);
         } else {
             result[MOM_T] = mom;
             result[VAR_T] = calcVar(var_np, grad_np, lr, denom_t, epsilon);
         }
-        NP.print("var_t", result[VAR_T]);
-        NP.print("mg_t",result[MG_T]);
-        NP.print("rms_t",result[RMS_T]);
-        NP.print("mom_t",result[MOM_T]);
+        ND.print("var_t", result[VAR_T]);
+        ND.print("mg_t",result[MG_T]);
+        ND.print("rms_t",result[RMS_T]);
+        ND.print("mom_t",result[MOM_T]);
 
         return result;
 
@@ -343,20 +342,20 @@ public class RMSPropTest {
 
     private FloatNdArray calcRMS(FloatNdArray rms_np, FloatNdArray grad_np, float decay) {
         //rms * rho + (1 - rho) * g * g
-        FloatNdArray rms_rho = NP.mul(rms_np, decay);
-        FloatNdArray squareG = NP.square(grad_np);
+        FloatNdArray rms_rho = ND.mul(rms_np, decay);
+        FloatNdArray squareG = ND.square(grad_np);
         float oneRHO = 1.0F - decay;
-        FloatNdArray decayG2 = NP.mul(oneRHO, squareG);
-        FloatNdArray result = NP.add(rms_rho, decayG2);
+        FloatNdArray decayG2 = ND.mul(oneRHO, squareG);
+        FloatNdArray result = ND.add(rms_rho, decayG2);
         return result;
     }
 
     private FloatNdArray calcMG(FloatNdArray mg_np, FloatNdArray grad_np, float decay) {
         //mg_t = mg * rho + (1 - rho) * g
-        FloatNdArray mg_rho = NP.mul(mg_np, decay);
+        FloatNdArray mg_rho = ND.mul(mg_np, decay);
         float oneRHO = 1.0F - decay;
-        FloatNdArray decayG = NP.mul(oneRHO, grad_np);
-        FloatNdArray result = NP.add(mg_rho, decayG);
+        FloatNdArray decayG = ND.mul(oneRHO, grad_np);
+        FloatNdArray result = ND.add(mg_rho, decayG);
         return result;
 
     }
@@ -364,11 +363,11 @@ public class RMSPropTest {
     private FloatNdArray calcMom(float momentum, FloatNdArray mom, float lr,
             FloatNdArray grad_np, FloatNdArray denom_t, float epsilon) {
         // momentum * mom + lr * g / (np.sqrt(denom_t + epsilon))
-        FloatNdArray moMo = NP.mul(momentum, mom);
-        FloatNdArray dividend = NP.mul(lr, grad_np);
-        FloatNdArray divisor = NP.sqrt(NP.add(denom_t, epsilon));
-        FloatNdArray quotient = NP.div(dividend, divisor);
-        FloatNdArray result = NP.add(moMo, quotient);
+        FloatNdArray moMo = ND.mul(momentum, mom);
+        FloatNdArray dividend = ND.mul(lr, grad_np);
+        FloatNdArray divisor = ND.sqrt(ND.add(denom_t, epsilon));
+        FloatNdArray quotient = ND.div(dividend, divisor);
+        FloatNdArray result = ND.add(moMo, quotient);
         return result;
 
     }
@@ -376,10 +375,10 @@ public class RMSPropTest {
     private FloatNdArray calcVar(FloatNdArray var_np, FloatNdArray grad_np, float lr,
             FloatNdArray denom_t, float epsilon) {
         // var - lr * g / (np.sqrt(denom_t) + epsilon)
-        FloatNdArray dividend = NP.mul(lr, grad_np);
-        FloatNdArray divisor = NP.add(NP.sqrt(denom_t), epsilon);
-        FloatNdArray quotient = NP.div(dividend, divisor);
-        FloatNdArray result = NP.sub(var_np, quotient);
+        FloatNdArray dividend = ND.mul(lr, grad_np);
+        FloatNdArray divisor = ND.add(ND.sqrt(denom_t), epsilon);
+        FloatNdArray quotient = ND.div(dividend, divisor);
+        FloatNdArray result = ND.sub(var_np, quotient);
         return result;
 
     }

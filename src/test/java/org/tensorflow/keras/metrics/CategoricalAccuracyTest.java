@@ -29,16 +29,17 @@ import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Variable;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat32;
+import org.tensorflow.types.TFloat64;
 import org.tensorflow.types.TInt32;
 
 /**
  *
  * @author Jim Clarke
  */
-public class CosineSimilarityTest {
-     private TestSession.Mode tf_mode = TestSession.Mode.GRAPH;
+public class CategoricalAccuracyTest {
+    private TestSession.Mode tf_mode = TestSession.Mode.GRAPH;
     
-    public CosineSimilarityTest() {
+    public CategoricalAccuracyTest() {
     }
     
     @BeforeAll
@@ -57,79 +58,32 @@ public class CosineSimilarityTest {
     public void tearDown() {
     }
 
-      /**
-     * Test of call method, of class CosineSimilarity.
-     */
-   @Test
+    @Test
     public void testConfig() {
         System.out.println("testConfig");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
-            CosineSimilarity instance = new CosineSimilarity(tf,"cosine", TInt32.DTYPE);
-            assertEquals("cosine", instance.getName());
-            assertEquals(TInt32.DTYPE, instance.getDataType());
+            CategoricalAccuracy instance = new CategoricalAccuracy(tf,"my_acc", TFloat64.DTYPE);
+            assertEquals("my_acc", instance.getName());
+            assertEquals(TFloat64.DTYPE, instance.getDataType());
         }
     }
     
     @Test
-    public void testUnweighted() {
-        System.out.println("testUnweighted");
+    public void testCorrect() {
+        System.out.println("testCorrect");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
-            CosineSimilarity instance = new CosineSimilarity(tf);
+            CategoricalAccuracy instance = new CategoricalAccuracy(tf);
             session.run(instance.resetStates());
-            float[] true_np = { 1, 9, 2, -5, -2, 6 };
-            float[] pred_np = { 4, 8, 12, 8, 1, 3 };
-            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
-            Op op = instance.updateState(y_true, y_pred);
-            session.run(op);
-            Operand<TFloat32> loss = instance.call(y_true, y_pred, null);
-            session.print(System.out, loss);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
-            Operand result  = instance.result();
-            session.evaluate(0.3744381F, total);
-            session.evaluate(2, count);
-            session.evaluate(0.18721905F, result);
-            
-        }
-    }
-    
-    
-    @Test
-    public void test_weighted() {
-        try(TestSession session = TestSession.createTestSession(tf_mode)) {
-            Ops tf = session.getTF();
-            CosineSimilarity instance = new CosineSimilarity(tf);
-            session.run(instance.resetStates());
-            float[] true_np = { 1, 9, 2, -5, -2, 6 };
-            float[] pred_np = { 4, 8, 12, 8, 1, 3 };
-            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
-            
-            Operand sampleWeight = tf.constant(new float[] {1.2f, 3.4f});
-            Op op = instance.updateState(y_true, y_pred, sampleWeight);
-            session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
-            Operand result  = instance.result();
-            session.evaluate(-0.3119840621948241F, total);
-            session.evaluate(4.6, count);
-            session.evaluate(-0.06782262221626612F, result);
-            
-        }
-    }
-    
-    @Test
-    public void test_axis() {
-        try(TestSession session = TestSession.createTestSession(tf_mode)) {
-            Ops tf = session.getTF();
-            int axis = 1;
-            CosineSimilarity instance = new CosineSimilarity(tf, axis);
-            session.run(instance.resetStates());
-            float[] true_np = { 1, 9, 2, -5, -2, 6 };
-            float[] pred_np = { 4, 8, 12, 8, 1, 3 };
+            int[] true_np = {
+                0, 0, 1,
+                0, 1, 0
+            };
+            float[] pred_np = {
+                0.1f, 0.1f, 0.8f,
+                0.05f, 0.95f, 0f
+            };
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 3)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Op op = instance.updateState(y_true, y_pred);
@@ -137,10 +91,99 @@ public class CosineSimilarityTest {
             Variable<TFloat32> total = instance.getVariable(TOTAL);
             Variable<TInt32> count = instance.getVariable(COUNT);
             Operand result  = instance.result();
-            session.evaluate(0.3744381F, total);
+            session.evaluate(2F, total);
             session.evaluate(2, count);
-            session.evaluate(0.18721905F, result);
+            session.evaluate(1F, result);
             
         }
     }
+    
+    @Test
+    public void testSampleWeight() {
+        System.out.println("testSampleWeight");
+        try(TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
+            CategoricalAccuracy instance = new CategoricalAccuracy(tf);
+            session.run(instance.resetStates());
+            int[] true_np = {
+                0, 0, 1,
+                0, 1, 0
+            };
+            float[] pred_np = {
+                0.1f, 0.1f, 0.8f,
+                0.05f, 0.95f, 0f
+            };
+            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 3)));
+            Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
+            
+            Operand sampleWeight = tf.reshape(tf.constant(new float[] {.5F, .2F}), tf.constant(Shape.of(2, 1)));
+            Op op = instance.updateState(y_true, y_true, sampleWeight);
+            session.run(op);
+            Variable<TFloat32> total = instance.getVariable(TOTAL);
+            Variable<TInt32> count = instance.getVariable(COUNT);
+            Operand result  = instance.result();
+            session.evaluate(1.4F, total);
+            session.evaluate(.7, count);
+            session.evaluate(2F, result);
+            
+        }
+    }
+    
+    @Test
+    public void testVariableState() {
+        System.out.println("testVariableState");
+        try(TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
+            CategoricalAccuracy instance = new CategoricalAccuracy(tf);
+            session.run(instance.resetStates());
+            int[] true_np = {
+                0, 0, 1,
+                0, 1, 0
+            };
+            float[] pred_np = {
+                0.1f, 0.1f, 0.8f,
+                0.05f, 0.95f, 0f
+            };
+            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 3)));
+            Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
+            
+            Operand sampleWeight = tf.reshape(tf.constant(new float[] {.5F, .2F}), tf.constant(Shape.of(2, 1)));
+            Op op = instance.updateState(y_true, y_true, sampleWeight);
+            session.run(op);
+            Variable<TFloat32> total = instance.getVariable(TOTAL);
+            Variable<TInt32> count = instance.getVariable(COUNT);
+            Operand result  = instance.result();
+            session.evaluate(1.4F, total);
+            session.evaluate(.7, count);
+            session.evaluate(2.0F, result);
+            
+            //2nd run
+            op = instance.updateState(y_true, y_true, sampleWeight);
+            session.run(op);
+            result  = instance.result();
+            session.evaluate(2.8F, total); 
+            session.evaluate(1.4, count);
+            session.evaluate(2.0F, result);
+            
+            // new instance same graph
+            instance = new CategoricalAccuracy(tf);
+            op = instance.updateState(y_true, y_true, sampleWeight);
+            session.run(op);
+            result  = instance.result();
+            session.evaluate(4.2F, total); 
+            session.evaluate(2.1, count);
+            session.evaluate(2.0F, result);
+            
+            
+            // reset variables
+            session.run(instance.resetStates());
+            result  = instance.result();
+            op = instance.updateState(y_true, y_true, sampleWeight);
+            session.run(op);
+            session.evaluate(1.4F, total);
+            session.evaluate(.7, count);
+            session.evaluate(2.0F, result);
+        }
+    }
+    
 }

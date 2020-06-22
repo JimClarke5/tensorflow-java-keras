@@ -1,23 +1,54 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/* Copyright 2020 The TensorFlow Authors. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+=======================================================================*/
 package org.tensorflow.keras.utils;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.tools.ndarray.FloatNdArray;
+import org.tensorflow.tools.ndarray.NdArray;
 import org.tensorflow.tools.ndarray.NdArrays;
 
 /**
  *
  * @author Jim Clarke
  */
-public class NP {
+public class ND {
     
-     
+     public static String toString(NdArray<?> array) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        AtomicBoolean first = new AtomicBoolean(true);
+        array.elements(0).forEachIndexed((idx,v) -> {
+            if(!first.get()) {
+                sb.append(", ");
+            }else {
+                first.set(false);
+            }
+            Object f = v.getObject();
+            if(v.rank() == 0) {
+                 sb.append(f);
+            }else {
+                sb.append(toString(v));
+            }
+           
+        });
+        sb.append("]");
+        return sb.toString();
+    }
      
      private static long[] getCoordinates(Shape shape, long index) {
          long[] coordinates = new long[shape.numDimensions()];
@@ -329,9 +360,9 @@ public class NP {
     
     public static FloatNdArray l2_norm(FloatNdArray x, int axis){
         float epsilon = 1e-12F;
-        FloatNdArray square_sum = NP.sum(NP.square(x), axis, true);
-        FloatNdArray x_inv_norm = NP.div(1 , NP.sqrt(NP.max(square_sum, epsilon)));
-        return NP.mul(x, x_inv_norm);
+        FloatNdArray square_sum = ND.sum(ND.square(x), axis, true);
+        FloatNdArray x_inv_norm = ND.div(1 , ND.sqrt(ND.max(square_sum, epsilon)));
+        return ND.mul(x, x_inv_norm);
     }
     
     

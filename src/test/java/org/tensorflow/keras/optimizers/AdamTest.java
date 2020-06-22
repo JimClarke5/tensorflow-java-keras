@@ -1,8 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/* Copyright 2020 The TensorFlow Authors. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+=======================================================================*/
 package org.tensorflow.keras.optimizers;
 
 import java.util.ArrayList;
@@ -30,7 +39,7 @@ import static org.tensorflow.keras.optimizers.Adam.EPSILON_KEY;
 import static org.tensorflow.keras.optimizers.Adam.LEARNING_RATE_DEFAULT;
 import static org.tensorflow.keras.optimizers.Adam.LEARNING_RATE_KEY;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
-import org.tensorflow.keras.utils.NP;
+import org.tensorflow.keras.utils.ND;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Assign;
@@ -267,28 +276,28 @@ public class AdamTest {
     
     private FloatNdArray calculateM(FloatNdArray m, FloatNdArray g_t, float beta) {
         // m_t = beta1 * m + (1 - beta1) * g_t
-        return NP.add(NP.mul(m, beta), NP.mul(g_t, (1-beta)));
+        return ND.add(ND.mul(m, beta), ND.mul(g_t, (1-beta)));
     }
     
     private FloatNdArray calculateV(FloatNdArray v, FloatNdArray g_t, float beta) {
         //beta2 * v + (1 - beta2) * g_t * g_t
-        FloatNdArray mul1 = NP.mul(v, beta);
-        FloatNdArray squareG = NP.square(g_t);
-        FloatNdArray mul2 = NP.mul((1-beta), squareG);
-        FloatNdArray add = NP.add(mul1, mul2);
+        FloatNdArray mul1 = ND.mul(v, beta);
+        FloatNdArray squareG = ND.square(g_t);
+        FloatNdArray mul2 = ND.mul((1-beta), squareG);
+        FloatNdArray add = ND.add(mul1, mul2);
         return add;
         
-        //return NP.add(NP.mul(v, beta),
-        //     NP.mul((1-beta), NP.square(g_t)));
+        //return ND.add(ND.mul(v, beta),
+        //     ND.mul((1-beta), ND.square(g_t)));
     }
     
     private FloatNdArray calculateParam(FloatNdArray param, float lr_t, FloatNdArray m,  FloatNdArray v, float epsilon) {
        //  param - lr_t * m_t / (np.sqrt(v_t) + epsilon)
-       FloatNdArray sqrt = NP.sqrt(v);
-       FloatNdArray divisor = NP.add(sqrt, epsilon);
-       FloatNdArray dividend = NP.mul(lr_t, m);
-       FloatNdArray quotient = NP.div(dividend, divisor);
-       FloatNdArray result = NP.sub(param, quotient);
+       FloatNdArray sqrt = ND.sqrt(v);
+       FloatNdArray divisor = ND.add(sqrt, epsilon);
+       FloatNdArray dividend = ND.mul(lr_t, m);
+       FloatNdArray quotient = ND.div(dividend, divisor);
+       FloatNdArray result = ND.sub(param, quotient);
        return result;
        
     }
