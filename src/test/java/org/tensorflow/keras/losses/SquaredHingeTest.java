@@ -57,7 +57,6 @@ public class SquaredHingeTest {
      */
     @Test
     public void testConfig() {
-        System.out.println("testConfig");
         SquaredHinge instance = new SquaredHinge(null);
         assertEquals("squared_hinge", instance.getName());
 
@@ -72,8 +71,7 @@ public class SquaredHingeTest {
      */
     @Test
     public void test_unweighted() {
-        System.out.println("test_unweighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             SquaredHinge instance = new SquaredHinge(tf);
             float[] true_np = {0, 1, 0, 1, 0, 0, 1, 1};
@@ -81,7 +79,7 @@ public class SquaredHingeTest {
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 4)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 4)));
             Operand loss = instance.call(y_true, y_pred);
-            float expected = 0.364062F;
+            float expected = 0.364062f;
             testSession.evaluate(expected, loss);
         }
     }
@@ -91,8 +89,7 @@ public class SquaredHingeTest {
      */
     @Test
     public void test_scalar_weighted() {
-        System.out.println("test_scalar_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             SquaredHinge instance = new SquaredHinge(tf);
             float[] true_np = {0, 1, 0, 1, 0, 0, 1, 1};
@@ -101,15 +98,14 @@ public class SquaredHingeTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 4)));
             Operand sampleWeight = tf.constant(2.3f);
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 0.8373437F;
+            float expected = 0.8373437f;
             testSession.evaluate(expected, loss);
         }
     }
 
     @Test
     public void test_sample_weighted() {
-        System.out.println("test_sample_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             SquaredHinge instance = new SquaredHinge(tf);
             float[] sample_narray = {1.2f, 3.4f};
@@ -119,15 +115,14 @@ public class SquaredHingeTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 4)));
             Operand sampleWeight = tf.reshape(tf.constant(sample_narray), tf.constant(Shape.of(2, 1)));
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 0.7043125F;
+            float expected = 0.7043125f;
             testSession.evaluate(expected, loss);
         }
     }
 
     @Test
     public void test_zero_weighted() {
-        System.out.println("test_zero_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             SquaredHinge instance = new SquaredHinge(tf);
             float[] true_np = {0, 1, 0, 1, 0, 0, 1, 1};
@@ -136,15 +131,14 @@ public class SquaredHingeTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 4)));
             Operand sampleWeight = tf.constant(0.F);
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 0F;
+            float expected = 0f;
             testSession.evaluate(expected, loss);
         }
     }
 
     @Test
     public void test_timestep_weighted() {
-        System.out.println("test_timestep_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             SquaredHinge instance = new SquaredHinge(tf, Reduction.AUTO);
             float[] true_np = {0, 1, 0, 1, 0, 0, 1, 1};
@@ -155,7 +149,7 @@ public class SquaredHingeTest {
             Operand sampleWeight = tf.reshape(tf.constant(sample_narray), tf.constant(Shape.of(2, 4)));
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
 
-            float expected = 1.54250000F;
+            float expected = 1.54250000f;
             testSession.evaluate(expected, loss);
         }
     }

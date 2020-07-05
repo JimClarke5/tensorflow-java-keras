@@ -54,7 +54,6 @@ public class HuberTest {
 
     @Test
     public void testConfig() {
-        System.out.println("testConfig");
         Huber instance = new Huber(null);
         assertEquals("huber_loss", instance.getName());
 
@@ -66,8 +65,7 @@ public class HuberTest {
 
     @Test
     public void test_all_correct() {
-        System.out.println("test_all_correct");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_np = {.9f, .2f, .2f, .8f, .4f, .6f};
             float[] pred_np = {1.f, 0.f, 1.f, 1.f, 0.f, 0.f};
@@ -75,7 +73,7 @@ public class HuberTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Huber instance = new Huber(tf);
             Operand loss = instance.call(y_true, y_true);
-            float expected = 0.0F;
+            float expected = 0.0f;
             testSession.evaluate(expected, loss);
         }
     }
@@ -85,8 +83,7 @@ public class HuberTest {
      */
     @Test
     public void test_unweighted() {
-        System.out.println("test_unweighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
 
             float[] true_np = {.9f, .2f, .2f, .8f, .4f, .6f};
@@ -95,7 +92,7 @@ public class HuberTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Huber instance = new Huber(tf);
             Operand loss = instance.call(y_true, y_pred);
-            float expected = 0.10416666666666669F;
+            float expected = 0.10416666666666669f;
             testSession.evaluate(expected, loss);
         }
     }
@@ -105,8 +102,7 @@ public class HuberTest {
      */
     @Test
     public void test_scalar_weighted() {
-        System.out.println("test_scalar_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_np = {.9f, .2f, .2f, .8f, .4f, .6f};
             float[] pred_np = {1.f, 0.f, 1.f, 1.f, 0.f, 0.f};
@@ -115,7 +111,7 @@ public class HuberTest {
             Huber instance = new Huber(tf);
             Operand sampleWeight = tf.constant(2.3f);
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 0.23958333333333337F;
+            float expected = 0.23958333333333337f;
             testSession.evaluate(expected, loss);
 
             // todo Verify we get the same output when the same input is given
@@ -124,8 +120,7 @@ public class HuberTest {
 
     @Test
     public void test_sample_weighted() {
-        System.out.println("test_sample_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] sample_narray = {1.2f, 3.4f};
             float[] true_np = {.9f, .2f, .2f, .8f, .4f, .6f};
@@ -135,15 +130,14 @@ public class HuberTest {
             Huber instance = new Huber(tf);
             Operand sampleWeight = tf.reshape(tf.constant(sample_narray), tf.constant(Shape.of(2, 1)));
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 0.22766666666666668F;
+            float expected = 0.22766666666666668f;
             testSession.evaluate(expected, loss);
         }
     }
 
     @Test
     public void test_zero_weighted() {
-        System.out.println("test_zero_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] true_np = {.9f, .2f, .2f, .8f, .4f, .6f};
             float[] pred_np = {1.f, 0.f, 1.f, 1.f, 0.f, 0.f};
@@ -152,15 +146,14 @@ public class HuberTest {
             Huber instance = new Huber(tf);
             Operand sampleWeight = tf.constant(0.F);
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 0F;
+            float expected = 0f;
             testSession.evaluate(expected, loss);
         }
     }
 
     @Test
     public void test_timestep_weighted() {
-        System.out.println("test_timestep_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float[] sample_narray = {3f, 6f, 5f, 0f, 4f, 2f};
             float[] true_np = {.9f, .2f, .2f, .8f, .4f, .6f};
@@ -171,7 +164,7 @@ public class HuberTest {
             Operand sampleWeight = tf.reshape(tf.constant(sample_narray), tf.constant(Shape.of(2, 3)));
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
 
-            float expected = .4025F;
+            float expected = .4025f;
             testSession.evaluate(expected, loss);
         }
     }

@@ -54,7 +54,6 @@ public class KLDivergenceTest {
 
     @Test
     public void testConfig() {
-        System.out.println("testConfig");
         KLDivergence instance = new KLDivergence(null);
         assertEquals("kullback_leibler_divergence", instance.getName());
 
@@ -69,8 +68,7 @@ public class KLDivergenceTest {
      */
     @Test
     public void test_unweighted() {
-        System.out.println("test_unweighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             KLDivergence instance = new KLDivergence(tf);
             float[] pred_np = {.4f, .9f, .12f, .36f, .3f, .4f};
@@ -78,7 +76,7 @@ public class KLDivergenceTest {
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 3)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Operand loss = instance.call(y_true, y_pred);
-            float expected = 0.5960738398643668F;
+            float expected = 0.5960738398643668f;
             testSession.evaluate(expected, loss);
         }
     }
@@ -88,8 +86,7 @@ public class KLDivergenceTest {
      */
     @Test
     public void test_scalar_weighted() {
-        System.out.println("test_scalar_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             KLDivergence instance = new KLDivergence(tf);
             float[] pred_np = {.4f, .9f, .12f, .36f, .3f, .4f};
@@ -98,15 +95,14 @@ public class KLDivergenceTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Operand sampleWeight = tf.constant(2.3f);
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 1.3709698316880434F;
+            float expected = 1.3709698316880434f;
             testSession.evaluate(expected, loss);
         }
     }
 
     @Test
     public void test_sample_weighted() {
-        System.out.println("test_sample_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             KLDivergence instance = new KLDivergence(tf);
             float[] pred_np = {.4f, .9f, .12f, .36f, .3f, .4f};
@@ -116,15 +112,14 @@ public class KLDivergenceTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Operand sampleWeight = tf.reshape(tf.constant(sample_narray), tf.constant(Shape.of(2, 1)));
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 2.0075711736936492F;
+            float expected = 2.0075711736936492f;
             testSession.evaluate(expected, loss);
         }
     }
 
     @Test
     public void test_zero_weighted() {
-        System.out.println("test_zero_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             KLDivergence instance = new KLDivergence(tf);
             float[] pred_np = {.4f, .9f, .12f, .36f, .3f, .4f};
@@ -133,15 +128,14 @@ public class KLDivergenceTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Operand sampleWeight = tf.constant(0.F);
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 0F;
+            float expected = 0f;
             testSession.evaluate(expected, loss);
         }
     }
 
     @Test
     public void test_timestep_weighted() {
-        System.out.println("test_timestep_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             KLDivergence instance = new KLDivergence(tf, Reduction.AUTO);
             float[] pred_np = {.4f, .9f, .12f, .36f, .3f, .4f};
@@ -152,7 +146,7 @@ public class KLDivergenceTest {
             Operand sampleWeight = tf.reshape(tf.constant(sample_narray), tf.constant(Shape.of(2, 3)));
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
 
-            float expected = 0.2495994912084345F;
+            float expected = 0.2495994912084345f;
             testSession.evaluate(expected, loss);
         }
     }

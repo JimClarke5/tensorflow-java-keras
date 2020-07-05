@@ -54,7 +54,6 @@ public class HingeTest {
 
     @Test
     public void testConfig() {
-        System.out.println("testConfig");
         Hinge instance = new Hinge(null);
         assertEquals("hinge", instance.getName());
 
@@ -69,8 +68,7 @@ public class HingeTest {
      */
     @Test
     public void test_unweighted() {
-        System.out.println("test_unweighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             Hinge instance = new Hinge(tf);
             float[] true_np = {0f, 1f, 0f, 1f, 0f, 0f, 1f, 1f};
@@ -78,7 +76,7 @@ public class HingeTest {
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 4)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 4)));
             Operand loss = instance.call(y_true, y_pred);
-            float expected = 0.50625F;
+            float expected = 0.50625f;
             testSession.evaluate(expected, loss);
         }
     }
@@ -88,8 +86,7 @@ public class HingeTest {
      */
     @Test
     public void test_scalar_weighted() {
-        System.out.println("test_scalar_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             Hinge instance = new Hinge(tf);
             float[] true_np = {0f, 1f, 0f, 1f, 0f, 0f, 1f, 1f};
@@ -98,7 +95,7 @@ public class HingeTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 4)));
             Operand sampleWeight = tf.constant(2.3f);
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 1.164375F;
+            float expected = 1.164375f;
             testSession.evaluate(expected, loss);
 
             // todo Verify we get the same output when the same input is given
@@ -107,8 +104,7 @@ public class HingeTest {
 
     @Test
     public void test_sample_weighted() {
-        System.out.println("test_sample_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             Hinge instance = new Hinge(tf);
             float[] sample_narray = {1.2f, 3.4f};
@@ -118,15 +114,14 @@ public class HingeTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 4)));
             Operand sampleWeight = tf.reshape(tf.constant(sample_narray), tf.constant(Shape.of(2, 1)));
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 1.06125F;
+            float expected = 1.06125f;
             testSession.evaluate(expected, loss);
         }
     }
 
     @Test
     public void test_zero_weighted() {
-        System.out.println("test_zero_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             Hinge instance = new Hinge(tf);
             float[] true_np = {0f, 1f, 0f, 1f, 0f, 0f, 1f, 1f};
@@ -135,15 +130,14 @@ public class HingeTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 4)));
             Operand sampleWeight = tf.constant(0.F);
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 0F;
+            float expected = 0f;
             testSession.evaluate(expected, loss);
         }
     }
 
     @Test
     public void test_timestep_weighted() {
-        System.out.println("test_timestep_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             Hinge instance = new Hinge(tf, Reduction.AUTO);
             float[] sample_narray = {3f, 6f, 5f, 0f, 4f, 2f, 1f, 3f};
@@ -154,7 +148,7 @@ public class HingeTest {
             Operand sampleWeight = tf.reshape(tf.constant(sample_narray), tf.constant(Shape.of(2, 4)));
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
 
-            float expected = 2.0125F;
+            float expected = 2.0125f;
             testSession.evaluate(expected, loss);
         }
     }

@@ -34,6 +34,7 @@ import org.tensorflow.types.TFloat32;
 public class CategoricalCrossentropyTest {
 
     Mode tf_mode = Mode.EAGER;
+    float epsilon = 1e-4f;
 
     public CategoricalCrossentropyTest() {
     }
@@ -56,7 +57,6 @@ public class CategoricalCrossentropyTest {
 
     @Test
     public void testConfig() {
-        System.out.println("testConfig");
         CategoricalCrossentropy instance = new CategoricalCrossentropy(null);
         assertEquals("categorical_crossentropy", instance.getName());
 
@@ -71,8 +71,7 @@ public class CategoricalCrossentropyTest {
      */
     @Test
     public void testAllCorrectUnweighted() {
-        System.out.println("testAllCorrectUnweighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
 
             long[] true_np = {
@@ -80,28 +79,28 @@ public class CategoricalCrossentropyTest {
                 0L, 1L, 0L,
                 0L, 0L, 1L};
             float[] pred_np = {
-                1.F, 0.F, 0.F,
-                0.F, 1.F, 0.F,
-                0.F, 0.F, 1.F};
+                1.f, 0.f, 0.f,
+                0.f, 1.f, 0.f,
+                0.f, 0.f, 1.F};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(3, 3)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(3, 3)));
             CategoricalCrossentropy instance = new CategoricalCrossentropy(tf);
             Operand<TFloat32> loss = instance.call(y_true, y_pred);
-            float expected = 0F;
+            float expected = 0f;
             testSession.evaluate(expected, loss);
 
-            System.out.println("============ LOGITS =================");
             // Test with logits.
             float[] logits_np = {
-                10.F, 0.F, 0.F,
-                0.F, 10.F, 0.F,
-                0.F, 0.F, 10.F
+                10.f, 0.f, 0.f,
+                0.f, 10.f, 0.f,
+                0.f, 0.f, 10.F
             };
             y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(3, 3)));
             Operand logits = tf.reshape(tf.constant(logits_np), tf.constant(Shape.of(3, 3)));
             instance = new CategoricalCrossentropy(tf, true);
             loss = instance.call(y_true, logits);
-            testSession.evaluate(9.083335E-5F, loss);
+            testSession.setEpsilon(1e-3f);
+            testSession.evaluate(0.0f, loss);
         }
     }
 
@@ -110,32 +109,31 @@ public class CategoricalCrossentropyTest {
      */
     @Test
     public void test_unweighted() {
-        System.out.println("test_unweighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             CategoricalCrossentropy instance = new CategoricalCrossentropy(tf);
             int[] true_np = {1, 0, 0, 0, 1, 0, 0, 0, 1};
             float[] pred_np = {
-                .9F, .05F, .05F,
-                .5F, .89F, .6F,
-                .05F, .01F, .94F
+                .9f, .05f, .05f,
+                .5f, .89f, .6f,
+                .05f, .01f, .94f
             };
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(3, 3)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(3, 3)));
             Operand loss = instance.call(y_true, y_pred);
-            float expected = 0.32396814F;
+            float expected = 0.32396814f;
             testSession.evaluate(expected, loss);
 
             // Test with logits.
             float[] logits_np = {
-                8.F, 1.F, 1.F,
-                0.F, 9.F, 1.F,
-                2.F, 3.F, 5.F
+                8.f, 1.f, 1.f,
+                0.f, 9.f, 1.f,
+                2.f, 3.f, 5.F
             };
             Operand logits = tf.reshape(tf.constant(logits_np), tf.constant(Shape.of(3, 3)));
             instance = new CategoricalCrossentropy(tf, true);
             loss = instance.call(y_true, logits);
-            expected = 0.05737559F;
+            expected = 0.0573755f;
             testSession.evaluate(expected, loss);
         }
     }
@@ -145,8 +143,7 @@ public class CategoricalCrossentropyTest {
      */
     @Test
     public void test_scalar_weighted() {
-        System.out.println("test_scalar_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
 
             int[] true_np = {
@@ -154,9 +151,9 @@ public class CategoricalCrossentropyTest {
                 0, 1, 0,
                 0, 0, 1};
             float[] pred_np = {
-                .9F, .05F, .05F,
-                .5F, .89F, .6F,
-                .05F, .01F, .94F
+                .9f, .05f, .05f,
+                .5f, .89f, .6f,
+                .05f, .01f, .94f
             };
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(3, 3)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(3, 3)));
@@ -164,86 +161,83 @@ public class CategoricalCrossentropyTest {
 
             CategoricalCrossentropy instance = new CategoricalCrossentropy(tf);
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = .7451267F;
+            float expected = .7451267f;
             testSession.evaluate(expected, loss);
 
             // Test with logits.
             float[] logits_np = {
-                8.F, 1.F, 1.F,
-                0.F, 9.F, 1.F,
-                2.F, 3.F, 5.F
+                8.f, 1.f, 1.f,
+                0.f, 9.f, 1.f,
+                2.f, 3.f, 5.F
             };
             Operand logits = tf.reshape(tf.constant(logits_np), tf.constant(Shape.of(3, 3)));
             instance = new CategoricalCrossentropy(tf, true);
             loss = instance.call(y_true, logits, sampleWeight);
-            expected = 0.13196386F;
+            expected = 0.13196386f;
             testSession.evaluate(expected, loss);
         }
     }
 
     @Test
     public void test_sample_weighted() {
-        System.out.println("test_sample_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             CategoricalCrossentropy instance = new CategoricalCrossentropy(tf);
-            float[] sample_weight_np = {1.2F, 3.4F, 5.6F};
+            float[] sample_weight_np = {1.2f, 3.4f, 5.6f};
             int[] true_np = {
                 1, 0, 0,
                 0, 1, 0,
                 0, 0, 1};
             float[] pred_np = {
-                .9F, .05F, .05F,
-                .5F, .89F, .6F,
-                .05F, .01F, .94F
+                .9f, .05f, .05f,
+                .5f, .89f, .6f,
+                .05f, .01f, .94f
             };
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(3, 3)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(3, 3)));
             Operand sampleWeight = tf.reshape(tf.constant(sample_weight_np), tf.constant(Shape.of(3, 1)));
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 1.0696F;
+            float expected = 1.0696f;
             testSession.evaluate(expected, loss);
 
             // Test with logits.
             float[] logits_np = {
-                8.F, 1.F, 1.F,
-                0.F, 9.F, 1.F,
-                2.F, 3.F, 5.F
+                8.f, 1.f, 1.f,
+                0.f, 9.f, 1.f,
+                2.f, 3.f, 5.F
             };
             Operand logits = tf.reshape(tf.constant(logits_np), tf.constant(Shape.of(3, 3)));
             instance = new CategoricalCrossentropy(tf, true);
             loss = instance.call(y_true, logits, sampleWeight);
-            expected = 0.31829F;
+            expected = 0.31829f;
             testSession.evaluate(expected, loss);
         }
     }
 
     @Test
     public void test_no_reduction() {
-        System.out.println("test_no_reduction");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
 
             // Test with logits.
             int[] true_np = {1, 0, 0, 0, 1, 0, 0, 0, 1};
             float[] logits_np = {
-                8.F, 1.F, 1.F,
-                0.F, 9.F, 1.F,
-                2.F, 3.F, 5.F
+                8.f, 1.f, 1.f,
+                0.f, 9.f, 1.f,
+                2.f, 3.f, 5.F
             };
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(3, 3)));
             Operand logits = tf.reshape(tf.constant(logits_np), tf.constant(Shape.of(3, 3)));
-            CategoricalCrossentropy instance = new CategoricalCrossentropy(tf, true, 0.0F, Reduction.NONE);
+            CategoricalCrossentropy instance = new CategoricalCrossentropy(tf, true, 0.0f, Reduction.NONE);
             Operand loss = instance.call(y_true, logits);
-            Float[] expected = {0.001822F, 0.000459F, 0.169846F};
+            Float[] expected = {0.001822f, 0.000459f, 0.169846f};
             testSession.evaluate(expected, loss);
         }
     }
 
     @Test
     public void test_label_smoothing() {
-        System.out.println("test_label_smoothing");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             float label_smoothing = 0.1f;
             int[] true_array = {1, 0, 0};
@@ -253,7 +247,7 @@ public class CategoricalCrossentropyTest {
 
             CategoricalCrossentropy instance = new CategoricalCrossentropy(tf, true, label_smoothing);
             Operand loss = instance.call(y_true, logits);
-            float expected = 400.0F * label_smoothing / 3.0F;
+            float expected = 400.0f * label_smoothing / 3.0f;
             testSession.evaluate(expected, loss);
         } catch (Exception expected) {
 

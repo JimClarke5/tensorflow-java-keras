@@ -57,7 +57,6 @@ public class CategoricalHingeTest {
      */
     @Test
     public void testConfig() {
-        System.out.println("testConfig");
         CategoricalHinge instance = new CategoricalHinge(null);
         assertEquals("categorical_hinge", instance.getName());
 
@@ -72,16 +71,15 @@ public class CategoricalHingeTest {
      */
     @Test
     public void test_reduction_none() {
-        System.out.println("test_reduction_none");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             CategoricalHinge instance = new CategoricalHinge(tf, Reduction.NONE);
             int[] true_np = {1, 9, 2, -5};
-            float[] pred_np = {4F, 8F, 12F, 8F};
+            float[] pred_np = {4f, 8f, 12f, 8f};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 2)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 2)));
             Operand loss = instance.call(y_true, y_pred);
-            Float[] expected = {0.0F, 65.0F};
+            Float[] expected = {0.0f, 65.0f};
             testSession.evaluate(expected, loss);
         }
     }
@@ -91,16 +89,15 @@ public class CategoricalHingeTest {
      */
     @Test
     public void test_unweighted() {
-        System.out.println("test_unweighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             CategoricalHinge instance = new CategoricalHinge(tf);
             int[] true_np = {1, 9, 2, -5};
-            float[] pred_np = {4F, 8F, 12F, 8F};
+            float[] pred_np = {4f, 8f, 12f, 8f};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 2)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 2)));
             Operand loss = instance.call(y_true, y_pred);
-            float expected = 32.5F;
+            float expected = 32.5f;
             testSession.evaluate(expected, loss);
         }
     }
@@ -110,8 +107,7 @@ public class CategoricalHingeTest {
      */
     @Test
     public void test_scalar_weighted() {
-        System.out.println("test_scalar_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             CategoricalHinge instance = new CategoricalHinge(tf);
             int[] true_np = {1, 9, 2, -5, -2, 6};
@@ -120,19 +116,18 @@ public class CategoricalHingeTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Operand sampleWeight = tf.constant(2.3f);
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 83.95F;
+            float expected = 83.95f;
             testSession.evaluate(expected, loss);
 
-            loss = instance.call(y_true, y_pred, sampleWeight);
-            expected = 83.95F;
-            testSession.evaluate(expected, loss);
+            Operand loss_2 = instance.call(y_true, y_pred, sampleWeight);
+            expected = 83.95f;
+            testSession.evaluate(loss, loss_2);
         }
     }
 
     @Test
     public void test_sample_weighted() {
-        System.out.println("test_sample_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             CategoricalHinge instance = new CategoricalHinge(tf);
             int[] true_np = {1, 9, 2, -5, -2, 6};
@@ -142,15 +137,14 @@ public class CategoricalHingeTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Operand sampleWeight = tf.reshape(tf.constant(weights_np), tf.constant(Shape.of(2, 1)));
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 124.1F;
+            float expected = 124.1f;
             testSession.evaluate(expected, loss);
         }
     }
 
     @Test
     public void test_zero_weighted() {
-        System.out.println("test_zero_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             CategoricalHinge instance = new CategoricalHinge(tf);
             int[] true_np = {1, 9, 2, -5, -2, 6};
@@ -159,7 +153,7 @@ public class CategoricalHingeTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Operand sampleWeight = tf.constant(0f);
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 0F;
+            float expected = 0f;
             testSession.evaluate(expected, loss);
 
         }
@@ -167,8 +161,7 @@ public class CategoricalHingeTest {
 
     @Test
     public void test_timestep_weighted() {
-        System.out.println("test_timestep_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             CategoricalHinge instance = new CategoricalHinge(tf);
             int[] true_np = {1, 9, 2, -5, -2, 6};
@@ -178,7 +171,7 @@ public class CategoricalHingeTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3, 1)));
             Operand sampleWeight = tf.reshape(tf.constant(weights_np), tf.constant(Shape.of(2, 3)));
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 4.0F;
+            float expected = 4.0f;
             testSession.evaluate(expected, loss);
 
         }

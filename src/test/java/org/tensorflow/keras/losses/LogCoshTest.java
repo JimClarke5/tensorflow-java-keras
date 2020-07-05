@@ -54,7 +54,6 @@ public class LogCoshTest {
 
     @Test
     public void testConfig() {
-        System.out.println("testConfig");
         LogCosh instance = new LogCosh(null);
         assertEquals("logcosh", instance.getName());
 
@@ -69,8 +68,7 @@ public class LogCoshTest {
      */
     @Test
     public void test_unweighted() {
-        System.out.println("test_unweighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             LogCosh instance = new LogCosh(tf);
             float[] pred_np = {1f, 9f, 2f, -5f, -2f, 6f};
@@ -78,7 +76,7 @@ public class LogCoshTest {
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 3)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Operand loss = instance.call(y_true, y_pred);
-            float expected = 4.829245330860459F;
+            float expected = 4.829245330860459f;
             testSession.evaluate(expected, loss);
         }
     }
@@ -88,8 +86,7 @@ public class LogCoshTest {
      */
     @Test
     public void test_scalar_weighted() {
-        System.out.println("test_scalar_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             LogCosh instance = new LogCosh(tf);
             float[] pred_np = {1f, 9f, 2f, -5f, -2f, 6f};
@@ -98,15 +95,14 @@ public class LogCoshTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Operand sampleWeight = tf.constant(2.3f);
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 11.107264260979056F;
+            float expected = 11.107264260979056f;
             testSession.evaluate(expected, loss);
         }
     }
 
     @Test
     public void test_sample_weighted() {
-        System.out.println("test_sample_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             LogCosh instance = new LogCosh(tf);
             float[] pred_np = {1f, 9f, 2f, -5f, -2f, 6f};
@@ -116,15 +112,14 @@ public class LogCoshTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Operand sampleWeight = tf.reshape(tf.constant(sample_narray), tf.constant(Shape.of(2, 1)));
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 12.001114667519486F;
+            float expected = 12.001114667519486f;
             testSession.evaluate(expected, loss);
         }
     }
 
     @Test
     public void test_zero_weighted() {
-        System.out.println("test_zero_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             LogCosh instance = new LogCosh(tf);
             float[] pred_np = {1f, 9f, 2f, -5f, -2f, 6f};
@@ -133,15 +128,14 @@ public class LogCoshTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Operand sampleWeight = tf.constant(0.F);
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            float expected = 0F;
+            float expected = 0f;
             testSession.evaluate(expected, loss);
         }
     }
 
     @Test
     public void test_timestep_weighted() {
-        System.out.println("test_timestep_weighted");
-        try ( TestSession testSession = TestSession.createTestSession(tf_mode)) {
+        try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
             LogCosh instance = new LogCosh(tf, Reduction.AUTO);
             float[] pred_np = {1f, 9f, 2f, -5f, -2f, 6f};
@@ -152,7 +146,7 @@ public class LogCoshTest {
             Operand sampleWeight = tf.reshape(tf.constant(sample_narray), tf.constant(Shape.of(2, 3)));
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
 
-            float expected = 11.653484271934046F;
+            float expected = 11.653484271934046f;
             testSession.evaluate(expected, loss);
         }
     }
