@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.EagerSession;
 import org.tensorflow.Operand;
-import org.tensorflow.exceptions.TensorFlowException;
 import org.tensorflow.keras.utils.PrintUtils;
 import org.tensorflow.op.Ops;
 import org.tensorflow.tools.buffer.DataBuffers;
@@ -35,24 +34,25 @@ import org.tensorflow.types.TInt32;
  * @author Jim Clarke
  */
 public class HardSigmoidTest {
+
     private static final double EPSILON = 1e-7;
     private static final float EPSILON_F = 1e-7f;
-    
+
     public HardSigmoidTest() {
     }
-    
+
     @BeforeAll
     public static void setUpClass() {
     }
-    
+
     @AfterAll
     public static void tearDownClass() {
     }
-    
+
     @BeforeEach
     public void setUp() {
     }
-    
+
     @AfterEach
     public void tearDown() {
     }
@@ -62,18 +62,17 @@ public class HardSigmoidTest {
      */
     @Test
     public void testCall__Int() {
-        System.out.println("hard_sigmoid int");
         int[] input = {1, -2, 3, -4, -1, 2, -3, 4};
-        int[] actual = { 0, 0, 0, 0, 0, 0, 0, 0};
-        int[] expected = { 0, 0, 0, 0, 0, 0, 0, 0 };
+        int[] actual = {0, 0, 0, 0, 0, 0, 0, 0};
+        int[] expected = {0, 0, 0, 0, 0, 0, 0, 0};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-           HardSigmoid<TInt32> instance = new HardSigmoid<>(tf);
+            Ops tf = Ops.create(session);
+            HardSigmoid<TInt32> instance = new HardSigmoid<>(tf);
             Operand<TInt32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
             assertArrayEquals(expected, actual);
-        }catch(AssertionError exp) {
+        } catch (AssertionError exp) {
             // TODO - Docs indicateit it can hanlde int, 
             // but I get this error from both Java and Python
             // so It looks like it doesn't handle them
@@ -85,39 +84,37 @@ public class HardSigmoidTest {
      */
     @Test
     public void testCall__Float() {
-        System.out.println("hard_sigmoid float");
         float[] input = {1, -2, 3, -4, -1, 2, -3, 4};
         float[] actual = new float[input.length];
         float[] expected = {
             0.7F, 0.099999994F, 1.1F, -0.3F, 0.3F, 0.9F, -0.100000024F, 1.3F};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-           HardSigmoid<TFloat32> instance = new HardSigmoid<>(tf);
+            Ops tf = Ops.create(session);
+            HardSigmoid<TFloat32> instance = new HardSigmoid<>(tf);
             Operand<TFloat32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
-    
+
     /**
      * Test of HardSigmoid call method.
      */
     @Test
     public void testCall__Double() {
-        System.out.println("hard_sigmoid double");
         double[] input = {1, -2, 3, -4, -1, 2, -3, 4};
-        double[] actual = { 0, 0, 0, 0, 0, 0, 0, 0};
+        double[] actual = {0, 0, 0, 0, 0, 0, 0, 0};
         double[] expected = {
-            0.7, 0.09999999999999998, 1.1, -0.30000000000000004, 0.3, 0.9, -0.10000000000000009, 1.3 };
+            0.7, 0.09999999999999998, 1.1, -0.30000000000000004, 0.3, 0.9, -0.10000000000000009, 1.3};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-           HardSigmoid<TFloat64> instance = new HardSigmoid<>(tf);
+            Ops tf = Ops.create(session);
+            HardSigmoid<TFloat64> instance = new HardSigmoid<>(tf);
             Operand<TFloat64> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);
         }
     }
-    
+
 }

@@ -34,41 +34,40 @@ import org.tensorflow.types.TInt32;
  * @author Jim Clarke
  */
 public class LinearTest {
-    
+
     private static final double EPSILON = 1e-7;
     private static final float EPSILON_F = 1e-7f;
-    
+
     public LinearTest() {
     }
-    
+
     @BeforeAll
     public static void setUpClass() {
     }
-    
+
     @AfterAll
     public static void tearDownClass() {
     }
-    
+
     @BeforeEach
     public void setUp() {
     }
-    
+
     @AfterEach
     public void tearDown() {
     }
 
-     /**
+    /**
      * Test of Linear call method.
      */
     @Test
     public void testCall__Int() {
-        System.out.println("Linear int");
         int[] input = {1, -2, 3, -4, -1, 2, -3, 4};
-        int[] actual = { 0, 0, 0, 0, 0, 0, 0, 0};
-        int[] expected = {1, -2, 3, -4, -1, 2, -3, 4 };
+        int[] actual = {0, 0, 0, 0, 0, 0, 0, 0};
+        int[] expected = {1, -2, 3, -4, -1, 2, -3, 4};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-           Linear<TInt32> instance = new Linear<>(tf);
+            Ops tf = Ops.create(session);
+            Linear<TInt32> instance = new Linear<>(tf);
             Operand<TInt32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
@@ -81,38 +80,36 @@ public class LinearTest {
      */
     @Test
     public void testCall__Float() {
-        System.out.println("Linear float");
         float[] input = {1, -2, 3, -4, -1, 2, -3, 4};
         float[] actual = new float[input.length];
         float[] expected = {1, -2, 3, -4, -1, 2, -3, 4};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-           Linear<TFloat32> instance = new Linear<>(tf);
+            Ops tf = Ops.create(session);
+            Linear<TFloat32> instance = new Linear<>(tf);
             Operand<TFloat32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
-    
+
     /**
      * Test of Linear call method.
      */
     @Test
     public void testCall__Double() {
-        System.out.println("Linear double");
         double[] input = {1, -2, 3, -4, -1, 2, -3, 4};
-        double[] actual = { 0, 0, 0, 0, 0, 0, 0, 0};
+        double[] actual = {0, 0, 0, 0, 0, 0, 0, 0};
         double[] expected = {
-            1, -2, 3, -4, -1, 2, -3, 4 };
+            1, -2, 3, -4, -1, 2, -3, 4};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-           Linear<TFloat64> instance = new Linear<>(tf);
+            Ops tf = Ops.create(session);
+            Linear<TFloat64> instance = new Linear<>(tf);
             Operand<TFloat64> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);
         }
     }
-    
+
 }

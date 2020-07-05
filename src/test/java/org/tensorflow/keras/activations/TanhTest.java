@@ -34,26 +34,25 @@ import org.tensorflow.types.TInt32;
  * @author Jim Clarke
  */
 public class TanhTest {
-    
+
     private static final double EPSILON = 1e-7;
     private static final float EPSILON_F = 1e-7f;
-    
-    
+
     public TanhTest() {
     }
-    
+
     @BeforeAll
     public static void setUpClass() {
     }
-    
+
     @AfterAll
     public static void tearDownClass() {
     }
-    
+
     @BeforeEach
     public void setUp() {
     }
-    
+
     @AfterEach
     public void tearDown() {
     }
@@ -63,19 +62,18 @@ public class TanhTest {
      */
     @Test
     public void testCall_Int() {
-        System.out.println("Tanh int");
         int[] input = {1, -2, 3, -4, -1, 2, -3, 4};
-        int[] actual = { 0, 0, 0, 0, 0, 0, 0, 0};
-        int[] expected = { };
+        int[] actual = {0, 0, 0, 0, 0, 0, 0, 0};
+        int[] expected = {};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-           Tanh<TInt32> instance = new Tanh<>(tf);
+            Ops tf = Ops.create(session);
+            Tanh<TInt32> instance = new Tanh<>(tf);
             Operand<TInt32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
             assertArrayEquals(expected, actual);
             fail();
-        }catch(AssertionError ex) {
+        } catch (AssertionError ex) {
             // expected
             //fail(ex);
         }
@@ -86,42 +84,39 @@ public class TanhTest {
      */
     @Test
     public void testCall__Float() {
-        System.out.println("Tanh float");
-        float[] input = {1,2,3,4,5,6,7,8};
+        float[] input = {1, 2, 3, 4, 5, 6, 7, 8};
         float[] actual = new float[input.length];
         float[] expected = {
             0.7615942F, 0.9640276F, 0.9950547F, 0.9993292F, 0.99990916F, 0.99998784F, 0.99999833F, 1.0F};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-           Tanh<TFloat32> instance = new Tanh<>(tf);
+            Ops tf = Ops.create(session);
+            Tanh<TFloat32> instance = new Tanh<>(tf);
             Operand<TFloat32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
-            assertArrayEquals(expected,actual, EPSILON_F);
+            assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
-    
+
     /**
      * Test of Tanh call method.
      */
     @Test
     public void testCall__Double() {
-        System.out.println("Softmax double");
-        double[] input = {1,2,3,4,5,6,7,8};
-        double[] actual = { 0, 0, 0, 0, 0, 0, 0, 0};
+        double[] input = {1, 2, 3, 4, 5, 6, 7, 8};
+        double[] actual = {0, 0, 0, 0, 0, 0, 0, 0};
         double[] expected = {
-           0.7615941559557649, 0.9640275800758169, 0.9950547536867305, 
-            0.999329299739067, 0.9999092042625951, 0.9999877116507956, 
-            0.9999983369439447, 0.9999997749296758 };
+            0.7615941559557649, 0.9640275800758169, 0.9950547536867305,
+            0.999329299739067, 0.9999092042625951, 0.9999877116507956,
+            0.9999983369439447, 0.9999997749296758};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-           Tanh<TFloat64> instance = new Tanh<>(tf);
+            Ops tf = Ops.create(session);
+            Tanh<TFloat64> instance = new Tanh<>(tf);
             Operand<TFloat64> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);
         }
     }
-    
-    
+
 }

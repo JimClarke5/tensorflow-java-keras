@@ -17,7 +17,6 @@ package org.tensorflow.keras.activations;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,8 +59,7 @@ public class ActivationsTest {
      */
     @Test
     public void testGet_Object_String() {
-        System.out.println("get");
-        try ( EagerSession session = EagerSession.create()) {
+        try (EagerSession session = EagerSession.create()) {
             Ops tf = Ops.create(session);
             String initializerFunction = "relu";
             Activation result = Activations.get(tf, initializerFunction);
@@ -75,8 +73,7 @@ public class ActivationsTest {
      */
     @Test
     public void testGet_Object_Lambda() {
-        System.out.println("get");
-        try ( EagerSession session = EagerSession.create()) {
+        try (EagerSession session = EagerSession.create()) {
             Ops tf = Ops.create(session);
             Activation result = Activations.get(() -> new ReLU(tf));
             assertNotNull(result);
@@ -89,8 +86,7 @@ public class ActivationsTest {
      */
     @Test
     public void testGet_Object_Class() {
-        System.out.println("get");
-        try ( EagerSession session = EagerSession.create()) {
+        try (EagerSession session = EagerSession.create()) {
             Ops tf = Ops.create(session);
             Activation result = Activations.get(tf, ReLU.class);
             assertNotNull(result);
@@ -103,8 +99,7 @@ public class ActivationsTest {
      */
     @Test
     public void testGet_Object_Initializer() {
-        System.out.println("get");
-        try ( EagerSession session = EagerSession.create()) {
+        try (EagerSession session = EagerSession.create()) {
             Ops tf = Ops.create(session);
             Function<Ops, Activation> initializerFunction = (ops) -> new ReLU(ops);
             Activation result = Activations.get(tf, initializerFunction);
@@ -118,8 +113,7 @@ public class ActivationsTest {
      */
     @Test
     public void testGet_Object_Unknown() {
-        System.out.println("get");
-        try ( EagerSession session = EagerSession.create()) {
+        try (EagerSession session = EagerSession.create()) {
             Ops tf = Ops.create(session);
             String initializerFunction = "bogus";
             Activation result = Activations.get(tf, initializerFunction);
@@ -132,10 +126,9 @@ public class ActivationsTest {
      */
     @Test
     public void testGet_Object_Map() {
-        System.out.println("get");
-        try ( EagerSession session = EagerSession.create()) {
+        try (EagerSession session = EagerSession.create()) {
             Ops tf = Ops.create(session);
-            Map<String, Function<Ops, Activation> > custom_functions = new HashMap<String, Function<Ops, Activation> >();
+            Map<String, Function<Ops, Activation>> custom_functions = new HashMap<String, Function<Ops, Activation>>();
             custom_functions.put("foobar", ops -> new ReLU(ops));
             String initializerFunction = "foobar";
             Activation result = Activations.get(tf, initializerFunction, custom_functions);
