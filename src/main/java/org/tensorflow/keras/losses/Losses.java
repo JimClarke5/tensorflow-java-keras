@@ -1,8 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/* Copyright 2020 The TensorFlow Authors. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+=======================================================================*/
 package org.tensorflow.keras.losses;
 
 import java.lang.reflect.Constructor;
@@ -23,7 +32,8 @@ import org.tensorflow.op.Ops;
  * @author Jim Clarke
  */
 public class Losses {
-    static Map<String, Function<Ops, Loss >> map = new HashMap<String, Function<Ops, Loss >>() {
+
+    static Map<String, Function<Ops, Loss>> map = new HashMap<String, Function<Ops, Loss>>() {
         {
             put("kld", tf -> new KLDivergence(tf));
             put("kullback_leibler_divergence", tf -> new KLDivergence(tf));
@@ -48,13 +58,13 @@ public class Losses {
             put("squared_hinge", tf -> new SquaredHinge(tf));
         }
     };
-    
+
     /**
      * Get a Loss
      *
      * @param tf The TensorFlow Ops
-     * @param lossFunction either a String that identifies the
-     * Loss, an Loss class, or an Loss object.
+     * @param lossFunction either a String that identifies the Loss, an Loss
+     * class, or an Loss object.
      * @return the loss object or null if not found.
      */
     public static Loss get(Ops tf, Object lossFunction) {
@@ -62,24 +72,24 @@ public class Losses {
     }
 
     /**
-     * Get a Loss based on a lambda of the form: 
-     * (Ops ops) -> create(Ops ops) 
+     * Get a Loss based on a lambda of the form: (Ops ops) -> create(Ops ops)
      *
      * @param tf The TensorFlow Ops
      * @param lambda a lambda function
      * @return the Intializer object
      */
-    public static Loss get(Ops tf, Function<Ops, Loss > lambda) {
+    public static Loss get(Ops tf, Function<Ops, Loss> lambda) {
         return lambda.apply(tf);
     }
-    
-      /**
-      * Get a Loss  based on a lambda of the form:  () -> create() 
-      * @param lambda a lambda function
-      * @return the Intializer object
-      */
-    public static Loss get( Supplier<Loss > lambda) {
-         return lambda.get();
+
+    /**
+     * Get a Loss based on a lambda of the form: () -> create()
+     *
+     * @param lambda a lambda function
+     * @return the Intializer object
+     */
+    public static Loss get(Supplier<Loss> lambda) {
+        return lambda.get();
     }
 
     /**
@@ -87,15 +97,15 @@ public class Losses {
      *
      * @param tf The TensorFlow Ops
      * @param lossFunction
-     * @param custom_functions a map of Loss lambdas that will be queried
-     * if the loss is not found in the standard keys
+     * @param custom_functions a map of Loss lambdas that will be queried if the
+     * loss is not found in the standard keys
      * @return the Loss object
      */
-    public static Loss get(Ops tf, Object lossFunction, Map<String, Function<Ops, Loss > > custom_functions) {
+    public static Loss get(Ops tf, Object lossFunction, Map<String, Function<Ops, Loss>> custom_functions) {
         if (lossFunction != null) {
             if (lossFunction instanceof String) {
                 String s = lossFunction.toString(); // do this for Java 8 rather than Pattern Matching for instanceof
-                Function<Ops, Loss > function = map.get(s);
+                Function<Ops, Loss> function = map.get(s);
                 if (function == null && custom_functions != null) {
                     function = custom_functions.get(s);
                 }
@@ -104,7 +114,7 @@ public class Losses {
                 Class c = (Class) lossFunction; // do this for Java 8 rather than Pattern Matching for instanceof
                 try {
                     Constructor ctor = c.getConstructor(Ops.class);
-                    return (Loss)ctor.newInstance(tf);
+                    return (Loss) ctor.newInstance(tf);
                 } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                     Logger.getLogger(Losses.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -118,8 +128,6 @@ public class Losses {
         throw new IllegalArgumentException(
                 "lossFunction must be a symbolic name, Loss, lamda or a Class object");
     }
-
-    
 
     /**
      * Computes Kullback-Leibler divergence loss between y_true and y_pred.
@@ -302,25 +310,25 @@ public class Losses {
     public static Operand mean_squared_logarithmic_error(Ops tf, Operand yTrue, Operand yPred) {
         return LossesImpl.mean_squared_logarithmic_error(tf, yTrue, yPred);
     }
-    
+
     /**
      * Computes the binary crossentropy loss.
-     * 
+     *
      * @param tf the TensorFlow Ops
-     * @param yTrue  true targets
+     * @param yTrue true targets
      * @param yPred the predictions
      * @return the loss
      */
     public static Operand binary_crossentropy(Ops tf, Operand yTrue, Operand yPred) {
         return binary_crossentropy(tf, yTrue, yPred, false, 0.0F);
-        
+
     }
-    
+
     /**
      * Computes the binary crossentropy loss.
-     * 
+     *
      * @param tf the TensorFlow Ops
-     * @param yTrue  true targets
+     * @param yTrue true targets
      * @param yPred the predictions
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
      * @return the loss
@@ -328,21 +336,21 @@ public class Losses {
     public static Operand binary_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits) {
         return binary_crossentropy(tf, yTrue, yPred, fromLogits, 0.0F);
     }
-    
+
     /**
-     *  Computes the binary crossentropy loss.
-     * 
+     * Computes the binary crossentropy loss.
+     *
      * @param tf the TensorFlow Ops
-     * @param yTrue  true targets
+     * @param yTrue true targets
      * @param yPred the predictions
-     * @param labelSmoothing Float in [0, 1]. When 0, no smoothing occurs. 
-     * When > 0, we compute the loss between the predicted labels and 
-     * a smoothed version of the true labels, where the smoothing squeezes
-     * the labels towards 0.5. Larger values of label_smoothing correspond 
-     * to heavier smoothing.
+     * @param labelSmoothing Float in [0, 1]. When 0, no smoothing occurs. When
+     * > 0, we compute the loss between the predicted labels and a smoothed
+     * version of the true labels, where the smoothing squeezes the labels
+     * towards 0.5. Larger values of label_smoothing correspond to heavier
+     * smoothing.
      * @return the loss
      */
-    public static Operand binary_crossentropy(Ops tf, Operand yTrue, Operand yPred,  float labelSmoothing) {
+    public static Operand binary_crossentropy(Ops tf, Operand yTrue, Operand yPred, float labelSmoothing) {
         return binary_crossentropy(tf, yTrue, yPred, false, labelSmoothing);
     }
 
@@ -353,18 +361,18 @@ public class Losses {
      * @param yTrue true targets
      * @param yPred the predictions
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
-     * @param labelSmoothing Float in [0, 1]. When 0, no smoothing occurs. 
-     * When > 0, we compute the loss between the predicted labels and 
-     * a smoothed version of the true labels, where the smoothing squeezes
-     * the labels towards 0.5. Larger values of label_smoothing correspond 
-     * to heavier smoothing.
+     * @param labelSmoothing Float in [0, 1]. When 0, no smoothing occurs. When
+     * > 0, we compute the loss between the predicted labels and a smoothed
+     * version of the true labels, where the smoothing squeezes the labels
+     * towards 0.5. Larger values of label_smoothing correspond to heavier
+     * smoothing.
      * @return the loss
      */
     public static Operand binary_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, float labelSmoothing) {
         return LossesImpl.binary_crossentropy(tf, yTrue, yPred, fromLogits, labelSmoothing);
     }
-    
-     /**
+
+    /**
      * Computes the categorical crossentropy loss.
      *
      * @param tf the TensorFlow Ops
@@ -375,35 +383,18 @@ public class Losses {
     public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred) {
         return categorical_crossentropy(tf, yTrue, yPred, false, 0.0F, -1);
     }
-    
-     /**
+
+    /**
      * Computes the categorical crossentropy loss.
      *
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     *  @param fromLogits Whether to interpret yPred as a tensor of logit values
+     * @param fromLogits Whether to interpret yPred as a tensor of logit values
      * @return the loss
      */
     public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits) {
         return categorical_crossentropy(tf, yTrue, yPred, fromLogits, 0.0F, -1);
-    }
-    
-     /**
-     * Computes the categorical crossentropy loss.
-     *
-     * @param tf the TensorFlow Ops
-     * @param yTrue true targets
-     * @param yPred predictions
-     * @param labelSmoothing Float in [0, 1]. When 0, no smoothing occurs. 
-     * When > 0, we compute the loss between the predicted labels and 
-     * a smoothed version of the true labels, where the smoothing squeezes
-     * the labels towards 0.5. Larger values of label_smoothing correspond 
-     * to heavier smoothing.
-     * @return the loss
-     */
-    public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, float labelSmoothing) {
-        return categorical_crossentropy(tf, yTrue, yPred, false,labelSmoothing, -1);
     }
 
     /**
@@ -412,16 +403,33 @@ public class Losses {
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     *  @param fromLogits Whether to interpret yPred as a tensor of logit values
-     * @param labelSmoothing Float in [0, 1]. When 0, no smoothing occurs. 
-     * When > 0, we compute the loss between the predicted labels and 
-     * a smoothed version of the true labels, where the smoothing squeezes
-     * the labels towards 0.5. Larger values of label_smoothing correspond 
-     * to heavier smoothing.
+     * @param labelSmoothing Float in [0, 1]. When 0, no smoothing occurs. When
+     * > 0, we compute the loss between the predicted labels and a smoothed
+     * version of the true labels, where the smoothing squeezes the labels
+     * towards 0.5. Larger values of label_smoothing correspond to heavier
+     * smoothing.
+     * @return the loss
+     */
+    public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, float labelSmoothing) {
+        return categorical_crossentropy(tf, yTrue, yPred, false, labelSmoothing, -1);
+    }
+
+    /**
+     * Computes the categorical crossentropy loss.
+     *
+     * @param tf the TensorFlow Ops
+     * @param yTrue true targets
+     * @param yPred predictions
+     * @param fromLogits Whether to interpret yPred as a tensor of logit values
+     * @param labelSmoothing Float in [0, 1]. When 0, no smoothing occurs. When
+     * > 0, we compute the loss between the predicted labels and a smoothed
+     * version of the true labels, where the smoothing squeezes the labels
+     * towards 0.5. Larger values of label_smoothing correspond to heavier
+     * smoothing.
      * @return the loss
      */
     public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, float labelSmoothing, int axis) {
-        return LossesImpl.categorical_crossentropy(tf, yTrue, yPred, fromLogits, labelSmoothing,axis);
+        return LossesImpl.categorical_crossentropy(tf, yTrue, yPred, fromLogits, labelSmoothing, axis);
     }
 
     /**
@@ -459,6 +467,7 @@ public class Losses {
     public static Operand hinge(Ops tf, Operand yTrue, Operand yPred) {
         return LossesImpl.hinge(tf, yTrue, yPred);
     }
+
     /**
      * Computes the hinge loss between y_true and y_pred.
      *
@@ -495,8 +504,8 @@ public class Losses {
     public static Operand poisson(Ops tf, Operand yTrue, Operand yPred) {
         return LossesImpl.poisson(tf, yTrue, yPred);
     }
-    
-     /**
+
+    /**
      * Computes the sparse categorical crossentropy loss.
      *
      * @param tf the TensorFlow Ops
@@ -535,7 +544,8 @@ public class Losses {
     public static Operand squared_hinge(Ops tf, Operand yTrue, Operand yPred) {
         return LossesImpl.squared_hinge(tf, yTrue, yPred);
     }
-    
+
+    // for debugging
     public static void setDebug(Session session) {
         LossesImpl.setDebug(session);
     }
