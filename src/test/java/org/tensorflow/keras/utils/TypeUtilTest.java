@@ -36,22 +36,22 @@ import org.tensorflow.types.TUint8;
  * @author Jim Clarke
  */
 public class TypeUtilTest {
-    
+
     public TypeUtilTest() {
     }
-    
+
     @BeforeAll
     public static void setUpClass() {
     }
-    
+
     @AfterAll
     public static void tearDownClass() {
     }
-    
+
     @BeforeEach
     public void setUp() {
     }
-    
+
     @AfterEach
     public void tearDown() {
     }
@@ -61,17 +61,16 @@ public class TypeUtilTest {
      */
     @Test
     public void testIsFloating() {
-        System.out.println("isFloating");
         DataType dtype = TFloat32.DTYPE;
         boolean expResult = true;
         boolean result = TypeUtils.isFloating(dtype);
         assertEquals(expResult, result);
-        
+
         dtype = TInt32.DTYPE;
         expResult = false;
         result = TypeUtils.isFloating(dtype);
         assertEquals(expResult, result);
-        
+
         dtype = TString.DTYPE;
         expResult = false;
         result = TypeUtils.isFloating(dtype);
@@ -83,17 +82,16 @@ public class TypeUtilTest {
      */
     @Test
     public void testIsInteger() {
-        System.out.println("isInteger");
         DataType dtype = TFloat32.DTYPE;
         boolean expResult = false;
         boolean result = TypeUtils.isInteger(dtype);
         assertEquals(expResult, result);
-        
+
         dtype = TInt32.DTYPE;
         expResult = true;
         result = TypeUtils.isInteger(dtype);
         assertEquals(expResult, result);
-        
+
         dtype = TString.DTYPE;
         expResult = false;
         result = TypeUtils.isInteger(dtype);
@@ -105,27 +103,26 @@ public class TypeUtilTest {
      */
     @Test
     public void testIsNumeric() {
-        System.out.println("isNumeric");
         DataType dtype = TFloat16.DTYPE;
         boolean expResult = true;
         boolean result = TypeUtils.isNumeric(dtype);
         assertEquals(expResult, result);
-        
+
         dtype = TInt64.DTYPE;
         expResult = true;
         result = TypeUtils.isNumeric(dtype);
         assertEquals(expResult, result);
-        
+
         dtype = TUint8.DTYPE;
         expResult = true;
         result = TypeUtils.isNumeric(dtype);
         assertEquals(expResult, result);
-        
+
         dtype = TBool.DTYPE;
         expResult = false;
         result = TypeUtils.isNumeric(dtype);
         assertEquals(expResult, result);
-        
+
         dtype = TString.DTYPE;
         expResult = false;
         result = TypeUtils.isNumeric(dtype);
@@ -137,17 +134,16 @@ public class TypeUtilTest {
      */
     @Test
     public void testIsBoolean() {
-        System.out.println("isBoolean");
         DataType dtype = TFloat16.DTYPE;
         boolean expResult = false;
         boolean result = TypeUtils.isBoolean(dtype);
         assertEquals(expResult, result);
-        
+
         dtype = TInt64.DTYPE;
         expResult = false;
         result = TypeUtils.isBoolean(dtype);
         assertEquals(expResult, result);
-        
+
         dtype = TBool.DTYPE;
         expResult = true;
         result = TypeUtils.isBoolean(dtype);
@@ -159,17 +155,16 @@ public class TypeUtilTest {
      */
     @Test
     public void testIsString() {
-        System.out.println("isString");
         DataType dtype = TFloat16.DTYPE;
         boolean expResult = false;
         boolean result = TypeUtils.isString(dtype);
         assertEquals(expResult, result);
-        
+
         dtype = TBool.DTYPE;
         expResult = false;
         result = TypeUtils.isString(dtype);
         assertEquals(expResult, result);
-        
+
         dtype = TString.DTYPE;
         expResult = true;
         result = TypeUtils.isString(dtype);
@@ -181,60 +176,59 @@ public class TypeUtilTest {
      */
     @Test
     public void testOf() {
-        System.out.println("of");
         String name = "BFLOAT16";
         DataType expResult = TBfloat16.DTYPE;
         DataType result = TypeUtils.of(name);
         assertEquals(expResult, result);
-        
+
         name = "FLOAT16";
         expResult = TFloat16.DTYPE;
         result = TypeUtils.of(name);
         assertEquals(expResult, result);
-        
+
         name = "FLOAT";
         expResult = TFloat32.DTYPE;
         result = TypeUtils.of(name);
         assertEquals(expResult, result);
-        
+
         name = "DOUBLE";
-        expResult =  TFloat64.DTYPE;
+        expResult = TFloat64.DTYPE;
         result = TypeUtils.of(name);
         assertEquals(expResult, result);
-        
+
         name = "UINT8";
-         expResult =  TUint8.DTYPE;
-         result = TypeUtils.of(name);
-        assertEquals(expResult, result);
-        
-        name =  "INT32";
-        expResult =  TInt32.DTYPE;
+        expResult = TUint8.DTYPE;
         result = TypeUtils.of(name);
         assertEquals(expResult, result);
-        
-        name =  "INT64";
-        expResult =  TInt64.DTYPE;
+
+        name = "INT32";
+        expResult = TInt32.DTYPE;
         result = TypeUtils.of(name);
         assertEquals(expResult, result);
-        
-        name =  "BOOL";
-        expResult =  TBool.DTYPE;
+
+        name = "INT64";
+        expResult = TInt64.DTYPE;
         result = TypeUtils.of(name);
         assertEquals(expResult, result);
-        
-        name =  "STRING";
-        expResult =  TString.DTYPE;
+
+        name = "BOOL";
+        expResult = TBool.DTYPE;
         result = TypeUtils.of(name);
         assertEquals(expResult, result);
-        
-         name = "FOO";
-         try {
+
+        name = "STRING";
+        expResult = TString.DTYPE;
+        result = TypeUtils.of(name);
+        assertEquals(expResult, result);
+
+        name = "FOO";
+        try {
             TypeUtils.of(name);
             fail("IllegalArgumentException not thrown.");
-         }catch ( IllegalArgumentException expected){
-             
-         }
-        
+        } catch (IllegalArgumentException expected) {
+
+        }
+
     }
-    
+
 }
