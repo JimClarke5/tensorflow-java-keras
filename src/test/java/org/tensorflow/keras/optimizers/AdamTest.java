@@ -55,24 +55,24 @@ import org.tensorflow.types.TFloat32;
  * @author Jim Clarke
  */
 public class AdamTest {
-    
+
     int index;
-    
+
     public AdamTest() {
     }
-    
+
     @BeforeAll
     public static void setUpClass() {
     }
-    
+
     @AfterAll
     public static void tearDownClass() {
     }
-    
+
     @BeforeEach
     public void setUp() {
     }
-    
+
     @AfterEach
     public void tearDown() {
     }
@@ -82,8 +82,7 @@ public class AdamTest {
      */
     @Test
     public void testCreate() {
-        System.out.println("create");
-        try ( Graph graph = new Graph()) {
+        try (Graph graph = new Graph()) {
             Map<String, Object> config = new HashMap<>();
             config.put(NAME_KEY, "AdaDelta");
             config.put(LEARNING_RATE_KEY, LEARNING_RATE_DEFAULT);
@@ -98,7 +97,6 @@ public class AdamTest {
 
     @Test
     public void testBasic() {
-        System.out.println("testBasic");
         float m0 = 0.0F;
         float v0 = 0.0F;
         float m1 = 0.0F;
@@ -111,43 +109,41 @@ public class AdamTest {
         FloatNdArray var1_np = NdArrays.vectorOf(var1_init);
         FloatNdArray grads0_np = NdArrays.vectorOf(grads0_init);
         FloatNdArray grads1_np = NdArrays.vectorOf(grads1_init);
-        
-        
+
         float epsilon1 = 1e-2F;
-        
-        try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
+
+        try (Graph graph = new Graph(); Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
-            
+
             Shape shape0 = Shape.of(var0_init.length);
             Shape shape1 = Shape.of(var1_init.length);
             Variable<TFloat32> var0 = tf.withName("var0").variable(shape0, TFloat32.DTYPE);
             Variable<TFloat32> var1 = tf.withName("var1").variable(shape1, TFloat32.DTYPE);
-            
+
             Assign<TFloat32> var0Initializer = tf.assign(var0, tf.constant(var0_init));
             Assign<TFloat32> var1Initializer = tf.assign(var1, tf.constant(var1_init));
-            
+
             Constant<TFloat32> grads0 = tf.constant(grads0_init);
             Constant<TFloat32> grads1 = tf.constant(grads1_init);
-            
-             /* initialize the local variables */
+
+            /* initialize the local variables */
             sess.runner().addTarget(var0Initializer).run();
             sess.runner().addTarget(var1Initializer).run();
-            
+
             float learningRate = 0.001F;
             float beta1 = 0.9F;
             float beta2 = 0.999F;
             float epsilon = 1e-8F;
-            
+
             /* build the GradsAnvVars */
             List gradsAndVars = new ArrayList<>();
             gradsAndVars.add(new Optimizer.GradAndVar<>(grads0.asOutput(), var0.asOutput()));
             gradsAndVars.add(new Optimizer.GradAndVar<>(grads1.asOutput(), var1.asOutput()));
-            
+
             Adam instance = new Adam(graph, learningRate);
-            
 
             Op update = instance.applyGradients(gradsAndVars, "AdamTest");
-            
+
             /* Create and validae the shapes of the slota */
             Variable<TFloat32>[] firstMomentSlots = new Variable[2];
             Variable<TFloat32>[] secondMomentSlots = new Variable[2];
@@ -163,145 +159,139 @@ public class AdamTest {
 
             secondMomentSlots[1] = instance.getSlot(var1.asOutput(), SECOND_MOMENT).get();
             assertEquals(secondMomentSlots[1].asOutput().shape(), var1.asOutput().shape());
-            
+
             /**
-            * initialize the accumulators
-            */
-            
-            for(Op initializer : graph.initializers()) {
+             * initialize the accumulators
+             */
+            for (Op initializer : graph.initializers()) {
                 sess.runner().addTarget(initializer).run();
             }
-            
-            try ( Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
+
+            try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
                 index = 0;
                 result.data().scalars().forEach(f -> assertEquals(var0_init[index++], f.getFloat(), epsilon));
             }
-            try ( Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
+            try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
                 index = 0;
                 result.data().scalars().forEach(f -> assertEquals(var1_init[index++], f.getFloat(), epsilon));
             }
-            
+
             FloatNdArray m0_np = NdArrays.ofFloats(shape1);
             FloatNdArray v0_np = NdArrays.ofFloats(shape1);
             FloatNdArray m1_np = NdArrays.ofFloats(shape1);
             FloatNdArray v1_np = NdArrays.ofFloats(shape1);
-                    
-            for(int step =0; step < 3; step++) {
-                
+
+            for (int step = 0; step < 3; step++) {
+
                 // Test powers
-                final float[] powers = {(float)Math.pow(beta1, step+1), (float)Math.pow(beta2,  step+1)};
-                
-                try ( Tensor<TFloat32> result = sess.runner().fetch("beta1_power").run().get(0).expect(TFloat32.DTYPE)) {
-                    result.data().scalars().forEach(f -> 
-                    {
+                final float[] powers = {(float) Math.pow(beta1, step + 1), (float) Math.pow(beta2, step + 1)};
+
+                try (Tensor<TFloat32> result = sess.runner().fetch("beta1_power").run().get(0).expect(TFloat32.DTYPE)) {
+                    result.data().scalars().forEach(f
+                            -> {
                         assertEquals(powers[0], f.getFloat(), epsilon1);
                     });
                 }
-                try ( Tensor<TFloat32> result = sess.runner().fetch("beta2_power").run().get(0).expect(TFloat32.DTYPE)) {
-                    result.data().scalars().forEach(f -> 
-                    {
+                try (Tensor<TFloat32> result = sess.runner().fetch("beta2_power").run().get(0).expect(TFloat32.DTYPE)) {
+                    result.data().scalars().forEach(f
+                            -> {
                         assertEquals(powers[1], f.getFloat(), epsilon1);
                     });
                 }
                 sess.run(update);
-                
-                float lr_t = learningRate * (float)Math.sqrt(1 - (float)Math.pow(beta2, (step + 1))) / (1 - (float)Math.pow(beta1, (step + 1)));
-                
+
+                float lr_t = learningRate * (float) Math.sqrt(1 - (float) Math.pow(beta2, (step + 1))) / (1 - (float) Math.pow(beta1, (step + 1)));
+
                 m0_np = calculateM(m0_np, grads0_np, beta1);
                 v0_np = calculateV(v0_np, grads0_np, beta2);
                 var0_np = calculateParam(var0_np, lr_t, m0_np, v0_np, 1e-7F);
-                
+
                 m1_np = calculateM(m1_np, grads1_np, beta1);
                 v1_np = calculateV(v1_np, grads1_np, beta2);
                 var1_np = calculateParam(var1_np, lr_t, m1_np, v1_np, 1e-7F);
-                
+
                 // get var0
-                try ( Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
+                try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
                     index = 0;
                     final FloatNdArray var0_final = var0_np;
-                    result.data().scalars().forEach(f-> {
+                    result.data().scalars().forEach(f -> {
                         assertEquals(var0_final.getFloat(index++), f.getFloat(), epsilon1);
-                    } );
+                    });
                 }
-
 
                 // get var1
-                
-                try ( Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
+                try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
                     index = 0;
                     final FloatNdArray var1_final = var1_np;
-                    result.data().scalars().forEach(f-> {
+                    result.data().scalars().forEach(f -> {
                         assertEquals(var1_final.getFloat(index++), f.getFloat(), epsilon1);
-                    } );
+                    });
                 }
-                
+
                 // first moment
-                try ( Tensor<TFloat32> result = sess.runner().fetch(firstMomentSlots[0]).run().get(0).expect(TFloat32.DTYPE)) {
+                try (Tensor<TFloat32> result = sess.runner().fetch(firstMomentSlots[0]).run().get(0).expect(TFloat32.DTYPE)) {
                     index = 0;
                     final FloatNdArray firstMomentSlot0_final = m0_np;
-                    result.data().scalars().forEach(f-> {
+                    result.data().scalars().forEach(f -> {
                         assertEquals(firstMomentSlot0_final.getFloat(index++), f.getFloat(), epsilon1);
-                    } );
+                    });
                 }
-                try ( Tensor<TFloat32> result = sess.runner().fetch(firstMomentSlots[1]).run().get(0).expect(TFloat32.DTYPE)) {
+                try (Tensor<TFloat32> result = sess.runner().fetch(firstMomentSlots[1]).run().get(0).expect(TFloat32.DTYPE)) {
                     index = 0;
                     final FloatNdArray firstMomentSlot1_final = m1_np;
-                    result.data().scalars().forEach(f-> {
+                    result.data().scalars().forEach(f -> {
                         assertEquals(firstMomentSlot1_final.getFloat(index++), f.getFloat(), epsilon1);
-                    } );
+                    });
                 }
-                
+
                 // second moment
-                try ( Tensor<TFloat32> result = sess.runner().fetch(secondMomentSlots[0]).run().get(0).expect(TFloat32.DTYPE)) {
+                try (Tensor<TFloat32> result = sess.runner().fetch(secondMomentSlots[0]).run().get(0).expect(TFloat32.DTYPE)) {
                     index = 0;
                     final FloatNdArray secondMomentSlot0_final = v0_np;
-                    result.data().scalars().forEach(f-> {
+                    result.data().scalars().forEach(f -> {
                         assertEquals(secondMomentSlot0_final.getFloat(index++), f.getFloat(), epsilon1);
-                    } );
+                    });
                 }
-                try ( Tensor<TFloat32> result = sess.runner().fetch(secondMomentSlots[1]).run().get(0).expect(TFloat32.DTYPE)) {
+                try (Tensor<TFloat32> result = sess.runner().fetch(secondMomentSlots[1]).run().get(0).expect(TFloat32.DTYPE)) {
                     index = 0;
                     final FloatNdArray secondMomentSlot1_final = v1_np;
-                    result.data().scalars().forEach(f-> {
+                    result.data().scalars().forEach(f -> {
                         assertEquals(secondMomentSlot1_final.getFloat(index++), f.getFloat(), epsilon1);
-                    } );
+                    });
                 }
-                
-                
+
             }
 
         }
-        
+
     }
-    
+
     private FloatNdArray calculateM(FloatNdArray m, FloatNdArray g_t, float beta) {
         // m_t = beta1 * m + (1 - beta1) * g_t
-        return ND.add(ND.mul(m, beta), ND.mul(g_t, (1-beta)));
+        return ND.add(ND.mul(m, beta), ND.mul(g_t, (1 - beta)));
     }
-    
+
     private FloatNdArray calculateV(FloatNdArray v, FloatNdArray g_t, float beta) {
         //beta2 * v + (1 - beta2) * g_t * g_t
         FloatNdArray mul1 = ND.mul(v, beta);
         FloatNdArray squareG = ND.square(g_t);
-        FloatNdArray mul2 = ND.mul((1-beta), squareG);
+        FloatNdArray mul2 = ND.mul((1 - beta), squareG);
         FloatNdArray add = ND.add(mul1, mul2);
         return add;
-        
+
         //return ND.add(ND.mul(v, beta),
         //     ND.mul((1-beta), ND.square(g_t)));
     }
-    
-    private FloatNdArray calculateParam(FloatNdArray param, float lr_t, FloatNdArray m,  FloatNdArray v, float epsilon) {
-       //  param - lr_t * m_t / (np.sqrt(v_t) + epsilon)
-       FloatNdArray sqrt = ND.sqrt(v);
-       FloatNdArray divisor = ND.add(sqrt, epsilon);
-       FloatNdArray dividend = ND.mul(lr_t, m);
-       FloatNdArray quotient = ND.div(dividend, divisor);
-       FloatNdArray result = ND.sub(param, quotient);
-       return result;
-       
+
+    private FloatNdArray calculateParam(FloatNdArray param, float lr_t, FloatNdArray m, FloatNdArray v, float epsilon) {
+        //  param - lr_t * m_t / (np.sqrt(v_t) + epsilon)
+        FloatNdArray sqrt = ND.sqrt(v);
+        FloatNdArray divisor = ND.add(sqrt, epsilon);
+        FloatNdArray dividend = ND.mul(lr_t, m);
+        FloatNdArray quotient = ND.div(dividend, divisor);
+        FloatNdArray result = ND.sub(param, quotient);
+        return result;
+
     }
-    
-    
-    
+
 }

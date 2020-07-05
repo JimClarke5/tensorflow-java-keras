@@ -57,10 +57,10 @@ import org.tensorflow.types.TFloat32;
  * @author Jim Clarke
  */
 public class RMSPropTest {
-    
+
     final int VAR_T = 0;
-    final int MG_T= 1;
-    final int RMS_T= 2;
+    final int MG_T = 1;
+    final int RMS_T = 2;
     final int MOM_T = 3;
 
     int index;
@@ -89,8 +89,7 @@ public class RMSPropTest {
      */
     @Test
     public void testCreate() {
-        System.out.println("create");
-        try ( Graph graph = new Graph()) {
+        try (Graph graph = new Graph()) {
             Map<String, Object> config = new HashMap<>();
             config.put(NAME_KEY, "Ftrl");
             config.put(LEARNING_RATE_KEY, 2.0F);
@@ -115,12 +114,11 @@ public class RMSPropTest {
 
     @Test
     public void testDense() {
-        System.out.println("testDense");
 
         int numSteps = 3;
 
         for (int run = 0; run < _test_param_values.length; run++) {
-            try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
+            try (Graph graph = new Graph(); Session sess = new Session(graph)) {
                 Ops tf = Ops.create(graph).withName("test");
                 float[] var0_init = {1.0F, 2.0F};
                 float[] var1_init = {3.0F, 4.0F};
@@ -154,7 +152,6 @@ public class RMSPropTest {
                 float momentum = (float) _test_param_values[run][2];
                 float epsilon = (float) _test_param_values[run][3];
                 boolean centered = (boolean) _test_param_values[run][4];
-                
 
                 RMSProp instance = new RMSProp(graph,
                         learningRate,
@@ -180,8 +177,6 @@ public class RMSPropTest {
                 graph.initializers().forEach((initializer) -> {
                     sess.runner().addTarget(initializer).run();
                 });
-                
-                
 
                 Variable<TFloat32> mg0 = centered ? instance.getSlot(var0.asOutput(), MG).get() : null;
                 Variable<TFloat32> mg1 = centered ? instance.getSlot(var1.asOutput(), MG).get() : null;
@@ -199,19 +194,17 @@ public class RMSPropTest {
                 FloatNdArray mom0_np = NdArrays.vectorOf(zeros);
                 FloatNdArray mom1_np = NdArrays.vectorOf(zeros);
 
-                try ( Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
+                try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
                     index = 0;
                     result.data().scalars().forEach(f -> assertEquals(var0_init[index++], f.getFloat(), epsilon));
                 }
-                try ( Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
+                try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
                     index = 0;
                     result.data().scalars().forEach(f -> assertEquals(var1_init[index++], f.getFloat(), epsilon));
                 }
 
                 for (int i = 0; i < numSteps; i++) {
                     sess.run(update);
-                    System.out.println("Step: " + i+1);
-                    System.out.println("================== var0 ======================================");
                     FloatNdArray[] result0 = calc(var0_np, grads0_np, mg0_np, rms0_np,
                             mom0_np, learningRate, decay, momentum, epsilon, centered);
                     var0_np = result0[VAR_T];
@@ -219,7 +212,6 @@ public class RMSPropTest {
                     rms0_np = result0[RMS_T];
                     mom0_np = result0[MOM_T];
 
-                    System.out.println("================== var01 ======================================");
                     FloatNdArray[] result1 = calc(var1_np, grads1_np, mg1_np, rms1_np,
                             mom1_np, learningRate, decay, momentum, epsilon, centered);
 
@@ -229,40 +221,40 @@ public class RMSPropTest {
                     mom1_np = result1[MOM_T];
 
                     if (centered) {
-                        try ( Tensor<TFloat32> result = sess.runner().fetch(mg0).run().get(0).expect(TFloat32.DTYPE)) {
+                        try (Tensor<TFloat32> result = sess.runner().fetch(mg0).run().get(0).expect(TFloat32.DTYPE)) {
                             index = 0;
                             final FloatNdArray ftmp = mg0_np;
                             result.data().scalars().forEach(f -> {
                                 assertEquals(ftmp.getFloat(index++), f.getFloat(), epsilon1);
-                                    });
+                            });
                         }
-                        try ( Tensor<TFloat32> result = sess.runner().fetch(mg1).run().get(0).expect(TFloat32.DTYPE)) {
+                        try (Tensor<TFloat32> result = sess.runner().fetch(mg1).run().get(0).expect(TFloat32.DTYPE)) {
                             index = 0;
                             final FloatNdArray ftmp = mg1_np;
                             result.data().scalars().forEach(f -> {
                                 assertEquals(ftmp.getFloat(index++), f.getFloat(), epsilon1);
-                             });
+                            });
                         }
                     }
                     if (momentum > 0.F) {
-                        try ( Tensor<TFloat32> result = sess.runner().fetch(mom0).run().get(0).expect(TFloat32.DTYPE)) {
+                        try (Tensor<TFloat32> result = sess.runner().fetch(mom0).run().get(0).expect(TFloat32.DTYPE)) {
                             index = 0;
                             final FloatNdArray ftmp = mom0_np;
                             result.data().scalars().forEach(f -> {
                                 assertEquals(ftmp.getFloat(index++), f.getFloat(), epsilon1);
-                                    });
+                            });
                         }
-                        try ( Tensor<TFloat32> result = sess.runner().fetch(mom1).run().get(0).expect(TFloat32.DTYPE)) {
+                        try (Tensor<TFloat32> result = sess.runner().fetch(mom1).run().get(0).expect(TFloat32.DTYPE)) {
                             index = 0;
                             final FloatNdArray ftmp = mom1_np;
                             result.data().scalars().forEach(f -> {
                                 assertEquals(ftmp.getFloat(index++), f.getFloat(), epsilon1);
-                             });
+                            });
                         }
                     }
 
                     /*     TODO the values returned from rms slot, do not match what I see in the python test */
-                    try ( Tensor<TFloat32> result = sess.runner().fetch(rms0).run().get(0).expect(TFloat32.DTYPE)) {
+                    try (Tensor<TFloat32> result = sess.runner().fetch(rms0).run().get(0).expect(TFloat32.DTYPE)) {
                         index = 0;
                         final FloatNdArray ftmp = rms0_np;
                         result.data().scalars().forEach(
@@ -271,34 +263,32 @@ public class RMSPropTest {
                                 }
                         );
                     }
-                    
-                    try ( Tensor<TFloat32> result = sess.runner().fetch(rms1).run().get(0).expect(TFloat32.DTYPE)) {
+
+                    try (Tensor<TFloat32> result = sess.runner().fetch(rms1).run().get(0).expect(TFloat32.DTYPE)) {
                         index = 0;
                         final FloatNdArray ftmp = rms1_np;
-                        
+
                         result.data().scalars().forEach(
                                 f -> {
                                     assertEquals(ftmp.getFloat(index++), f.getFloat(), epsilon1);
                                 }
-                        );                    
+                        );
                     }
-                    try ( Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
+                    try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
                         index = 0;
                         final FloatNdArray ftmp = var0_np;
                         result.data().scalars().forEach(f -> {
                             assertEquals(ftmp.getFloat(index++), f.getFloat(), epsilon1);
-                         });
+                        });
                     }
-                    
 
-                    try ( Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
+                    try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
                         index = 0;
                         final FloatNdArray ftmp = var1_np;
                         result.data().scalars().forEach(f -> {
                             assertEquals(ftmp.getFloat(index++), f.getFloat(), epsilon1);
-                         });
+                        });
                     }
-                    
 
                 }
 
@@ -332,9 +322,9 @@ public class RMSPropTest {
             result[VAR_T] = calcVar(var_np, grad_np, lr, denom_t, epsilon);
         }
         ND.print("var_t", result[VAR_T]);
-        ND.print("mg_t",result[MG_T]);
-        ND.print("rms_t",result[RMS_T]);
-        ND.print("mom_t",result[MOM_T]);
+        ND.print("mg_t", result[MG_T]);
+        ND.print("rms_t", result[RMS_T]);
+        ND.print("mom_t", result[MOM_T]);
 
         return result;
 

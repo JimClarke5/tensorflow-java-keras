@@ -55,41 +55,38 @@ import org.tensorflow.types.TFloat32;
  * @author Jim Clarke
  */
 public class AdamaxTest {
-    private final static int VAR=0;
-    private final static int M=1;
-    private final static int V=2;
-    
+
+    private final static int VAR = 0;
+    private final static int M = 1;
+    private final static int V = 2;
+
     int index;
-    
-    
-    
+
     public AdamaxTest() {
     }
-    
+
     @BeforeAll
     public static void setUpClass() {
     }
-    
+
     @AfterAll
     public static void tearDownClass() {
     }
-    
+
     @BeforeEach
     public void setUp() {
     }
-    
+
     @AfterEach
     public void tearDown() {
     }
-
 
     /**
      * Test of create method, of class Adamax.
      */
     @Test
     public void testCreate() {
-        System.out.println("create");
-        try ( Graph graph = new Graph()) {
+        try (Graph graph = new Graph()) {
             Map<String, Object> config = new HashMap<>();
             config.put(NAME_KEY, "AdaDelta");
             config.put(LEARNING_RATE_KEY, LEARNING_RATE_DEFAULT);
@@ -102,38 +99,33 @@ public class AdamaxTest {
         }
     }
 
-    
-
-
     /**
      * Test of getOptimizerName method, of class Adamax.
      */
     @Test
     public void testGetOptimizerName() {
-        System.out.println("getOptimizerName");
-        try ( Graph graph = new Graph()) {
+        try (Graph graph = new Graph()) {
             Adamax instance = new Adamax(graph);
             String expResult = "Adamax";
             String result = instance.getOptimizerName();
             assertEquals(expResult, result);
         }
     }
-    
+
     /**
      * Test of applyDense method, of class Adamax.
      */
     @Test
     public void testBasic() {
-        System.out.println("testBasic");
-        
+
         int numSteps = 3;
-        
+
         float[] var0_init = {1.0F, 2.0F};
         float[] var1_init = {3.0F, 4.0F};
         float[] grads0_init = {0.1F, 0.1F};
         float[] grads1_init = {0.01F, 0.01F};
-        
-        float[] zeros = {0.0F, 0.0F };
+
+        float[] zeros = {0.0F, 0.0F};
         FloatNdArray m0 = NdArrays.vectorOf(zeros);
         FloatNdArray v0 = NdArrays.vectorOf(zeros);
         FloatNdArray m1 = NdArrays.vectorOf(zeros);
@@ -142,36 +134,36 @@ public class AdamaxTest {
         FloatNdArray var1_np = NdArrays.vectorOf(var1_init);
         FloatNdArray grads0_np = NdArrays.vectorOf(grads0_init);
         FloatNdArray grads1_np = NdArrays.vectorOf(grads1_init);
-        
+
         float epsilon = 1e-6f;
         float epsilon1 = 1e-2F;
-        
-        try ( Graph graph = new Graph();  Session sess = new Session(graph)) {
+
+        try (Graph graph = new Graph(); Session sess = new Session(graph)) {
             Ops tf = Ops.create(graph).withName("test");
-            
+
             Shape shape0 = Shape.of(var0_init.length);
             Shape shape1 = Shape.of(var1_init.length);
             Variable<TFloat32> var0 = tf.withName("var0").variable(shape0, TFloat32.DTYPE);
             Variable<TFloat32> var1 = tf.withName("var1").variable(shape1, TFloat32.DTYPE);
-            
+
             Assign<TFloat32> var0Initializer = tf.assign(var0, tf.constant(var0_init));
             Assign<TFloat32> var1Initializer = tf.assign(var1, tf.constant(var1_init));
-            
+
             Constant<TFloat32> grads0 = tf.constant(grads0_init);
             Constant<TFloat32> grads1 = tf.constant(grads1_init);
-            
-             /* initialize the local variables */
+
+            /* initialize the local variables */
             sess.runner().addTarget(var0Initializer).run();
             sess.runner().addTarget(var1Initializer).run();
-            
+
             Adamax instance = new Adamax(graph);
             /* build the GradsAnvVars */
             List gradsAndVars = new ArrayList<>();
             gradsAndVars.add(new Optimizer.GradAndVar<>(grads0.asOutput(), var0.asOutput()));
             gradsAndVars.add(new Optimizer.GradAndVar<>(grads1.asOutput(), var1.asOutput()));
-            
+
             Op update = instance.applyGradients(gradsAndVars, "AdamTest");
-            
+
             /* Create and validae the shapes of the slota */
             Variable<TFloat32>[] firstMomentSlots = new Variable[2];
             Variable<TFloat32>[] secondMomentSlots = new Variable[2];
@@ -187,69 +179,66 @@ public class AdamaxTest {
 
             secondMomentSlots[1] = instance.getSlot(var1.asOutput(), SECOND_MOMENT).get();
             assertEquals(secondMomentSlots[1].asOutput().shape(), var1.asOutput().shape());
-            
+
             /**
-            * initialize the accumulators
-            */
-            
-            for(Op initializer : graph.initializers()) {
+             * initialize the accumulators
+             */
+            for (Op initializer : graph.initializers()) {
                 sess.runner().addTarget(initializer).run();
             }
-            
-            try ( Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
+
+            try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
                 index = 0;
                 result.data().scalars().forEach(f -> assertEquals(var0_init[index++], f.getFloat(), epsilon));
             }
-            try ( Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
+            try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
                 index = 0;
                 result.data().scalars().forEach(f -> assertEquals(var1_init[index++], f.getFloat(), epsilon));
             }
-            
-            for(int step = 0; step < numSteps; step++) {
+
+            for (int step = 0; step < numSteps; step++) {
                 // Test powers
-                final float beta1_power = (float)Math.pow(BETA_ONE_DEFAULT, step+1);
-                
-                try ( Tensor<TFloat32> result = sess.runner().fetch("beta1_power").run().get(0).expect(TFloat32.DTYPE)) {
-                    result.data().scalars().forEach(f -> 
-                    {
+                final float beta1_power = (float) Math.pow(BETA_ONE_DEFAULT, step + 1);
+
+                try (Tensor<TFloat32> result = sess.runner().fetch("beta1_power").run().get(0).expect(TFloat32.DTYPE)) {
+                    result.data().scalars().forEach(f
+                            -> {
                         assertEquals(beta1_power, f.getFloat(), epsilon1);
                     });
                 }
                 sess.run(update);
-                
+
                 FloatNdArray[] resultNP = calculate(var0_np, grads0_np, step, m0, v0);
                 var0_np = resultNP[VAR];
                 m0 = resultNP[M];
                 v0 = resultNP[V];
-                
+
                 resultNP = calculate(var1_np, grads1_np, step, m1, v1);
                 var1_np = resultNP[VAR];
                 m1 = resultNP[M];
                 v1 = resultNP[V];
-                
+
                 // get var0
-                try ( Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
+                try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
                     index = 0;
                     final FloatNdArray var0_final = var0_np;
-                    result.data().scalars().forEach(f-> {
+                    result.data().scalars().forEach(f -> {
                         assertEquals(var0_final.getFloat(index++), f.getFloat(), epsilon1);
-                    } );
+                    });
                 }
-
 
                 // get var1
-                
-                try ( Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
+                try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
                     index = 0;
                     final FloatNdArray var1_final = var1_np;
-                    result.data().scalars().forEach(f-> {
+                    result.data().scalars().forEach(f -> {
                         assertEquals(var1_final.getFloat(index++), f.getFloat(), epsilon1);
-                    } );
+                    });
                 }
-                
+
             }
         }
-        
+
     }
 
     private FloatNdArray[] calculate(FloatNdArray var_np, FloatNdArray grads_np, int step, FloatNdArray m, FloatNdArray v) {
@@ -257,26 +246,25 @@ public class AdamaxTest {
         float beta1 = BETA_ONE_DEFAULT;
         float beta2 = BETA_TWO_DEFAULT;
         float espilon = 1e-8F;
-        
+
         float oneMinusBeta1 = 1.F - beta1;
-        float oneMinusBeta1Pow = 1.F - (float)Math.pow(beta1, step+1);
+        float oneMinusBeta1Pow = 1.F - (float) Math.pow(beta1, step + 1);
         float alpha1 = alpha / oneMinusBeta1Pow;
-        
+
         //beta1 * m + (1 - beta1) * g_t;
         m = ND.add(ND.mul(beta1, m), ND.mul(oneMinusBeta1, grads_np));
-       // np.maximum(beta2 * v, np.abs(g_t)) 
+        // np.maximum(beta2 * v, np.abs(g_t)) 
         v = ND.max(ND.mul(beta2, v), ND.abs(grads_np));
         //param_t = param - (alpha / (1 - beta1**(t + 1))) * (m_t / (v_t + epsilon))
-        var_np = ND.sub(var_np, 
-           ND.mul(alpha1, ND.div(m, ND.add(v, espilon))));
-                
+        var_np = ND.sub(var_np,
+                ND.mul(alpha1, ND.div(m, ND.add(v, espilon))));
+
         FloatNdArray[] result = new FloatNdArray[3];
         result[VAR] = var_np;
         result[M] = m;
         result[V] = v;
         return result;
-        
+
     }
 
-    
 }
