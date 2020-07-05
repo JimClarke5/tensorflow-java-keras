@@ -19,58 +19,61 @@ import java.util.Map;
 import org.tensorflow.Graph;
 
 /**
- * AdaGrad Optimizer that implements the AdaGrad algorithm.
- * Adagrad is an optimizer with parameter-specific learning rates,
- * which are adapted relative to how frequently a parameter gets
- * updated during training. The more updates a parameter receives,
- * the smaller the updates.
+ * AdaGrad Optimizer that implements the AdaGrad algorithm. Adagrad is an
+ * optimizer with parameter-specific learning rates, which are adapted relative
+ * to how frequently a parameter gets updated during training. The more updates
+ * a parameter receives, the smaller the updates.
  *
  * @author Jim Clarke
  */
-public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad implements OptimizerInterface  {
+public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad implements OptimizerInterface {
 
     public static final String LEARNING_RATE_KEY = "learning_rate";
     public static final String INITIAL_ACCUM_KEY = "accumulator";
-    
-    
-    public static final float  LEARNING_RATE_DEFAULT = 0.001F;
-    public static final float  INITIAL_ACCUM__DEFAULT = 0.1f;
-  
+
+    public static final float LEARNING_RATE_DEFAULT = 0.001F;
+    public static final float INITIAL_ACCUM__DEFAULT = 0.1f;
+
     private Map<String, Object> config = new HashMap<>();
-    
+    private float learningRate;
+
     // TODO is this still necessary?
     private String[] allowed_options = {"clipnorm", "clipvalue", "lr", "decay"};
-    
 
-     /**
-     * create an Adadelta Optimizer with name="Adagrad", learningRate=0.001F, and initial accumulator=0.1
+    /**
+     * create an Adadelta Optimizer with name="Adagrad", learningRate=0.001F,
+     * and initial accumulator=0.1
+     *
      * @param graph the tensorflow graph
      */
     public AdaGrad(Graph graph) {
         this(graph, LEARNING_RATE_DEFAULT, INITIAL_ACCUM__DEFAULT);
     }
-    
-      /**
-     * create an Adadelta Optimizer with learningRate=0.001F, and initial accumulator=0.1
+
+    /**
+     * create an Adadelta Optimizer with learningRate=0.001F, and initial
+     * accumulator=0.1
+     *
      * @param graph the tensorflow graph
      * @param name the name of the Optimizer, defaults to "Adagrad"
      */
     public AdaGrad(Graph graph, String name) {
         this(graph, name, LEARNING_RATE_DEFAULT, INITIAL_ACCUM__DEFAULT);
     }
-    
-    
+
     /**
-     * create an Adadelta Optimizer with  initial accumulator=0.1
+     * create an Adadelta Optimizer with initial accumulator=0.1
+     *
      * @param graph the tensorflow graph
      * @param learningRate The learning rate. Defaults to 0.001.
      */
     public AdaGrad(Graph graph, float learningRate) {
         this(graph, learningRate, INITIAL_ACCUM__DEFAULT);
     }
-    
-     /**
+
+    /**
      * create an Adadelta Optimizer
+     *
      * @param graph the tensorflow graph
      * @param name the name of the Optimizer, defaults to "Adagrad"
      * @param learningRate The learning rate. Defaults to 0.01.
@@ -78,20 +81,22 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
     public AdaGrad(Graph graph, String name, float learningRate) {
         this(graph, name, learningRate, INITIAL_ACCUM__DEFAULT);
     }
-    
+
     /**
      * create an Adadelta Optimizer
+     *
      * @param graph the tensorflow graph
      * @param learningRate The learning rate
      * @param initialAccumulatorValue initial accumulator value
      */
-    public AdaGrad(Graph graph,float learningRate, float initialAccumulatorValue) {
+    public AdaGrad(Graph graph, float learningRate, float initialAccumulatorValue) {
         super(graph, learningRate, initialAccumulatorValue);
         initConfig(learningRate, initialAccumulatorValue);
     }
-    
+
     /**
      * create an Adadelta Optimizer
+     *
      * @param graph the tensorflow graph
      * @param name the name of the Optimizer, defaults to "Adagrad"
      * @param learningRate The learning rate
@@ -102,17 +107,15 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
         assert initialAccumulatorValue >= 0.0F : "initial_accumulator_value must be non-negative: " + initialAccumulatorValue;
         initConfig(learningRate, initialAccumulatorValue);
     }
-    
-    
-    
+
     /* TODO - do we need to do this to be compatible with keras python? */
     /**
      * create an AdaGrad Optimizer from a config object
      *
      * @param graph the tensorflow graph
-     * @param config a config object to initialize, , the config object has keys for 
-     * "name", "learning_rate" and "accumulator". If a key is missing 
-     * the default value is used.
+     * @param config a config object to initialize, , the config object has keys
+     * for "name", "learning_rate" and "accumulator". If a key is missing the
+     * default value is used.
      */
     public static AdaGrad fromConfig(Graph graph, Map<String, Object> config) {
         return create(graph, config);
@@ -122,32 +125,35 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
      * create an Adadelta Optimizer from a config object
      *
      * @param graph the tensorflow graph
-     * @param config a config object to initialize, the config object has keys for 
-     * "name", "learning_rate" and "accumulator". If a key is missing 
-     * the default value is used.
+     * @param config a config object to initialize, the config object has keys
+     * for "name", "learning_rate" and "accumulator". If a key is missing the
+     * default value is used.
      */
     public static AdaGrad create(Graph graph, Map<String, Object> config) {
-        String name = (String)config.get(NAME_KEY);
-        float learningRate = (float)config.getOrDefault(LEARNING_RATE_KEY, LEARNING_RATE_DEFAULT);
-        float initialAccumulatorValue = (float)config.getOrDefault(INITIAL_ACCUM_KEY, INITIAL_ACCUM__DEFAULT);
-        if(name != null)
+        String name = (String) config.get(NAME_KEY);
+        float learningRate = (float) config.getOrDefault(LEARNING_RATE_KEY, LEARNING_RATE_DEFAULT);
+        float initialAccumulatorValue = (float) config.getOrDefault(INITIAL_ACCUM_KEY, INITIAL_ACCUM__DEFAULT);
+        if (name != null) {
             return new AdaGrad(graph, name, learningRate, initialAccumulatorValue);
-        else
+        } else {
             return new AdaGrad(graph, learningRate, initialAccumulatorValue);
-        
+        }
+
     }
-    
+
     /**
      * Initialize the configuration
+     *
      * @param learningRate
      * @param initialAccumulatorValue
      */
     private void initConfig(float learningRate, float initialAccumulatorValue) {
+        this.learningRate = learningRate;
         config.put(NAME_KEY, this.getOptimizerName());
         config.put(LEARNING_RATE_KEY, learningRate);
         config.put(INITIAL_ACCUM_KEY, initialAccumulatorValue);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -155,8 +161,23 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
     public Map<String, Object> getConfig() {
         return config;
     }
-    
-    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public float getLearningRate() {
+        return this.learningRate;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setLearningRate(float learningRate) {
+        this.learningRate = learningRate;
+    }
+
     //TODO ??
     //variables()
     //set_weights
@@ -166,5 +187,4 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
     //get_slot_names
     //get_gradients
     //add_slot => createSlot
-   
 }

@@ -21,7 +21,6 @@ import java.util.Optional;
 import org.tensorflow.Graph;
 import org.tensorflow.Operand;
 import org.tensorflow.Output;
-import static org.tensorflow.framework.optimizers.RMSProp.MOMENTUM;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Scope;
@@ -61,14 +60,13 @@ public class Nadam extends org.tensorflow.framework.optimizers.Optimizer impleme
     private Scope scope;
     private final Map<String, Object> config = new HashMap<>();
 
-    private final float learningRate;
+    private float learningRate;
     private final float betaOne;
     private final float betaTwo;
     private final float epsilon;
     private final float decayBase = 0.96F;
     private final float decay = 0.004F;
-    
-    
+
     private long iterations = 0;
 
     private Constant<TFloat32> learningRateConst;
@@ -76,15 +74,15 @@ public class Nadam extends org.tensorflow.framework.optimizers.Optimizer impleme
     private Constant<TFloat32> betaTwoConst;
     private Constant<TInt64> localStepConst;
     private Constant<TInt64> nextStepConst;
-        
+
     private Constant<TFloat32> decayBaseConst;
     private Constant<TFloat32> decayConst;
     private Constant<TFloat32> epsilonConst;
-    
+
     private Variable<TFloat32> betaOnePower;
     private Variable<TFloat32> betaTwoPower;
     private Variable<TFloat32> momentum;
-    
+
     private Operand<TFloat32> m_t;
     private Operand<TFloat32> m_t_1;
     private Operand<TFloat32> m_schedule_new;
@@ -176,7 +174,7 @@ public class Nadam extends org.tensorflow.framework.optimizers.Optimizer impleme
         this.betaTwo = betaTwo;
         this.epsilon = epsilon;
         this.scope = new Scope(graph);
-        
+
         initConfig(learningRate, betaOne, betaTwo, epsilon);
     }
 
@@ -207,7 +205,21 @@ public class Nadam extends org.tensorflow.framework.optimizers.Optimizer impleme
         return config;
     }
 
-   
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public float getLearningRate() {
+        return this.learningRate;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setLearningRate(float learningRate) {
+        this.learningRate = learningRate;
+    }
 
     /**
      * {@inheritDoc}
@@ -219,18 +231,17 @@ public class Nadam extends org.tensorflow.framework.optimizers.Optimizer impleme
         }
         betaOnePower = tf.withName("beta1_power").variable(Shape.scalar(), TFloat32.DTYPE);
         Assign<TFloat32> betaOnePowerInit = tf
-            .assign(betaOnePower, tf.constant(betaOne));
+                .assign(betaOnePower, tf.constant(betaOne));
         graph.addInitializer(betaOnePowerInit);
-        
+
         betaTwoPower = tf.withName("beta2_power").variable(Shape.scalar(), TFloat32.DTYPE);
         Assign<TFloat32> betaTwoPowerInit = tf
-            .assign(betaTwoPower, tf.constant(betaTwo));
+                .assign(betaTwoPower, tf.constant(betaTwo));
         graph.addInitializer(betaTwoPowerInit);
-        
+
         momentum = tf.withName("momentum").variable(Shape.scalar(), TFloat32.DTYPE);
         Assign<TFloat32> momentumInit = tf.assign(momentum, tf.constant(1.0F));
         graph.addInitializer(momentumInit);
-        
 
     }
 
@@ -241,22 +252,20 @@ public class Nadam extends org.tensorflow.framework.optimizers.Optimizer impleme
         Operand<T> secondMomentInitializer = tf
                 .fill(tf.shape(v), tf.dtypes.cast(tf.constant(0.0f), v.dataType()));
         createSlot(v.asOutput(), SECOND_MOMENT, secondMomentInitializer);
-        
+
         Operand<T> momentumInitializer = tf
-            .fill(tf.shape(v), tf.dtypes.cast(tf.constant(1.0f), v.dataType()));
+                .fill(tf.shape(v), tf.dtypes.cast(tf.constant(1.0f), v.dataType()));
         createSlot(v.asOutput(), MOMENTUM, momentumInitializer);
     }
-    
-    
-    
-     /**
+
+    /**
      * {@inheritDoc}
      */
     @Override
     protected Optional<Op> prepare(String scopeName) {
         Constant one = tf.constant(1.0F);
         Constant point5 = tf.constant(0.5F);
-        
+
         learningRateConst = tf.constant(learningRate);
         betaOneConst = tf.constant(betaOne);
         betaTwoConst = tf.constant(betaTwo);
@@ -265,29 +274,27 @@ public class Nadam extends org.tensorflow.framework.optimizers.Optimizer impleme
         decayConst = tf.constant(decay);
         decayBaseConst = tf.constant(this.decayBase);
         epsilonConst = tf.constant(this.epsilon);
-        
-                
+
         //  m_t = beta_1_t * (1. - 0.5 * ( math_ops.pow(decay_base, self._initial_decay * local_step)))
-       m_t = tf.math.mul(betaOneConst, tf.math.sub(one, 
-            tf.math.mul(point5, 
-                    tf.math.pow(decayBaseConst, 
-                        tf.math.mul(decayConst,tf.dtypes.cast(localStepConst, TFloat32.DTYPE ))))));
-       // m_t_1 = beta_1_t * (1. - 0.5 * ( math_ops.pow(decay_base, self._initial_decay * next_step)))
-        m_t_1 = tf.math.mul(betaOneConst, tf.math.sub(one, 
-                tf.math.mul(point5, 
-                    tf.math.pow(decayBaseConst, 
-                        tf.math.mul(decayConst,tf.dtypes.cast(nextStepConst, TFloat32.DTYPE ))))));
-        
-        
+        m_t = tf.math.mul(betaOneConst, tf.math.sub(one,
+                tf.math.mul(point5,
+                        tf.math.pow(decayBaseConst,
+                                tf.math.mul(decayConst, tf.dtypes.cast(localStepConst, TFloat32.DTYPE))))));
+        // m_t_1 = beta_1_t * (1. - 0.5 * ( math_ops.pow(decay_base, self._initial_decay * next_step)))
+        m_t_1 = tf.math.mul(betaOneConst, tf.math.sub(one,
+                tf.math.mul(point5,
+                        tf.math.pow(decayBaseConst,
+                                tf.math.mul(decayConst, tf.dtypes.cast(nextStepConst, TFloat32.DTYPE))))));
+
         // m_schedule_new = math_ops.cast(self._m_cache_read, var_dtype) * m_t
-        m_schedule_new = tf.math.mul(momentum , m_t);
+        m_schedule_new = tf.math.mul(momentum, m_t);
         //if var_dtype is self._m_cache.dtype:
         // m_schedule_new = array_ops.identity(state_ops.assign(
-            //self._m_cache, m_schedule_new, use_locking=self._use_locking))
+        //self._m_cache, m_schedule_new, use_locking=self._use_locking))
         m_schedule_new = tf.identity(tf.assign(momentum, m_schedule_new, Assign.useLocking(true)));
         //m_schedule_next = m_schedule_new * m_t_1
-        m_schedule_next = tf.math.mul(m_schedule_new,  m_t_1);
-        
+        m_schedule_next = tf.math.mul(m_schedule_new, m_t_1);
+
         // 1 - beta_1_t
         one_minus_beta_1 = tf.math.sub(one, betaOneConst);
         // 1 - beta_2_t,
@@ -300,69 +307,65 @@ public class Nadam extends org.tensorflow.framework.optimizers.Optimizer impleme
         one_minus_m_schedule_next = tf.math.sub(one, m_schedule_next);
         // 1. - math_ops.pow(beta_2_t, local_step)
         v_t_prime_denominator = tf.math.sub(one,
-                tf.math.pow(betaTwoConst, tf.dtypes.cast(localStepConst, TFloat32.DTYPE )));
-        
+                tf.math.pow(betaTwoConst, tf.dtypes.cast(localStepConst, TFloat32.DTYPE)));
+
         return Optional.empty();
     }
 
-     /**
+    /**
      * {@inheritDoc}
      */
     @Override
     protected <T extends TType> Op applyDense(Output<T> gradient, Output<T> variable) {
         Variable<T> m = getSlot(variable, FIRST_MOMENT).get(); // first Moment
         Variable<T> v = getSlot(variable, SECOND_MOMENT).get(); // Second Moment
-        
+
         //  g_prime = grad / coefficients['one_minus_m_schedule_new']
-        Operand g_prime = tf.math.div((Operand)gradient, one_minus_m_schedule_new);
+        Operand g_prime = tf.math.div((Operand) gradient, one_minus_m_schedule_new);
         //m_t = (coefficients['beta_1_t'] * m + coefficients['one_minus_beta_1_t'] * grad)
         Operand m_t = tf.math.add(
-                tf.math.mul(betaOneConst, (Operand)m),
-                tf.math.mul(one_minus_beta_1, (Operand)gradient));
+                tf.math.mul(betaOneConst, (Operand) m),
+                tf.math.mul(one_minus_beta_1, (Operand) gradient));
         //m_t = state_ops.assign(m, m_t, use_locking=self._use_locking)
         // update m
         m_t = tf.assign(m, m_t, Assign.useLocking(true));
-        
-        
+
         //m_t_prime = m_t / coefficients['one_minus_m_schedule_next']
-        Operand  m_t_prime = tf.math.div(m_t , one_minus_m_schedule_next);
-        
+        Operand m_t_prime = tf.math.div(m_t, one_minus_m_schedule_next);
+
         //v_t = (coefficients['beta_2_t'] * v + coefficients['one_minus_beta_2_t'] * math_ops.square(grad))
         Operand v_t = tf.math.add(
-               tf.math.mul(betaTwoConst, (Operand)v),
-               tf.math.mul(one_minus_beta_2, tf.math.square((Operand)gradient)));
+                tf.math.mul(betaTwoConst, (Operand) v),
+                tf.math.mul(one_minus_beta_2, tf.math.square((Operand) gradient)));
         // v_t = state_ops.assign(v, v_t, use_locking=self._use_locking)
         // update v
         v_t = tf.assign(v, v_t, Assign.useLocking(true));
-        
-        
-        
+
         //v_t_prime = v_t / coefficients['v_t_prime_denominator']
-        Operand v_t_prime = tf.math.div(v_t , v_t_prime_denominator);
-        
-        
+        Operand v_t_prime = tf.math.div(v_t, v_t_prime_denominator);
+
         //m_t_bar = (coefficients['one_minus_m_t'] * g_prime + coefficients['m_t_1'] * m_t_prime)
         Operand m_t_bar = tf.math.add(
                 tf.math.mul(one_minus_m_t, g_prime),
-               tf.math.mul(m_t_1,  m_t_prime));
+                tf.math.mul(m_t_1, m_t_prime));
         // var_t = var - coefficients['lr_t'] * m_t_bar / (math_ops.sqrt(v_t_prime) + coefficients['epsilon'])
         Operand var_t = tf.math.sub(
-            variable,
-            tf.math.div(
-                tf.math.mul(learningRateConst, m_t_bar),
-                tf.math.add(  tf.math.sqrt(v_t_prime), epsilonConst )
-            )
+                variable,
+                tf.math.div(
+                        tf.math.mul(learningRateConst, m_t_bar),
+                        tf.math.add(tf.math.sqrt(v_t_prime), epsilonConst)
+                )
         );
         //assign(var, var_t, use_locking=self._use_locking)
         return tf.assign(variable, var_t, Assign.useLocking(true));
-       
+
     }
 
     /**
      * Gathers up the update operations into a single op that can be used as a
      * run target.
      * <p>
-     * Adds the betaOne,  betaTwo and mu updates to the end of the updates list.
+     * Adds the betaOne, betaTwo and mu updates to the end of the updates list.
      *
      * @param updateOperations The update operations.
      * @param name The name of the run target.
@@ -403,8 +406,8 @@ public class Nadam extends org.tensorflow.framework.optimizers.Optimizer impleme
         config.put(BETA_TWO_KEY, betaTwo);
 
     }
-    
+
     private float calcM(int iteration) {
-        return betaOne * (1 - .05F * (float)Math.pow(this.decayBase, this.decay*iteration));
+        return betaOne * (1 - .05F * (float) Math.pow(this.decayBase, this.decay * iteration));
     }
 }

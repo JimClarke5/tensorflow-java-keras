@@ -42,7 +42,7 @@ public class Adamax extends org.tensorflow.framework.optimizers.Optimizer implem
 
     public static final String FIRST_MOMENT = "m";
     public static final String SECOND_MOMENT = "v";
-    
+
     public static final String LEARNING_RATE_KEY = "learning_rate";
     public static final String EPSILON_KEY = "epsilon";
     public static final String BETA_ONE_KEY = "beta_1";
@@ -56,7 +56,7 @@ public class Adamax extends org.tensorflow.framework.optimizers.Optimizer implem
     private Scope scope;
     private Map<String, Object> config = new HashMap<>();
 
-    private final float learningRate;
+    private float learningRate;
     private final float betaOne;
     private final float betaTwo;
     private final float epsilon;
@@ -69,7 +69,7 @@ public class Adamax extends org.tensorflow.framework.optimizers.Optimizer implem
 
     /**
      * create an Optimizer that implements the Adamax algorithm.
-     * 
+     *
      * @param graph the TensoFlow graph
      */
     public Adamax(Graph graph) {
@@ -78,9 +78,10 @@ public class Adamax extends org.tensorflow.framework.optimizers.Optimizer implem
 
     /**
      * create an Optimizer that implements the Adamax algorithm.
-     * 
+     *
      * @param graph the TensoFlow graph
-     * @param name name for the operations created when applying gradients. Defaults to "Adamax".
+     * @param name name for the operations created when applying gradients.
+     * Defaults to "Adamax".
      */
     public Adamax(Graph graph, String name) {
         this(graph, name, LEARNING_RATE_DEFAULT, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT);
@@ -88,7 +89,7 @@ public class Adamax extends org.tensorflow.framework.optimizers.Optimizer implem
 
     /**
      * create an Optimizer that implements the Adamax algorithm.
-     * 
+     *
      * @param graph the TensoFlow graph
      * @param learningRate The learning rate.
      */
@@ -98,9 +99,10 @@ public class Adamax extends org.tensorflow.framework.optimizers.Optimizer implem
 
     /**
      * create an Optimizer that implements the Adamax algorithm.
-     * 
+     *
      * @param graph the TensoFlow graph
-     * @param name name for the operations created when applying gradients. Defaults to "Adamax".
+     * @param name name for the operations created when applying gradients.
+     * Defaults to "Adamax".
      * @param learningRate The learning rate.
      */
     public Adamax(Graph graph, String name, float learningRate) {
@@ -109,17 +111,18 @@ public class Adamax extends org.tensorflow.framework.optimizers.Optimizer implem
 
     /**
      * create an Optimizer that implements the Adamax algorithm.
-     * 
+     *
      * @param graph the TensoFlow graph
      * @param learningRate The learning rate.
      * @param betaOne The exponential decay rate for the 1st moment estimates.
-     * @param betaTwo The exponential decay rate for the exponentially weighted infinity norm.
+     * @param betaTwo The exponential decay rate for the exponentially weighted
+     * infinity norm.
      * @param epsilon A small constant for numerical stability.
      */
     public Adamax(Graph graph, float learningRate, float betaOne, float betaTwo, float epsilon) {
         super(graph);
         this.learningRate = learningRate;
-        this.betaOne = betaOne; 
+        this.betaOne = betaOne;
         this.betaTwo = betaTwo;
         this.epsilon = epsilon;
         this.scope = new Scope(graph);
@@ -128,12 +131,14 @@ public class Adamax extends org.tensorflow.framework.optimizers.Optimizer implem
 
     /**
      * create an Optimizer that implements the Adamax algorithm.
-     * 
+     *
      * @param graph the TensoFlow graph
-     * @param name name for the operations created when applying gradients. Defaults to "Adamax".
+     * @param name name for the operations created when applying gradients.
+     * Defaults to "Adamax".
      * @param learningRate The learning rate.
      * @param betaOne The exponential decay rate for the 1st moment estimates.
-     * @param betaTwo The exponential decay rate for the exponentially weighted infinity norm.
+     * @param betaTwo The exponential decay rate for the exponentially weighted
+     * infinity norm.
      * @param epsilon A small constant for numerical stability.
      */
     public Adamax(Graph graph, String name, float learningRate, float betaOne, float betaTwo, float epsilon) {
@@ -149,9 +154,10 @@ public class Adamax extends org.tensorflow.framework.optimizers.Optimizer implem
 
     /* TODO - do we need to do this to be compatible with keras python? */
     /**
-     * create an Optimizer that implements the Adamax algorithm from a config object
+     * create an Optimizer that implements the Adamax algorithm from a config
+     * object
      *
-     * @param graph  the TensoFlow graph
+     * @param graph the TensoFlow graph
      * @param config a config object to initialize, the config object has keys
      * for "name", "learning_rate", "epsilon", "beta_1", "beta_2". If a key is
      * missing the default value is used.
@@ -161,9 +167,10 @@ public class Adamax extends org.tensorflow.framework.optimizers.Optimizer implem
     }
 
     /**
-     * create an Optimizer that implements the Adamax algorithm from a config object
+     * create an Optimizer that implements the Adamax algorithm from a config
+     * object
      *
-     * @param graph  the TensoFlow graph
+     * @param graph the TensoFlow graph
      * @param config a config object to initialize
      */
     public static Adamax create(Graph graph, Map<String, Object> config) {
@@ -186,8 +193,24 @@ public class Adamax extends org.tensorflow.framework.optimizers.Optimizer implem
     public Map<String, Object> getConfig() {
         return config;
     }
-    
-     /**
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public float getLearningRate() {
+        return this.learningRate;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setLearningRate(float learningRate) {
+        this.learningRate = learningRate;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -203,15 +226,15 @@ public class Adamax extends org.tensorflow.framework.optimizers.Optimizer implem
      * {@inheritDoc}
      */
     @Override
-  protected void createSlots(List<Output<? extends TType>> variables) {
-    for (Output<? extends TType> v : variables) {
-      createAdamaxSlot(v.asOutput());
+    protected void createSlots(List<Output<? extends TType>> variables) {
+        for (Output<? extends TType> v : variables) {
+            createAdamaxSlot(v.asOutput());
+        }
+        betaOnePower = tf.withName("beta1_power").variable(Shape.scalar(), TFloat32.DTYPE);
+        Assign<TFloat32> betaOnePowerInit = tf
+                .assign(betaOnePower, tf.constant(betaOne));
+        graph.addInitializer(betaOnePowerInit);
     }
-    betaOnePower = tf.withName("beta1_power").variable(Shape.scalar(), TFloat32.DTYPE);
-    Assign<TFloat32> betaOnePowerInit = tf
-        .assign(betaOnePower, tf.constant(betaOne));
-    graph.addInitializer(betaOnePowerInit);
-  }
 
     private <T extends TType> void createAdamaxSlot(Output<T> v) {
         Operand<T> firstMomentInitializer = tf
@@ -239,14 +262,15 @@ public class Adamax extends org.tensorflow.framework.optimizers.Optimizer implem
     }
 
     /**
-   * Gathers up the update operations into a single op that can be used as a run target.
-   * <p>
-   * Adds the betaOne and betaTwo updates to the end of the updates list.
-   *
-   * @param updateOperations The update operations.
-   * @param name             The name of the run target.
-   * @return A NoOp with a control dependency on each update operation.
-   */
+     * Gathers up the update operations into a single op that can be used as a
+     * run target.
+     * <p>
+     * Adds the betaOne and betaTwo updates to the end of the updates list.
+     *
+     * @param updateOperations The update operations.
+     * @param name The name of the run target.
+     * @return A NoOp with a control dependency on each update operation.
+     */
     @Override
     protected Op finish(List<Op> updateOperations, String name) {
         updateOperations.add(tf.assign(betaOnePower, tf.math.mul(betaOnePower, betaOneConst)));
@@ -258,7 +282,6 @@ public class Adamax extends org.tensorflow.framework.optimizers.Optimizer implem
         return "Adamax";
     }
 
-    
     /**
      * function that sets the config object based on which constructor is
      * called.

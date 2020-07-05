@@ -39,6 +39,7 @@ public class RMSProp extends org.tensorflow.framework.optimizers.RMSProp impleme
     public static final boolean CENTERED_DEFAULT = false;
 
     private Map<String, Object> config = new HashMap<>();
+    private float learningRate;
 
     /**
      * create an RMSProp Optimizer with the following defaults, name="RMSProp",
@@ -172,6 +173,7 @@ public class RMSProp extends org.tensorflow.framework.optimizers.RMSProp impleme
      */
     private void initConfig(float learningRate, float decay, float momentum,
             float epsilon, boolean centered) {
+        this.learningRate = learningRate;
         config.put(NAME_KEY, this.getOptimizerName());
         config.put(LEARNING_RATE_KEY, learningRate);
         config.put(DECAY_KEY, decay);
@@ -186,5 +188,21 @@ public class RMSProp extends org.tensorflow.framework.optimizers.RMSProp impleme
     @Override
     public Map<String, Object> getConfig() {
         return config;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public float getLearningRate() {
+        return this.learningRate;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setLearningRate(float learningRate) {
+        this.learningRate = learningRate;
     }
 }

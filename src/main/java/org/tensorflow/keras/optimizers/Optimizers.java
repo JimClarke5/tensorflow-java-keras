@@ -24,78 +24,83 @@ import java.util.logging.Logger;
 import org.tensorflow.Graph;
 import org.tensorflow.framework.optimizers.Optimizer;
 
-
-
 /**
- * functions to get an initializer based on String name, 
- * an Initializer class, or lambda function
+ * functions to get an initializer based on String name, an Initializer class,
+ * or lambda function
+ *
  * @author Jim Clarke
  */
 public class Optimizers {
-    static Map<String, Function<Graph, Optimizer> > map = new HashMap<String, Function<Graph, Optimizer> >() 
-        {{
-           put("adadelta",graph -> new AdaDelta(graph) );
-           put("adagrad", graph -> new AdaGrad(graph) );
-           put("AdagradDA",graph -> new AdaGradDA(graph) );
-           put("adam",graph -> new Adam(graph) );
-           put("adamax",graph -> new Adamax(graph) );
-           put("ftrl",graph -> new Ftrl(graph) );
-           put("nadam",graph -> new Nadam(graph) );
-           put("rmsprop",graph -> new RMSProp(graph) );
-           put("sgd",graph -> new SGD(graph) );
-        }};
 
-     /**
-      * Get an Initializer
-      * @param initializerFunction either a String that identifies the Initializer, 
-      * an Initializer class, or an Initializer object.
-      * @return the Intializer object or null if not found.
-      */
-     public static Optimizer get(Graph graph, Object initializerFunction) {
-        return get(graph, initializerFunction, null);
-    }
-    
-     /**
-      * Get an Initializer
-      * @param si a lamda function
-      * @return the Intializer object
-      */
-    public static Optimizer get(Graph graph, Function<Graph, Optimizer> func) {
-         return func.apply(graph);
-    }
-    
+    static Map<String, Function<Graph, Optimizer>> map = new HashMap<String, Function<Graph, Optimizer>>() {
+        {
+            put("adadelta", graph -> new AdaDelta(graph));
+            put("adagrad", graph -> new AdaGrad(graph));
+            put("AdagradDA", graph -> new AdaGradDA(graph));
+            put("adam", graph -> new Adam(graph));
+            put("adamax", graph -> new Adamax(graph));
+            put("ftrl", graph -> new Ftrl(graph));
+            put("nadam", graph -> new Nadam(graph));
+            put("rmsprop", graph -> new RMSProp(graph));
+            put("sgd", graph -> new SGD(graph));
+        }
+    };
+
     /**
      * Get an Initializer
+     *
+     * @param initializerFunction either a String that identifies the
+     * Initializer, an Initializer class, or an Initializer object.
+     * @return the Intializer object or null if not found.
+     */
+    public static Optimizer get(Graph graph, Object initializerFunction) {
+        return get(graph, initializerFunction, null);
+    }
+
+    /**
+     * Get an Initializer
+     *
+     * @param si a lamda function
+     * @return the Intializer object
+     */
+    public static Optimizer get(Graph graph, Function<Graph, Optimizer> func) {
+        return func.apply(graph);
+    }
+
+    /**
+     * Get an Initializer
+     *
      * @param initializerFunction
-     * @param custom_functions a map of Initializer lambdas that will be queried 
+     * @param custom_functions a map of Initializer lambdas that will be queried
      * if the initializer is not found in the standard keys
      * @return the Intializer object
      */
-    public static Optimizer get(Graph graph, Object initializerFunction, Map<String,  Function<Graph, Optimizer>> custom_functions) {
-        if(initializerFunction != null) {
-            if(initializerFunction instanceof String) {
+    public static Optimizer get(Graph graph, Object initializerFunction, Map<String, Function<Graph, Optimizer>> custom_functions) {
+        if (initializerFunction != null) {
+            if (initializerFunction instanceof String) {
                 String s = initializerFunction.toString(); // do this for Java 8 rather than Pattern Matching for instanceof
-                Function<Graph, Optimizer>function = map.get(s);
-                if(function == null && custom_functions != null)
+                Function<Graph, Optimizer> function = map.get(s);
+                if (function == null && custom_functions != null) {
                     function = custom_functions.get(s);
+                }
                 return function != null ? function.apply(graph) : null;
-            }else if(initializerFunction instanceof Class ) {
-                Class c = (Class)initializerFunction; // do this for Java 8 rather than Pattern Matching for instanceof
+            } else if (initializerFunction instanceof Class) {
+                Class c = (Class) initializerFunction; // do this for Java 8 rather than Pattern Matching for instanceof
                 try {
                     Constructor ctor = c.getConstructor(Graph.class);
-                    return (Optimizer)ctor.newInstance(graph);
+                    return (Optimizer) ctor.newInstance(graph);
                 } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                     Logger.getLogger(Optimizers.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            }else if(initializerFunction instanceof Optimizer) {
-                return (Optimizer)initializerFunction; // do this for Java 8 rather than Pattern Matching for instanceof
+            } else if (initializerFunction instanceof Optimizer) {
+                return (Optimizer) initializerFunction; // do this for Java 8 rather than Pattern Matching for instanceof
             }
-        }else {
+        } else {
             return null;
         }
-         
+
         throw new IllegalArgumentException(
                 "initializerFunction must be a symbolic name, Initializer, Supplier<Initializer> or a Class object");
     }
-    
+
 }
