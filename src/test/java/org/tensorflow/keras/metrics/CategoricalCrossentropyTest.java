@@ -62,7 +62,6 @@ public class CategoricalCrossentropyTest {
      */
    @Test
     public void testConfig() {
-        System.out.println("testConfig");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             CategoricalCrossentropy instance = new CategoricalCrossentropy(tf,"cce", true,  2.0F, -1, TInt32.DTYPE);
@@ -75,7 +74,6 @@ public class CategoricalCrossentropyTest {
     
     @Test
     public void testUnweighted() {
-        System.out.println("testUnweighted");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             CategoricalCrossentropy instance = new CategoricalCrossentropy(tf);
@@ -98,7 +96,6 @@ public class CategoricalCrossentropyTest {
     
     @Test
     public void test_unweighted_with_logits() {
-        System.out.println("test_unweighted_with_logits");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             CategoricalCrossentropy instance = new CategoricalCrossentropy(tf, true);
@@ -121,7 +118,6 @@ public class CategoricalCrossentropyTest {
     
     @Test
     public void test_weighted() {
-        System.out.println("test_weighted");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             CategoricalCrossentropy instance = new CategoricalCrossentropy(tf);
@@ -138,7 +134,7 @@ public class CategoricalCrossentropyTest {
             Variable<TInt32> count = instance.getVariable(COUNT);
             Operand result  = instance.result();
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
-            session.print(System.out, loss);
+            //session.print(System.out, loss);
             session.evaluate(4.6821095F, total); 
             session.evaluate(3.5, count);
             session.evaluate(1.3377455F, result);
@@ -148,7 +144,6 @@ public class CategoricalCrossentropyTest {
     
     @Test
     public void test_weighted_from_logits() {
-        System.out.println("test_weighted_from_logits");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             CategoricalCrossentropy instance = new CategoricalCrossentropy(tf, true);
@@ -173,7 +168,6 @@ public class CategoricalCrossentropyTest {
     
     @Test
     public void test_label_smoothing() {
-        System.out.println("test_label_smoothing");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             float label_smoothing = 0.1F;

@@ -62,7 +62,6 @@ public class MeanAbsolutePercentageErrorTest {
      */
    @Test
     public void testConfig() {
-        System.out.println("testConfig");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             MeanAbsolutePercentageError instance = new MeanAbsolutePercentageError(tf,"mape", TInt32.DTYPE);
@@ -73,7 +72,6 @@ public class MeanAbsolutePercentageErrorTest {
     
     @Test
     public void testUnweighted() {
-        System.out.println("testUnweighted");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             MeanAbsolutePercentageError instance = new MeanAbsolutePercentageError(tf);

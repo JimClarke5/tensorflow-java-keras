@@ -59,7 +59,6 @@ public class MeanSquaredErrorTest {
 
     @Test
     public void testConfig() {
-        System.out.println("testConfig");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             MeanSquaredError instance = new MeanSquaredError(tf,"mse", TInt32.DTYPE);
@@ -70,7 +69,6 @@ public class MeanSquaredErrorTest {
     
     @Test
     public void testUnweighted() {
-        System.out.println("testUnweighted");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             MeanSquaredError instance = new MeanSquaredError(tf);
@@ -94,7 +92,7 @@ public class MeanSquaredErrorTest {
             Variable<TFloat32> total = instance.getVariable(TOTAL);
             Variable<TInt32> count = instance.getVariable(COUNT);
             Operand result  = instance.result();
-            session.evaluate(2f, total);
+            session.evaluate(2.0f, total);
             session.evaluate(4, count);
             session.evaluate(0.5f, result);
             
@@ -132,7 +130,7 @@ public class MeanSquaredErrorTest {
             Operand result  = instance.result();
             session.evaluate(3.8f, total);
             session.evaluate(7, count);
-            session.evaluate(0.54285f, result);
+            session.evaluate(0.542857f, result);
             
         }
     } 

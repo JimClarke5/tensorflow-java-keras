@@ -63,7 +63,6 @@ public class PoissonTest {
      */
     @Test
     public void testConfig() {
-        System.out.println("testConfig");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             Poisson instance = new Poisson(tf,"my_poisson", TInt32.DTYPE);
@@ -74,7 +73,6 @@ public class PoissonTest {
     
     @Test
     public void testUnweighted() {
-        System.out.println("testUnweighted");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             Poisson instance = new Poisson(tf);

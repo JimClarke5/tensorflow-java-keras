@@ -60,7 +60,6 @@ public class AccuracyTest {
 
     @Test
     public void testConfig() {
-        System.out.println("testConfig");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             Accuracy instance = new Accuracy(tf,"acc");
@@ -70,7 +69,6 @@ public class AccuracyTest {
     
     @Test
     public void testCorrect() {
-        System.out.println("testCorrect");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             Accuracy instance = new Accuracy(tf);
@@ -93,7 +91,6 @@ public class AccuracyTest {
     
     @Test
     public void testSampleWeight() {
-        System.out.println("testSampleWeight");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             Accuracy instance = new Accuracy(tf);
@@ -119,7 +116,6 @@ public class AccuracyTest {
     
     @Test
     public void testVariableState() {
-        System.out.println("testVariableState");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             Accuracy instance = new Accuracy(tf);

@@ -63,7 +63,6 @@ public class MeanAbsoluteErrorTest {
      */
    @Test
     public void testConfig() {
-        System.out.println("testConfig");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             MeanAbsoluteError instance = new MeanAbsoluteError(tf,"mae", TInt32.DTYPE);
@@ -74,7 +73,6 @@ public class MeanAbsoluteErrorTest {
     
     @Test
     public void testUnweighted() {
-        System.out.println("testUnweighted");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             MeanAbsoluteError instance = new MeanAbsoluteError(tf);

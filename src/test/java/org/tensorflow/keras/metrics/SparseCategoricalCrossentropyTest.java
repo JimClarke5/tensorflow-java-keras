@@ -63,7 +63,6 @@ public class SparseCategoricalCrossentropyTest {
      */
     @Test
     public void testConfig() {
-        System.out.println("testConfig");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             SparseCategoricalCrossentropy instance = new SparseCategoricalCrossentropy(tf,"scce", true, 0.2F, -1, TInt32.DTYPE);
@@ -76,7 +75,6 @@ public class SparseCategoricalCrossentropyTest {
     
     @Test
     public void testUnweighted() {
-        System.out.println("testUnweighted");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             SparseCategoricalCrossentropy instance = new SparseCategoricalCrossentropy(tf);
@@ -99,7 +97,6 @@ public class SparseCategoricalCrossentropyTest {
     
     @Test
     public void test_unweighted_with_logits() {
-        System.out.println("test_unweighted_with_logits");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             SparseCategoricalCrossentropy instance = new SparseCategoricalCrossentropy(tf, true);
@@ -122,7 +119,6 @@ public class SparseCategoricalCrossentropyTest {
     
     @Test
     public void test_weighted() {
-        System.out.println("test_weighted");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             SparseCategoricalCrossentropy instance = new SparseCategoricalCrossentropy(tf);
@@ -147,7 +143,6 @@ public class SparseCategoricalCrossentropyTest {
     
     @Test
     public void test_weighted_from_logits() {
-        System.out.println("test_weighted_from_logits");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             SparseCategoricalCrossentropy instance = new SparseCategoricalCrossentropy(tf, true);
@@ -172,7 +167,6 @@ public class SparseCategoricalCrossentropyTest {
     
     @Test
     public void test_axis() {
-        System.out.println("test_axis");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             int axis = 0;

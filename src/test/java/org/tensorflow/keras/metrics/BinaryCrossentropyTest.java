@@ -64,7 +64,6 @@ public class BinaryCrossentropyTest {
      */
     @Test
     public void testConfig() {
-        System.out.println("testConfig");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             BinaryCrossentropy instance = new BinaryCrossentropy(tf,"bce", false, 0.2F, TInt32.DTYPE);
@@ -76,7 +75,6 @@ public class BinaryCrossentropyTest {
     
     @Test
     public void testUnweighted() {
-        System.out.println("testUnweighted");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             BinaryCrossentropy instance = new BinaryCrossentropy(tf);

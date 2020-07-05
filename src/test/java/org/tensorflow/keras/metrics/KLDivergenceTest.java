@@ -62,7 +62,6 @@ public class KLDivergenceTest {
      */
    @Test
     public void testConfig() {
-        System.out.println("testConfig");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             KLDivergence instance = new KLDivergence(tf,"kld", TInt32.DTYPE);
@@ -73,7 +72,6 @@ public class KLDivergenceTest {
     
     @Test
     public void testUnweighted() {
-        System.out.println("testUnweighted");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             KLDivergence instance = new KLDivergence(tf);

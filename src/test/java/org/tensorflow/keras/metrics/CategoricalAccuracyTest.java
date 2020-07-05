@@ -60,7 +60,6 @@ public class CategoricalAccuracyTest {
 
     @Test
     public void testConfig() {
-        System.out.println("testConfig");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             CategoricalAccuracy instance = new CategoricalAccuracy(tf,"my_acc", TFloat64.DTYPE);
@@ -71,7 +70,6 @@ public class CategoricalAccuracyTest {
     
     @Test
     public void testCorrect() {
-        System.out.println("testCorrect");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             CategoricalAccuracy instance = new CategoricalAccuracy(tf);
@@ -100,7 +98,6 @@ public class CategoricalAccuracyTest {
     
     @Test
     public void testSampleWeight() {
-        System.out.println("testSampleWeight");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             CategoricalAccuracy instance = new CategoricalAccuracy(tf);
@@ -122,16 +119,15 @@ public class CategoricalAccuracyTest {
             Variable<TFloat32> total = instance.getVariable(TOTAL);
             Variable<TInt32> count = instance.getVariable(COUNT);
             Operand result  = instance.result();
-            session.evaluate(1.4F, total);
+            session.evaluate(0.7F, total);
             session.evaluate(.7, count);
-            session.evaluate(2F, result);
+            session.evaluate(1.0F, result);
             
         }
     }
     
     @Test
     public void testVariableState() {
-        System.out.println("testVariableState");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             CategoricalAccuracy instance = new CategoricalAccuracy(tf);
@@ -153,26 +149,26 @@ public class CategoricalAccuracyTest {
             Variable<TFloat32> total = instance.getVariable(TOTAL);
             Variable<TInt32> count = instance.getVariable(COUNT);
             Operand result  = instance.result();
-            session.evaluate(1.4F, total);
+            session.evaluate(0.7F, total);
             session.evaluate(.7, count);
-            session.evaluate(2.0F, result);
+            session.evaluate(1.0F, result);
             
             //2nd run
             op = instance.updateState(y_true, y_true, sampleWeight);
             session.run(op);
             result  = instance.result();
-            session.evaluate(2.8F, total); 
+            session.evaluate(1.4F, total); 
             session.evaluate(1.4, count);
-            session.evaluate(2.0F, result);
+            session.evaluate(1.0F, result);
             
             // new instance same graph
             instance = new CategoricalAccuracy(tf);
             op = instance.updateState(y_true, y_true, sampleWeight);
             session.run(op);
             result  = instance.result();
-            session.evaluate(4.2F, total); 
+            session.evaluate(2.1F, total); 
             session.evaluate(2.1, count);
-            session.evaluate(2.0F, result);
+            session.evaluate(1.0F, result);
             
             
             // reset variables
@@ -180,9 +176,9 @@ public class CategoricalAccuracyTest {
             result  = instance.result();
             op = instance.updateState(y_true, y_true, sampleWeight);
             session.run(op);
-            session.evaluate(1.4F, total);
+            session.evaluate(0.7F, total);
             session.evaluate(.7, count);
-            session.evaluate(2.0F, result);
+            session.evaluate(1.0F, result);
         }
     }
     

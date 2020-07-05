@@ -63,7 +63,6 @@ public class HingeTest {
      */
    @Test
     public void testConfig() {
-        System.out.println("testConfig");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             Hinge instance = new Hinge(tf,"cosine", TInt32.DTYPE);
@@ -74,7 +73,6 @@ public class HingeTest {
     
     @Test
     public void testUnweighted() {
-        System.out.println("testUnweighted");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             Hinge instance = new Hinge(tf);

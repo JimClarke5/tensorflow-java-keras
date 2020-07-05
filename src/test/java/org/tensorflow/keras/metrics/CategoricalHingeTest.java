@@ -62,7 +62,6 @@ public class CategoricalHingeTest {
      */
    @Test
     public void testConfig() {
-        System.out.println("testConfig");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             CategoricalHinge instance = new CategoricalHinge(tf,"cat_hinge", TInt32.DTYPE);
@@ -73,7 +72,6 @@ public class CategoricalHingeTest {
     
     @Test
     public void testUnweighted() {
-        System.out.println("testUnweighted");
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             CategoricalHinge instance = new CategoricalHinge(tf);
