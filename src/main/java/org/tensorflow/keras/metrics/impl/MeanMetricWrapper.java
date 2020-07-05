@@ -1,8 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/* Copyright 2020 The TensorFlow Authors. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+=======================================================================*/
 package org.tensorflow.keras.metrics.impl;
 
 import org.tensorflow.DataType;
@@ -17,25 +26,25 @@ import org.tensorflow.op.Ops;
  * @author Jim Clarke
  */
 public class MeanMetricWrapper extends Mean {
-    protected  LossFunction loss;
-    
+
+    protected LossFunction loss;
+
     public MeanMetricWrapper(Ops tf) {
         this(tf, null, null);
     }
-    
-    public MeanMetricWrapper(Ops tf, String name ) {
+
+    public MeanMetricWrapper(Ops tf, String name) {
         this(tf, name, null);
     }
-    
+
     public MeanMetricWrapper(Ops tf, DataType dType) {
         this(tf, null, dType);
     }
-    
+
     public MeanMetricWrapper(Ops tf, String name, DataType dType) {
         super(tf, name, dType);
     }
-    
-    
+
     public final void setLoss(LossFunction loss) {
         this.loss = loss;
     }
@@ -46,8 +55,7 @@ public class MeanMetricWrapper extends Mean {
         Operand predictions = operands[1];
         Operand sampleWeights = operands.length > 2 ? operands[2] : null;
         Operand losses = loss.call(labels, predictions, null);
-        return super.updateState(losses, sampleWeights);        
+        return super.updateState(losses, sampleWeights);
     }
-    
-    
+
 }
