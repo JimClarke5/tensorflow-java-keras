@@ -1,8 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/* Copyright 2020 The TensorFlow Authors. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+=======================================================================*/
 package org.tensorflow.keras.metrics;
 
 import org.tensorflow.DataType;
@@ -18,7 +27,7 @@ import org.tensorflow.types.family.TNumber;
  * @author Jim Clarke
  */
 public class SparseCategoricalCrossentropy extends MeanMetricWrapper implements LossFunction {
-    
+
     public static final String DEFAULT_NAME = "sparse_categorical_crossentropy";
 
     private final boolean fromLogits;
@@ -28,13 +37,13 @@ public class SparseCategoricalCrossentropy extends MeanMetricWrapper implements 
     /**
      * Creates a SparseCategoricalCrossentropy labelSmoothing=0.0 and
      * fromLogits=false.
-     * 
+     *
      * @param tf the TensorFlow Ops
      */
     public SparseCategoricalCrossentropy(Ops tf) {
         this(tf, DEFAULT_NAME, false, 0.0F, -1, null);
     }
-    
+
     public SparseCategoricalCrossentropy(Ops tf, int axis) {
         this(tf, DEFAULT_NAME, false, 0.0F, axis, null);
     }
@@ -49,14 +58,13 @@ public class SparseCategoricalCrossentropy extends MeanMetricWrapper implements 
     public SparseCategoricalCrossentropy(Ops tf, String name) {
         this(tf, name, false, 0.0F, -1, null);
     }
-    
+
     public SparseCategoricalCrossentropy(Ops tf, String name, int axis) {
         this(tf, name, false, 0.0F, axis, null);
     }
 
-
-     /**
-     * Creates a SparseCategoricalCrossentropy 
+    /**
+     * Creates a SparseCategoricalCrossentropy
      *
      * @param tf the TensorFlow Ops
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
@@ -64,12 +72,13 @@ public class SparseCategoricalCrossentropy extends MeanMetricWrapper implements 
     public SparseCategoricalCrossentropy(Ops tf, boolean fromLogits) {
         this(tf, DEFAULT_NAME, fromLogits, 0.0F, -1, null);
     }
+
     public SparseCategoricalCrossentropy(Ops tf, boolean fromLogits, int axis) {
         this(tf, DEFAULT_NAME, fromLogits, 0.0F, axis, null);
     }
-    
-     /**
-     * Creates a SparseCategoricalCrossentropy 
+
+    /**
+     * Creates a SparseCategoricalCrossentropy
      *
      * @param tf the TensorFlow Ops
      * @param name the name of this loss function
@@ -78,13 +87,13 @@ public class SparseCategoricalCrossentropy extends MeanMetricWrapper implements 
     public SparseCategoricalCrossentropy(Ops tf, String name, boolean fromLogits) {
         this(tf, name, fromLogits, 0.0F, -1, null);
     }
-    
+
     public SparseCategoricalCrossentropy(Ops tf, String name, boolean fromLogits, int axis) {
         this(tf, name, fromLogits, 0.0F, axis, null);
     }
-    
+
     /**
-     * Creates a SparseCategoricalCrossentropy 
+     * Creates a SparseCategoricalCrossentropy
      *
      * @param tf the TensorFlow Ops
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
@@ -97,12 +106,10 @@ public class SparseCategoricalCrossentropy extends MeanMetricWrapper implements 
     public SparseCategoricalCrossentropy(Ops tf, boolean fromLogits, float labelSmoothing) {
         this(tf, DEFAULT_NAME, fromLogits, labelSmoothing, -1, null);
     }
-    
+
     public SparseCategoricalCrossentropy(Ops tf, boolean fromLogits, float labelSmoothing, int axis) {
         this(tf, DEFAULT_NAME, fromLogits, labelSmoothing, axis, null);
     }
-
-    
 
     /**
      * Creates a SparseCategoricalCrossentropy
@@ -137,7 +144,7 @@ public class SparseCategoricalCrossentropy extends MeanMetricWrapper implements 
     public float getLabelSmoothing() {
         return labelSmoothing;
     }
-    
+
     /**
      * @return the labelSmoothing
      */

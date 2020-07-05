@@ -1,8 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/* Copyright 2020 The TensorFlow Authors. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+=======================================================================*/
 package org.tensorflow.keras.metrics;
 
 import org.tensorflow.DataType;
@@ -18,8 +27,9 @@ import org.tensorflow.types.family.TNumber;
  * @author Jim Clarke
  */
 public class CategoricalCrossentropy extends MeanMetricWrapper implements LossFunction {
+
     public static final String DEFAULT_NAME = "categorical_crossentropy";
-    
+
     private final boolean fromLogits;
     private final float labelSmoothing;
     private int axis;
@@ -29,10 +39,10 @@ public class CategoricalCrossentropy extends MeanMetricWrapper implements LossFu
      * fromLogits=false.
      */
     public CategoricalCrossentropy(Ops tf) {
-        this(tf,DEFAULT_NAME, false, 0.0F, -1, null);
+        this(tf, DEFAULT_NAME, false, 0.0F, -1, null);
     }
-    
-     public CategoricalCrossentropy(Ops tf, int axis) {
+
+    public CategoricalCrossentropy(Ops tf, int axis) {
         this(tf, DEFAULT_NAME, false, 0.0F, axis, null);
     }
 
@@ -45,13 +55,12 @@ public class CategoricalCrossentropy extends MeanMetricWrapper implements LossFu
     public CategoricalCrossentropy(Ops tf, String name) {
         this(tf, name, false, 0.0F, -1, null);
     }
-    
-     public CategoricalCrossentropy(Ops tf, String name, int axis) {
-        this(tf,name, false, 0.0F, axis, null);
+
+    public CategoricalCrossentropy(Ops tf, String name, int axis) {
+        this(tf, name, false, 0.0F, axis, null);
     }
 
-
-     /**
+    /**
      * Creates a SparseCategoricalCrossentropy
      *
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
@@ -59,26 +68,25 @@ public class CategoricalCrossentropy extends MeanMetricWrapper implements LossFu
     public CategoricalCrossentropy(Ops tf, boolean fromLogits) {
         this(tf, DEFAULT_NAME, fromLogits, 0.0F, -1, null);
     }
-    
+
     public CategoricalCrossentropy(Ops tf, boolean fromLogits, int axis) {
         this(tf, DEFAULT_NAME, fromLogits, 0.0F, axis, null);
     }
-    
-    
-     /**
+
+    /**
      * Creates a SparseCategoricalCrossentropy ,
      *
      * @param name the name of this loss function
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
      */
-    public CategoricalCrossentropy(Ops tf, String name, boolean fromLogits ) {
+    public CategoricalCrossentropy(Ops tf, String name, boolean fromLogits) {
         this(tf, name, fromLogits, 0.0F, -1, null);
     }
-    
-    public CategoricalCrossentropy(Ops tf, String name, boolean fromLogits, int axis ) {
+
+    public CategoricalCrossentropy(Ops tf, String name, boolean fromLogits, int axis) {
         this(tf, name, fromLogits, 0.0F, axis, null);
     }
-    
+
     /**
      * Creates a SparseCategoricalCrossentropy ,
      *
@@ -90,18 +98,17 @@ public class CategoricalCrossentropy extends MeanMetricWrapper implements LossFu
      * smoothing.
      */
     public CategoricalCrossentropy(Ops tf, boolean fromLogits, float labelSmoothing) {
-        this(tf,DEFAULT_NAME, fromLogits, labelSmoothing, -1, null);
+        this(tf, DEFAULT_NAME, fromLogits, labelSmoothing, -1, null);
     }
-    
+
     public CategoricalCrossentropy(Ops tf, boolean fromLogits, float labelSmoothing, int axis) {
         this(tf, DEFAULT_NAME, fromLogits, labelSmoothing, axis, null);
     }
-    
-    public CategoricalCrossentropy(Ops tf, boolean fromLogits, float labelSmoothing,  int axis, DataType dType) {
+
+    public CategoricalCrossentropy(Ops tf, boolean fromLogits, float labelSmoothing, int axis, DataType dType) {
         this(tf, DEFAULT_NAME, fromLogits, labelSmoothing, axis, null);
     }
 
-    
     /**
      * Creates a SparseCategoricalCrossentropy
      *
@@ -134,7 +141,7 @@ public class CategoricalCrossentropy extends MeanMetricWrapper implements LossFu
     public float getLabelSmoothing() {
         return labelSmoothing;
     }
-    
+
     /**
      * @return the axis
      */
