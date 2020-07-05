@@ -1,8 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/* Copyright 2020 The TensorFlow Authors. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+=======================================================================*/
 package org.tensorflow.keras.backend;
 
 import java.util.ArrayList;
@@ -11,12 +20,13 @@ import java.util.List;
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.keras.losses.impl.LossesImpl;
+import org.tensorflow.keras.utils.ShapeUtils;
+import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.ReduceSum;
 import org.tensorflow.op.core.Variable;
 import org.tensorflow.op.math.Mean;
 import org.tensorflow.op.nn.SoftmaxCrossEntropyWithLogits;
-import org.tensorflow.op.nn.SparseSoftmaxCrossEntropyWithLogits;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TBfloat16;
 import org.tensorflow.types.TBool;
@@ -26,171 +36,214 @@ import org.tensorflow.types.TInt32;
 import org.tensorflow.types.TInt64;
 import org.tensorflow.types.family.TNumber;
 import org.tensorflow.types.family.TType;
-import org.tensorflow.op.core.Stack;
 
 /**
  *
  * @author Jim Clarke
  */
 public class K {
+
     public static final double Epsilon = 1e-7;
     public static final float EpsilonF = 1e-7F;
-    
-    public static final double epsilon() { return Epsilon; }
-    
-    public static final Operand epsilonConstant(Ops tf, DataType dtype) { return tf.dtypes.cast(tf.constant(Epsilon), dtype); }
-    public static final Operand one(Ops tf, DataType dtype) { return tf.dtypes.cast(tf.constant(1), dtype); }
-    public static final Operand zero(Ops tf, DataType dtype) { return tf.dtypes.cast(tf.constant(0), dtype); }
-    public static final Operand constant(Ops tf, double number, DataType dtype) { return tf.dtypes.cast(tf.constant(number), dtype); }
-    
-    
+
+    public static final double epsilon() {
+        return Epsilon;
+    }
+
+    public static final Operand epsilonConstant(Ops tf) {
+        return tf.constant(Epsilon);
+    }
+
+    public static final Operand epsilonConstant(Ops tf, DataType dtype) {
+        return tf.dtypes.cast(tf.constant(Epsilon), dtype);
+    }
+
+    public static final Operand one(Ops tf) {
+        return tf.constant(1);
+    }
+
+    public static final Operand one(Ops tf, DataType dtype) {
+        return tf.dtypes.cast(tf.constant(1), dtype);
+    }
+
+    public static final Operand minusOne(Ops tf) {
+        return tf.constant(-1);
+    }
+
+    public static final Operand minusOne(Ops tf, DataType dtype) {
+        return tf.dtypes.cast(tf.constant(-1), dtype);
+    }
+
+    public static final Operand zero(Ops tf) {
+        return tf.constant(0);
+    }
+
+    public static final Operand zero(Ops tf, DataType dtype) {
+        return tf.dtypes.cast(tf.constant(0), dtype);
+    }
+
+    public static final Operand constant(Ops tf, double number, DataType dtype) {
+        return tf.dtypes.cast(tf.constant(number), dtype);
+    }
+
     public static Operand clip(Ops tf, Operand x, double minValue, double maxValue) {
         assert x != null : "Operand x must not be null";
         DataType dtype = x.asOutput().dataType();
-        if(maxValue < minValue) {
+        if (maxValue < minValue) {
             maxValue = minValue;
         }
         Operand minValueConstant = tf.dtypes.cast(tf.constant(minValue), dtype);
         Operand maxValueConstant = tf.dtypes.cast(tf.constant(maxValue), dtype);
         return tf.clipByValue(x, minValueConstant, maxValueConstant);
     }
-    
+
     public static Operand mean(Ops tf, Operand x) {
-        return mean(tf, x, tf.constant(-1), false);
+        return mean(tf, x, null, false);
     }
+
     public static Operand mean(Ops tf, Operand x, Operand axis) {
         return mean(tf, x, axis, false);
     }
-    
-    public static Operand mean(Ops tf, Operand x,boolean keepDims) {
-        return mean(tf, x, tf.constant(-1), keepDims);
+
+    public static Operand mean(Ops tf, Operand x, boolean keepDims) {
+        return mean(tf, x, null, keepDims);
     }
-    
+
     public static Operand mean(Ops tf, Operand x, Operand axis, boolean keepDims) {
-        if(x.asOutput().dataType() == TBool.DTYPE) {
+        if (x.asOutput().dataType() == TBool.DTYPE) {
             x = tf.dtypes.cast(x, TFloat32.DTYPE);
+        }
+        if (axis == null) {
+            axis = allAxis(tf, x);
         }
         return tf.math.mean(x, axis, Mean.keepDims(keepDims));
     }
-    
+
+    // alias for mean
+    public static Operand reduceMean(Ops tf, Operand x, Operand axis, boolean keepDims) {
+        return mean(tf, x, axis, keepDims);
+
+    }
+
     public static Operand maximum(Ops tf, Operand x, Operand y) {
         y = tf.dtypes.cast(y, x.asOutput().dataType());
-        return tf.math.maximum(x,y);
+        return tf.math.maximum(x, y);
     }
-    
+
     public static Shape merge(Shape a, Shape b) {
         assert a.numDimensions() == b.numDimensions() : String.format("Shapes %s and %s are incompatible", a, b);
         long[] array = new long[a.numDimensions()];
-        for(int i = 0; i < a.numDimensions(); i++) {
-            if(a.size(i) != Shape.UNKNOWN_SIZE) {
-                if(b.size(i) != Shape.UNKNOWN_SIZE)
+        for (int i = 0; i < a.numDimensions(); i++) {
+            if (a.size(i) != Shape.UNKNOWN_SIZE) {
+                if (b.size(i) != Shape.UNKNOWN_SIZE) {
                     assert a.size(i) == b.size(i) : String.format("Shapes %s and %s are incompatible", a, b);
+                }
                 array[i] = a.size(i);
-            } else
+            } else {
                 array[i] = b.size(i);
+            }
         }
         return Shape.of(array);
-        
+
     }
-    
-    
+
     // this is from nn in Python, I could not find it in the Java frameworks.
     public static Operand sigmoidCrossEntropyWithLogits(Ops tf, Operand labels, Operand logits) {
         Shape lablesShape = labels.asOutput().shape();
         Shape logitsShape = logits.asOutput().shape();
         Shape newShape = merge(lablesShape, logitsShape);
-        
+
         Operand zeros = tf.dtypes.cast(tf.zerosLike(logits), logits.asOutput().dataType());
         Operand cond = tf.math.greaterEqual(logits, zeros);
-        
+
         Operand relu_logits = tf.select(cond, logits, zeros);
         Operand neg_abs_logits = tf.select(cond, tf.math.neg(logits), logits);
         return tf.math.add(
-             tf.math.sub(relu_logits, tf.math.mul(logits, labels)),
-             tf.math.log1p(tf.math.exp(neg_abs_logits))
+                tf.math.sub(relu_logits, tf.math.mul(logits, labels)),
+                tf.math.log1p(tf.math.exp(neg_abs_logits))
         );
-        
+
     }
-    //TODO Not sure if this is right or how to do it.
-    private static Operand  backtrackIdentity(Operand output) {
-       // while(!output.op().type().equals("Identity"))
+
+    //TODO need to walk back identity until it hits something else
+    private static Operand backtrackIdentity(Operand output) {
+        // while(!output.op().type().equals("Identity"))
         //    output = output.op().output(0);
         return output;
     }
-    
-    public static Operand binary_crossentropy(Ops tf, Operand target, Operand output, boolean fromLogits ){
-        if(fromLogits) {
+
+    public static Operand binary_crossentropy(Ops tf, Operand target, Operand output, boolean fromLogits) {
+        if (fromLogits) {
             return sigmoidCrossEntropyWithLogits(tf, target, output);
         }
-        
-        if(!(output instanceof Variable) && (!tf.scope().env().isEager())) {
+
+        if (!(output instanceof Variable) && (!tf.scope().env().isEager())) {
             //output = backtrackIdentity(output); // TODO - this does not work, goes infinite loop
-            if(output.op().type().equals("Sigmoid")) {
+            if (output.op().type().equals("Sigmoid")) {
                 assert output.op().numOutputs() == 1;
                 output = output.op().output(0);
                 return sigmoidCrossEntropyWithLogits(tf, target, output);
             }
         }
         DataType dtype = output.asOutput().dataType();
-        Operand one = one(tf,dtype);
-        Operand epsilonConst = K.epsilonConstant(tf,dtype);
+        Operand one = one(tf, dtype);
+        Operand epsilonConst = K.epsilonConstant(tf, dtype);
         Operand oneMinusEpsilonConst = tf.math.sub(one, epsilonConst);
         output = tf.clipByValue(output, epsilonConst, oneMinusEpsilonConst);
-        
+
         // Compute cross entropy from probabilities.
         Operand bce = tf.math.mul(target, tf.math.log(tf.math.add(output, epsilonConst)));
         bce = tf.math.add(bce,
-            tf.math.mul(
-                tf.math.sub(one, target),
-                tf.math.log(tf.math.add(tf.math.sub(one, output), epsilonConst )) 
-            ));
-        Operand result =  tf.math.neg(bce);
+                tf.math.mul(
+                        tf.math.sub(one, target),
+                        tf.math.log(tf.math.add(tf.math.sub(one, output), epsilonConst))
+                ));
+        Operand result = tf.math.neg(bce);
         return result;
     }
-    
+
     public static Operand categorical_crossentropy(Ops tf, Operand target, Operand output, boolean fromLogits) {
         return categorical_crossentropy(tf, target, output, fromLogits, -1);
     }
 
     public static Operand categorical_crossentropy(Ops tf, Operand target, Operand output, boolean fromLogits, int axis) {
-        
-        if(fromLogits) {
+
+        if (fromLogits) {
             return softmax_cross_entropy_with_logits(tf, target, output);
         }
-        if(!(output instanceof Variable) && (!tf.scope().env().isEager())) {
+        if (!(output instanceof Variable) && (!tf.scope().env().isEager())) {
             //TODO output = backtrackIdentity(output); doesn't seem to work with Java version.
-            if(output.op().type().equals("Softmax")) {
+            if (output.op().type().equals("Softmax")) {
                 assert output.op().numOutputs() == 1;
                 output = output.op().output(0);
-                 Operand op = softmax_cross_entropy_with_logits(tf, target, output);
-                 return op;
+                Operand op = softmax_cross_entropy_with_logits(tf, target, output);
+                return op;
             }
         }
         DataType dtype = output.asOutput().dataType();
-        Operand one = one(tf,dtype);
-        Operand epsilonConst = K.epsilonConstant(tf,dtype);
+        Operand one = one(tf, dtype);
+        Operand epsilonConst = K.epsilonConstant(tf, dtype);
         Operand oneMinusepsilonConst = tf.math.sub(one, epsilonConst);
-        output = tf.math.div(output,  tf.reduceSum(output, tf.constant(axis), ReduceSum.keepDims(Boolean.TRUE)));
+        output = tf.math.div(output, tf.reduceSum(output, tf.constant(axis), ReduceSum.keepDims(Boolean.TRUE)));
         output = tf.clipByValue(output, epsilonConst, oneMinusepsilonConst);
-        
+
         // Compute cross entropy from probabilities.
-        Operand cce = tf.reduceSum(tf.math.mul(target, tf.math.log(output)), 
+        Operand cce = tf.reduceSum(tf.math.mul(target, tf.math.log(output)),
                 tf.constant(axis), ReduceSum.keepDims(Boolean.FALSE));
         return tf.math.neg(cce);
     }
-    
+
     public static Operand flatten(Ops tf, Operand t) {
         Shape shape = Shape.of(1L);
         return tf.reshape(t, tf.constant(shape));
-        
+
     }
-    
-    
+
     public static Operand sparse_categorical_crossentropy(Ops tf, Operand target, Operand output, boolean fromLogits, int axis) {
         DataType dType = output.asOutput().dataType();
-        if(!(output instanceof Variable) && (!tf.scope().env().isEager())) {
+        if (!(output instanceof Variable) && (!tf.scope().env().isEager())) {
             //TODO output = backtrackIdentity(output); doesn't seem to work with Java version.
-            if(output.op().type().equals("Softmax")) {
+            if (output.op().type().equals("Softmax")) {
                 //assert output.op().numOutputs() == 1;
                 // When softmax activation function is used for output operation, we
                 // use logits from the softmax function directly to compute loss in order
@@ -200,8 +253,8 @@ public class K {
                 fromLogits = true;
             }
         }
-        if(!fromLogits) {
-            Operand epsilonConst = epsilonConstant(tf,dType);
+        if (!fromLogits) {
+            Operand epsilonConst = epsilonConstant(tf, dType);
             Operand one = one(tf, dType);
             Operand oneMinusEpsilonConst = tf.math.sub(one, epsilonConst);
             output = tf.clipByValue(output, epsilonConst, oneMinusEpsilonConst);
@@ -210,358 +263,306 @@ public class K {
         Shape outputShape = output.asOutput().shape();
         int outputRank = outputShape.numDimensions();
         axis %= outputRank;
-        if(axis < 0)
+        if (axis < 0) {
             axis += outputRank;
-        if(axis != outputRank - 1){
+        }
+        if (axis != outputRank - 1) {
             //TODO permutation = list(
             //TODO itertools.chain(range(axis), range(axis + 1, output_rank), [axis]))
 
             int[] axisNew = moveAxisToEnd(axis, outputRank);
-            output =  tf.linalg.transpose( output, tf.constant(axisNew));
+            output = tf.linalg.transpose(output, tf.constant(axisNew));
         }
-        
+
         target = tf.dtypes.cast(target, TInt64.DTYPE);
         // TODO Try to adjust the shape so that rank of labels = rank of logits - 1.
         outputShape = output.asOutput().shape();
         Shape targetShape = target.asOutput().shape();
         int targetRank = targetShape.numDimensions();
-        
+
         boolean updateShape = targetRank != outputRank - 1;
-        if(updateShape) { // TODO check to see if this is right
+        if (updateShape) { // TODO check to see if this is right
             target = tf.reshape(target, tf.constant(-1L)); // flatten
-            output = tf.reshape(output, tf.constant(new long[]{-1L, outputShape.size(outputShape.numDimensions()-1)}));
+            output = tf.reshape(output, tf.constant(new long[]{-1L, outputShape.size(outputShape.numDimensions() - 1)}));
         }
 
         // call nn.nn.sparse_softmax_cross_entropy_with_logits_v2
-        Operand loss = sparse_softmax_cross_entropy_with_logits(tf, target, output);
+        Operand loss = NN.sparse_softmax_cross_entropy_with_logits(tf, target, output);
         if (updateShape && outputRank >= 3) {
             long[] dims = outputShape.asArray();
-            long[] newDims = new long[dims.length-1];
+            long[] newDims = new long[dims.length - 1];
             System.arraycopy(dims, 0, newDims, 0, newDims.length);
             loss = tf.reshape(loss, tf.constant(newDims));
         }
         return loss;
     }
-    
-   
-    
+
     private static int[] allAxis(Operand op) {
         int rank = op.asOutput().shape().numDimensions();
         int[] ranks = new int[rank];
-        for(int i = 0; i < rank; i++)
+        for (int i = 0; i < rank; i++) {
             ranks[i] = i;
+        }
         return ranks;
     }
-    
+
     public static Operand allAxis(Ops tf, Operand op) {
         int[] ranks = allAxis(op);
         return tf.constant(ranks);
     }
-    
+
     //TODO shouldn't these be in tensorflow itself under nn?
-    private static <T extends TType,U extends TNumber> Operand moveDimToEnd(Ops tf, Operand tensor, int dim_index, Operand rank){
+    private static <T extends TType, U extends TNumber> Operand moveDimToEnd(Ops tf, Operand tensor, int dim_index, Operand rank) {
         Operand one = one(tf, TInt32.DTYPE);
         List<Operand<T>> concatList = Arrays.asList(
                 tf.range(tf.constant(dim_index), one, one),
-                tf.range(tf.constant(dim_index+1),rank, one)
+                tf.range(tf.constant(dim_index + 1), rank, one)
         );
-        return tf.linalg.transpose( tensor, 
-                (Operand<U>)tf.concat( 
-                        (Iterable<Operand<T>>)concatList, 
-                        (Operand<U>)tf.constant(0)));
+        return tf.linalg.transpose(tensor,
+                (Operand<U>) tf.concat(
+                        (Iterable<Operand<T>>) concatList,
+                        (Operand<U>) tf.constant(0)));
     }
-    
-    private static <T extends TType,U extends TNumber>Operand flattenOuterDims(Ops tf, Operand logits) {
+
+    private static <T extends TType, U extends TNumber> Operand flattenOuterDims(Ops tf, Operand logits) {
         Operand zero = zero(tf, TInt64.DTYPE);
         Operand one = one(tf, TInt64.DTYPE);
         Operand minusOne = tf.constant(-1);
-        
+
         //Shape logitsShape = logits.asOutput().shape();
         //long lastDimSize = logitsShape.size(logitsShape.numDimensions()-1);
         //if(!tf.scope().env().isEager()) {
-            Shape shape = logits.asOutput().shape();
-            int ndims = shape.numDimensions();
-            if(!shape.hasUnknownDimension()) {
-                long product = 1L;
-                boolean productValid = true;
-                for(int i = ndims-2; i >= 0; i--) {
-                    long d = shape.size(i);
-                    if(d == Shape.UNKNOWN_SIZE) {
-                        productValid = false;
-                        break;
-                    }
-                    product *= d;
+        Shape shape = logits.asOutput().shape();
+        int ndims = shape.numDimensions();
+        if (!shape.hasUnknownDimension()) {
+            long product = 1L;
+            boolean productValid = true;
+            for (int i = ndims - 2; i >= 0; i--) {
+                long d = shape.size(i);
+                if (d == Shape.UNKNOWN_SIZE) {
+                    productValid = false;
+                    break;
                 }
-                if(productValid) {
-                    Shape outputShape = Shape.of(product, shape.size(ndims-1));
-                    return tf.reshape(logits, tf.constant(outputShape.asArray()));
-                }
+                product *= d;
             }
+            if (productValid) {
+                Shape outputShape = Shape.of(product, shape.size(ndims - 1));
+                return tf.reshape(logits, tf.constant(outputShape.asArray()));
+            }
+        }
         //}
-        
-        Operand rank = tf.dtypes.cast(tf.rank(logits),TInt64.DTYPE);
+
+        Operand rank = tf.dtypes.cast(tf.rank(logits), TInt64.DTYPE);
         Operand rankMinusOne = tf.math.sub(rank, one);
 
         Operand last_dim_size = tf.slice(
-                tf.shape(logits), 
+                tf.shape(logits),
                 rankMinusOne,
                 tf.constant(1)
-           );
-        Operand concat = tf.concat(Arrays.asList(tf.constant(new int[] {-1}), last_dim_size), tf.constant(0));
+        );
+        Operand concat = tf.concat(Arrays.asList(tf.constant(new int[]{-1}), last_dim_size), tf.constant(0));
         return tf.reshape(zero, concat);
-        
+
     }
-    
+
     private static int[] moveAxisToEnd(int axis, int outputRank) {
         int[] axisNew = new int[outputRank];
-         for(int i = 0; i < axis; i++) {
-             axisNew[i] = i;
-         }
-         for(int i = axis+1; i < outputRank; i++) {
-             axisNew[i-1] = i;
-         }
-         axisNew[outputRank-1] = axis;
-         return axisNew;
-            
+        for (int i = 0; i < axis; i++) {
+            axisNew[i] = i;
+        }
+        for (int i = axis + 1; i < outputRank; i++) {
+            axisNew[i - 1] = i;
+        }
+        axisNew[outputRank - 1] = axis;
+        return axisNew;
+
     }
-    
+
     // TODO, maybe part of Shape
     private static boolean shapeIsCompatible(Shape a, Shape b) {
-        if(a.numDimensions() != b.numDimensions()) {
+        if (a.numDimensions() != b.numDimensions()) {
             return false;
         }
-        for(int i = 0; i < a.numDimensions();i++) {
+        for (int i = 0; i < a.numDimensions(); i++) {
             long aSize = a.size(i);
             long bSize = b.size(i);
-            if( aSize != Shape.UNKNOWN_SIZE &&
-                    bSize != Shape.UNKNOWN_SIZE &&
-                    aSize != bSize)
+            if (aSize != Shape.UNKNOWN_SIZE
+                    && bSize != Shape.UNKNOWN_SIZE
+                    && aSize != bSize) {
                 return false;
+            }
         }
         return true;
     }
-    
+
     // TODO these are "nn" ops
     public static Operand softmax_cross_entropy_with_logits(Ops tf, Operand labels, Operand logits) {
         return softmax_cross_entropy_with_logits(tf, labels, logits, -1);
     }
+
     public static Operand softmax_cross_entropy_with_logits(Ops tf, Operand labels, Operand logits, int axis) {
         axis = axis % logits.asOutput().shape().numDimensions();
-        if(axis < 0)
+        if (axis < 0) {
             axis += logits.asOutput().shape().numDimensions();
-                
+        }
+
         Operand minusOne = tf.constant(-1);
         Operand precise_logits = logits;
         Operand one = tf.constant(1L);
-        
-        boolean convertToFloat32 = logits.asOutput().dataType() == TFloat16.DTYPE ||
-                logits.asOutput().dataType() == TBfloat16.DTYPE;
-        if(convertToFloat32 )
+
+        boolean convertToFloat32 = logits.asOutput().dataType() == TFloat16.DTYPE
+                || logits.asOutput().dataType() == TBfloat16.DTYPE;
+        if (convertToFloat32) {
             precise_logits = tf.dtypes.cast(logits, TFloat32.DTYPE);
+        }
         DataType dtype = precise_logits.asOutput().dataType();
         labels = tf.dtypes.cast(labels, dtype);
         Operand inputRank = tf.dtypes.cast(tf.rank(precise_logits), TInt64.DTYPE);
         Operand inputRankMinusOne = tf.dtypes.cast(tf.math.sub(inputRank, one), TInt64.DTYPE);
         Shape shape = logits.asOutput().shape();
-        
+
         // Move the dim to the end if dim is not the last dimension.
-        if(axis != -1 && axis != precise_logits.asOutput().shape().numDimensions() -1 ) {
-          precise_logits = moveDimToEnd(tf, precise_logits, axis, inputRank);
-          labels = moveDimToEnd(tf, labels, axis, inputRank);
+        if (axis != -1 && axis != precise_logits.asOutput().shape().numDimensions() - 1) {
+            precise_logits = moveDimToEnd(tf, precise_logits, axis, inputRank);
+            labels = moveDimToEnd(tf, labels, axis, inputRank);
         }
 
         Shape inputShape = precise_logits.asOutput().shape();
         precise_logits = flattenOuterDims(tf, precise_logits);
         labels = flattenOuterDims(tf, labels);
         SoftmaxCrossEntropyWithLogits smax = tf.nn.softmaxCrossEntropyWithLogits(
-                precise_logits,  labels);
+                precise_logits, labels);
         Operand cost = smax.loss();
-        Operand outputShape = tf.slice(tf.constant(inputShape.asArray()), 
-                tf.constant(new long[]{0}), 
-                tf.constant(new long[]{inputShape.numDimensions()-1}));
-        cost = tf.reshape(cost,outputShape);
-        if(tf.scope().env().isGraph() && !shape.hasUnknownDimension()) {
+        Operand outputShape = tf.slice(tf.constant(inputShape.asArray()),
+                tf.constant(new long[]{0}),
+                tf.constant(new long[]{inputShape.numDimensions() - 1}));
+        cost = tf.reshape(cost, outputShape);
+        if (tf.scope().env().isGraph() && !shape.hasUnknownDimension()) {
             long[] array = shape.asArray();
-            long[] newArray = new long[array.length-1];
-            if(axis < 0)
+            long[] newArray = new long[array.length - 1];
+            if (axis < 0) {
                 axis = shape.numDimensions() + axis;
-            for(int i = 0; i < axis; i++) {
+            }
+            for (int i = 0; i < axis; i++) {
                 newArray[i] = shape.size(i);
             }
-            for(int i = axis + 1; i < shape.numDimensions(); i++) {
-                newArray[i-1] = shape.size(i);
+            for (int i = axis + 1; i < shape.numDimensions(); i++) {
+                newArray[i - 1] = shape.size(i);
             }
             Shape newShape = Shape.of(newArray);
             cost = tf.reshape(cost, tf.constant(newShape.asArray()));
         }
-        
-        if(convertToFloat32) 
+
+        if (convertToFloat32) {
             cost = tf.dtypes.cast(cost, logits.asOutput().dataType());
+        }
         return cost;
     }
-    
-    
-    //TODO SHould these be in Shape, thes implemenations are basic and not totally robust.
-    // like head but is not limited to first dimension
-    public static Shape head(Shape oldShape, int axis) {
-        axis %= oldShape.numDimensions();
-        if(axis < 0)
-            axis += oldShape.numDimensions();
-        long[] array = oldShape.asArray();
-        long[] newArray = new long[axis];
-        for(int i = 0; i < axis; i++) {
-            newArray[i] = array[i];
-        }
-        return Shape.of(newArray);
-    }
-    public static Shape tail(Shape oldShape, int axis) {
-        axis %= oldShape.numDimensions();
-        if(axis < 0)
-            axis += oldShape.numDimensions();
-        long[] array = oldShape.asArray();
-        long[] newArray = new long[oldShape.numDimensions()- axis];
-        for(int i = axis, j = 0; i < array.length; i++, j++) {
-            newArray[j] = array[i];
-        }
-        return Shape.of(newArray);
-    }
-    
+
     /**
-     * Reshapes the shape by eliminating trailing Dimensions.
-     * @param oldShape
-     * @param axis
-     * @return the new shape
+     * Broadcast `weights` to the same shape as `values`.
+     *
+     * @param tf the TensorFlow ops
+     * @param weights `Tensor` whose shape is broadcastable to `values`
+     * @param values Tensor` of any shape
+     * @param <T> the type of Operand
+     * @return `weights` broadcast to `values` shape
      */
-    public static Shape squeeze(Shape oldShape, int axis) {
-        axis %= oldShape.numDimensions();
-        if(axis < 0)
-            axis = oldShape.numDimensions() + axis;
-        long[] array = oldShape.asArray();
-        long[] newArray = new long[axis];
-        for(int i = 0; i < axis-1; i++) {
-            newArray[i] = array[i];
+    public static <T extends TType> Operand<T> broadcastWeights(Ops tf, Operand<T> weights, Operand<T> values) {
+        tf = tf.withSubScope("broadcast_weights");
+        values = tf.dtypes.cast(values, weights.asOutput().dataType());
+
+        Shape weightsShape = weights.asOutput().shape();
+        Shape valuesShape = values.asOutput().shape();
+
+        if (!weightsShape.hasUnknownDimension()
+                && !valuesShape.hasUnknownDimension()
+                && ShapeUtils.isCompatibleWith(weightsShape, valuesShape)) {
+            return weights;
         }
-        long sum = array[axis-1];
-        for(int i = axis; i < array.length; i++) {
-            sum *= array[i];
+
+        weights = tf.math.mul(weights, tf.onesLike(values));
+        Op dependencies = assertBroadcastable(tf, weights, values);
+        return ControlDependencies.addControlDependencies(tf, weights, "assertBroadcastable", dependencies);
+    }
+
+    private static final String ASSERT_BROADCASTABLE_ERROR_PREFIX = "";
+
+    public static <T extends TType> Op assertBroadcastable(Ops tf, Operand<T> weights, Operand<T> values) {
+
+        // try static checks
+        Shape wShape = weights.asOutput().shape();
+        Shape vShape = values.asOutput().shape();
+
+        if (wShape.numDimensions() == 0) { // Scalar
+            return ControlDependencies.addControlDependencies(tf, "static_scalar_check_success");
         }
-        newArray[axis-1] = sum;
-        return Shape.of(newArray);
-    }
-    
-    public static Shape shorten(Shape oldShape, int count) {
-        
-        count %= oldShape.numDimensions();
-        if(count < 0)
-            count += oldShape.numDimensions();
-        long[] array = oldShape.asArray();
-        long[] newArray = new long[array.length - count];
-        System.arraycopy(array, 0, newArray, 0, count);
-        return Shape.of(newArray);
-    }
-    
-    public static Shape append(Shape shape, long lastDimension) {
-        long[] array = shape.asArray();
-        long[] narray = new long[array.length + 1];
-        System.arraycopy(array, 0, narray, 0, array.length);
-        narray[array.length] = lastDimension;
-        return Shape.of(narray);
-    }
-    /**
-     * omputes sparse softmax cross entropy between `logits` and `labels`.
-     * 
-     * @param tf
-     * @param labels `Tensor` of shape `[d_0, d_1, ..., d_{r-1}]` (where `r` is rank of
-     * `labels` and result) and dtype `int32` or `int64`. Each entry in `labels`
-     * must be an index in `[0, num_classes)`. Other values will raise an
-     * exception when this op is run on CPU, and return `NaN` for corresponding
-     * loss and gradient rows on GPU.
-     * @param logits Per-label activations (typically a linear output) of shape
-     * `[d_0, d_1, ..., d_{r-1}, num_classes]` and dtype `float16`, `float32`, or
-     * `float64`. These activation energies are interpreted as unnormalized log
-     * probabilities.
-     * @return A `Tensor` of the same shape as `labels` and of the same type as `logits`
-     * with the softmax cross entropy loss.
-     */
-    public static Operand sparse_softmax_cross_entropy_with_logits(Ops tf, Operand labels, Operand logits) {
-        //assert shapeIsCompatible(labels.asOutput().shape(), logits.asOutput().shape()):
-        //        String.format("Shapes %s and %s are incompatible", 
-        //                labels.asOutput().shape(), logits.asOutput().shape());
-        Operand precise_logits = logits;
-        boolean convertToFloat32 = logits.asOutput().dataType() == TFloat16.DTYPE ||
-                logits.asOutput().dataType() == TBfloat16.DTYPE;
-        if(convertToFloat32 )
-            precise_logits = tf.dtypes.cast(logits, TFloat32.DTYPE);
-        Shape labelsShape = labels.asOutput().shape();
-        Shape logitsShape = logits.asOutput().shape();
-        Operand labels_shape = tf.shape(labels);
-        // TODO
-        //Shape newLogitsShape = squeeze(logitsShape, -1);
-        Shape logitsShortened = shorten(logitsShape, -1);
-        boolean staticShapesFullyDefined = !labelsShape.hasUnknownDimension() &&
-               ! logitsShape.hasUnknownDimension();
-        if(logitsShape.numDimensions() == 0) {
+
+        if (wShape.numDimensions() != vShape.numDimensions()) {
             throw new IllegalArgumentException(
-                    String.format("Logits cannot be scalars - received shape %s.", logitsShape));
+                    String.format("%s values.rank=%d. weights.rank=%d. values.shape=%s. weights.shape=%s.",
+                            ASSERT_BROADCASTABLE_ERROR_PREFIX,
+                            vShape.numDimensions(), wShape.numDimensions(),
+                            vShape.toString(), wShape.toString())
+            );
         }
-        if(staticShapesFullyDefined && !labelsShape.equals(logitsShortened)) {
-            throw new IllegalArgumentException(
-                    String.format("Shape mismatch: The shape of labels (received %s) " +
-                       "should equal the shape of logits except for the last " +
-                       "dimension (received %s).", 
-                            labelsShape, logitsShape));
-        }
-        // Check if no reshapes are required.
-        if(logitsShape.numDimensions() == 2) {
-            SparseSoftmaxCrossEntropyWithLogits smax = tf.nn.sparseSoftmaxCrossEntropyWithLogits(precise_logits, labels);
-            Operand loss = smax.loss();
-            if(logits.asOutput().dataType() == TFloat16.DTYPE) {
-                loss = tf.dtypes.cast(loss, TFloat16.DTYPE);
+
+        if (!wShape.hasUnknownDimension() && !vShape.hasUnknownDimension()) {
+            for (int i = 0; i < wShape.numDimensions(); i++) {
+                if (wShape.size(i) != vShape.size(i)) {
+                    throw new IllegalArgumentException(
+                            String.format("%s Mismatch at dim %d. values.shape=%s weights.shape=%s.",
+                                    ASSERT_BROADCASTABLE_ERROR_PREFIX,
+                                    i, vShape.toString(), wShape.toString())
+                    );
+                }
             }
-            return loss;
+            return ControlDependencies.addControlDependencies(tf, "static_dims_check_success");
         }
-        
-        List<Operand> shapeChecks = new ArrayList<>();
-        //if(!staticShapesFullyDefined){
-        //    Shape logitsD = squeeze()
-            //tf.assertThat(tf.math.equal(tf.shape(labels),  tf.shape(logits)));
-        //}
-        
-        // Reshape logits to 2 dim, labels to 1 dim.
-        
-        long numClassses = logitsShape.size(logitsShape.numDimensions()-1);
-        
-        precise_logits = tf.reshape(precise_logits,tf.constant(new long[] {-1, numClassses}));
-        labels = tf.reshape(labels, tf.constant(-1));
-        SparseSoftmaxCrossEntropyWithLogits smax = tf.nn.sparseSoftmaxCrossEntropyWithLogits(precise_logits, labels);
-        Operand cost = smax.loss();
-        cost = tf.reshape(cost, labels_shape);
-        if(logits.asOutput().dataType() == TFloat16.DTYPE) {
-                cost = tf.dtypes.cast(cost, TFloat16.DTYPE);
-            }
-        
-        
-        // TODO how to change this to Operand
-        /***********************
-        List<Op> updateOperations = new ArrayList<>();
-        updateOperations.add(cost);
-        Scope scope = tf.scope();
-        scope = scope.withName("sparse_softmax_cross_entropy_with_logits");
-        scope = scope.withControlDependencies(updateOperations);
-        return NoOp.create(scope);
-        * ***************/
-        return cost;
+
+        // dynamic checks
+        org.tensorflow.op.core.Shape weightsShape = tf.shape(weights);
+        org.tensorflow.op.core.Shape valuesShape = tf.shape(values);
+        Operand weightsRank = tf.rank(weights);
+        Operand valuesRank = tf.rank(values);
+
+        Operand isScalar = tf.math.equal(weightsRank, tf.constant(0));
+
+        List<Operand<?>> data = new ArrayList<>();
+        data.add(tf.constant(ASSERT_BROADCASTABLE_ERROR_PREFIX));
+        data.add(tf.constant(String.format("assertBroadcastable: weights.shape= (%s)", wShape.toString())));
+        data.add(tf.constant(String.format("assertBroadcastable: values.shape= (%s)", vShape.toString())));
+        data.add(tf.constant(String.format("isScalar: %b", vShape.numDimensions() == 0)));
+
+        Operand isValidShape = tf.select(
+                isScalar, isScalar,
+                hasValidNonscalarShape(tf, weightsRank, weightsShape, valuesRank, valuesShape)
+        );
+
+        return tf.assertThat(isValidShape, data);
+
     }
-    
-    
-     /// END nn OPS
-    
+
+    private static <T extends TType> Operand<TBool> hasValidNonscalarShape(
+            Ops tf, Operand<T> weightsRank, Operand<T> weightsShape, Operand valuesRank, Operand valuesShape) {
+        tf = tf.withSubScope("has_valid_nonscalar_shape");
+        Operand isSameRank = tf.math.equal(valuesRank, weightsRank);
+        return tf.select(isSameRank,
+                hasValidDims(tf, weightsShape, valuesShape),
+                isSameRank
+        );
+    }
+
+    private static <T extends TType> Operand<TBool> hasValidDims(Ops tf, Operand<T> weightsShape, Operand valuesShape) {
+        tf = tf.withSubScope("has_invalid_dims");
+        Operand diff = tf.reduceSum(tf.math.sub(weightsShape, valuesShape), tf.constant(0));
+        return tf.math.equal(tf.constant(0), diff);
+    }
+
+    /// END nn OPS
     //TODO for debug, remove when done
-    
-    private static void debug( String prefix, Operand operand) {
+    private static void debug(String prefix, Operand operand) {
         LossesImpl.debug(prefix, operand);
     }
 
-    
-    
 }
