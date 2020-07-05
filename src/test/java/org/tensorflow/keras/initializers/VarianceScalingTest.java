@@ -36,25 +36,26 @@ import org.tensorflow.types.TFloat64;
  * @author Jim Clarke
  */
 public class VarianceScalingTest {
+
     private static final double EPSILON = 1e-7;
     private static final float EPSILON_F = 1e-7f;
     private static final long SEED = 1000L;
-    
+
     public VarianceScalingTest() {
     }
-    
+
     @BeforeAll
     public static void setUpClass() {
     }
-    
+
     @AfterAll
     public static void tearDownClass() {
     }
-    
+
     @BeforeEach
     public void setUp() {
     }
-    
+
     @AfterEach
     public void tearDown() {
     }
@@ -64,29 +65,27 @@ public class VarianceScalingTest {
      */
     @Test
     public void testGetConfig() {
-        System.out.println("getConfig");
         Map<String, Object> config = new HashMap<>();
         config.put(VarianceScaling.SCALE_KEY, 1.0);
         config.put(VarianceScaling.MODE_KEY, "fan_in");
         config.put(VarianceScaling.DISTRIBUTION_KEY, "truncated_normal");
-        config.put(VarianceScaling.SEED_KEY, SEED);    
+        config.put(VarianceScaling.SEED_KEY, SEED);
         VarianceScaling instance = new VarianceScaling(null, SEED);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
     }
-    
+
     /**
      * Test of getConfig method, of class VarianceScaling.
      */
     @Test
     public void testConfigCTORMap() {
-        System.out.println("ctor Map");
         Map<String, Object> config = new HashMap<>();
         config.put(VarianceScaling.SCALE_KEY, 1.0);
         config.put(VarianceScaling.MODE_KEY, "fan_in");
         config.put(VarianceScaling.DISTRIBUTION_KEY, "truncated_normal");
-        config.put(VarianceScaling.SEED_KEY, SEED);    
+        config.put(VarianceScaling.SEED_KEY, SEED);
         VarianceScaling instance = new VarianceScaling(null, config);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
@@ -98,113 +97,107 @@ public class VarianceScalingTest {
      */
     @Test
     public void testCall_Float_1_FAN_IN_TRUNCATED_NORMAL() {
-        System.out.println("call Float_1_FAN_IN_TRUNCATED_NORMAL");
-        float[] actual = { 0,0, 0, 0};
-        float[] expected = { -0.52388954F, -0.29329166F, -0.07872587F, -0.31851602F };
+        float[] actual = {0, 0, 0, 0};
+        float[] expected = {-0.52388954F, -0.29329166F, -0.07872587F, -0.31851602F};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-            VarianceScaling<TFloat32> instance = 
-                    new VarianceScaling<>(tf, 1.0, "fan_in", "truncated_normal", SEED);
-            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+            VarianceScaling<TFloat32> instance
+                    = new VarianceScaling<>(tf, 1.0, "fan_in", "truncated_normal", SEED);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()), TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat32(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
-    
+
     @Test
     public void testCall_Double_1_FAN_IN_TRUNCATED_NORMAL() {
-        System.out.println("call Double_1_FAN_IN_TRUNCATED_NORMAL");
-        double[] actual = { 0,0, 0, 0};
-        double[] expected = { 1.4971264721246893, -1.2488522307109322, 
-                            -0.5409677352523339, 0.4871390504288623 };
+        double[] actual = {0, 0, 0, 0};
+        double[] expected = {1.4971264721246893, -1.2488522307109322,
+            -0.5409677352523339, 0.4871390504288623};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-            VarianceScaling<TFloat64> instance = 
-                    new VarianceScaling<>(tf, 1.0, "fan_in", "truncated_normal", SEED);
-            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+            VarianceScaling<TFloat64> instance
+                    = new VarianceScaling<>(tf, 1.0, "fan_in", "truncated_normal", SEED);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()), TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat64(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);
         }
     }
-    
+
     /**
      * Test of call method, of class VarianceScaling.
      */
     @Test
     public void testCall_Float_1_FAN_IN_UNTRUNCATED_NORMAL() {
-        System.out.println("call Float_1_FAN_IN_UNTRUNCATED_NORMAL");
-        float[] actual = { 0,0, 0, 0};
-        float[] expected = { -0.46082667F, -0.25798687F, -0.06924929F, -0.28017485F };
+        float[] actual = {0, 0, 0, 0};
+        float[] expected = {-0.46082667F, -0.25798687F, -0.06924929F, -0.28017485F};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-            VarianceScaling<TFloat32> instance = 
-                    new VarianceScaling<>(tf, 1.0, "fan_in", "untruncated_normal", SEED);
-            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+            VarianceScaling<TFloat32> instance
+                    = new VarianceScaling<>(tf, 1.0, "fan_in", "untruncated_normal", SEED);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()), TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat32(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
-    
+
     @Test
     public void testCall_Double_1_FAN_IN_UNTRUNCATED_NORMAL() {
-        System.out.println("call Double_1_FAN_IN_UNTRUNCATED_NORMAL");
-        double[] actual = { 0,0, 0, 0};
-        double[] expected = { 1.3169108626945392, -1.0985224689731887, 
-                            -0.13536536217837225, -1.698770780615686 };
+        double[] actual = {0, 0, 0, 0};
+        double[] expected = {1.3169108626945392, -1.0985224689731887,
+            -0.13536536217837225, -1.698770780615686};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-            VarianceScaling<TFloat64> instance = 
-                    new VarianceScaling<>(tf, 1.0, "fan_in", "untruncated_normal", SEED);
-            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+            VarianceScaling<TFloat64> instance
+                    = new VarianceScaling<>(tf, 1.0, "fan_in", "untruncated_normal", SEED);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()), TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat64(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);
         }
     }
-    
-     /**
+
+    /**
      * Test of call method, of class VarianceScaling.
      */
     @Test
     public void testCall_Float_1_FAN_IN_UNIFORM() {
-        System.out.println("call Float_1_FAN_IN_UNIFORM");
-        float[] actual = { 0,0, 0, 0};
-        float[] expected = { 0.9266439F, 0.8190767F, 1.1268647F, 0.6596042F };
+        float[] actual = {0, 0, 0, 0};
+        float[] expected = {0.9266439F, 0.8190767F, 1.1268647F, 0.6596042F};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-            VarianceScaling<TFloat32> instance = 
-                    new VarianceScaling<>(tf, 1.0, "fan_in", "uniform", SEED);
-            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+            VarianceScaling<TFloat32> instance
+                    = new VarianceScaling<>(tf, 1.0, "fan_in", "uniform", SEED);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()), TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat32(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
-    
+
     @Test
     public void testCall_Double_1_FAN_IN_UNIFORM() {
-        System.out.println("call Double_1_FAN_IN_UNIFORM");
-        double[] actual = { 0,0, 0, 0};
-        double[] expected = { 0.06468193804916589, 0.44170328686673477, 
-                        0.06711059208157763, 0.6278720842445181 };
+        double[] actual = {0, 0, 0, 0};
+        double[] expected = {0.06468193804916589, 0.44170328686673477,
+            0.06711059208157763, 0.6278720842445181};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-            VarianceScaling<TFloat64> instance = 
-                    new VarianceScaling<>(tf, 1.0, "fan_in", "uniform", SEED);
-            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+            VarianceScaling<TFloat64> instance
+                    = new VarianceScaling<>(tf, 1.0, "fan_in", "uniform", SEED);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()), TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat64(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);
         }
     }
-    
+
 }

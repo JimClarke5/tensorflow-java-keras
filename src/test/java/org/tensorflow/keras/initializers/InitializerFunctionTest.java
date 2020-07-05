@@ -36,141 +36,133 @@ import org.tensorflow.types.TUint8;
  * @author Jim Clarke
  */
 public class InitializerFunctionTest {
+
     private static final double EPSILON = 1e-7;
     private static final float EPSILON_F = 1e-7f;
-  
-    
+
     public InitializerFunctionTest() {
     }
-    
+
     @BeforeAll
     public static void setUpClass() {
     }
-    
+
     @AfterAll
     public static void tearDownClass() {
     }
-    
+
     @BeforeEach
     public void setUp() {
     }
-    
+
     @AfterEach
     public void tearDown() {
     }
-    
-     /**
+
+    /**
      * Test of call method, of class OptimizerFunction.
      */
     @Test
     public void testLambdaCallFloat() {
-        System.out.println("call - using lambda float");
         float[] floats = {12345.0F};
         try (EagerSession session = EagerSession.create()) {
             Ops tf = Ops.create(session);
             Shape shape = Shape.of(1);
-            
+
             // Test float
-            InitializerFunction<TFloat32> func  = (dims, dtype) -> {
-                            return  tf.dtypes.cast(tf.constant(floats[0]), dtype);};
+            InitializerFunction<TFloat32> func = (dims, dtype) -> {
+                return tf.dtypes.cast(tf.constant(floats[0]), dtype);
+            };
             Operand<TFloat32> operand = func.call(tf.constant(shape.asArray()), TFloat32.DTYPE);
             float[] actual = new float[floats.length];
             operand.asTensor().data().read(DataBuffers.of(actual));
             assertArrayEquals(floats, actual, EPSILON_F);
-            
-            
+
         }
     }
-    
-     /**
+
+    /**
      * Test of call method, of class OptimizerFunction.
      */
     @Test
     public void testLambdaCallUInt8() {
-        System.out.println("call - using lambda uint8");
         byte[] bytes = {0x15};
         try (EagerSession session = EagerSession.create()) {
             Ops tf = Ops.create(session);
             Shape shape = Shape.of(1);
-            
+
             // Test float
-            InitializerFunction<TUint8> func  = (dims, dtype) -> {
-                            return  tf.dtypes.cast(tf.constant(bytes[0]), dtype);};
+            InitializerFunction<TUint8> func = (dims, dtype) -> {
+                return tf.dtypes.cast(tf.constant(bytes[0]), dtype);
+            };
             Operand<TUint8> operand = func.call(tf.constant(shape.asArray()), TUint8.DTYPE);
             byte[] actual = new byte[bytes.length];
             operand.asTensor().data().read(DataBuffers.of(actual));
             assertArrayEquals(bytes, actual);
-            
-            
+
         }
     }
-    
-    
-     /**
+
+    /**
      * Test of call method, of class OptimizerFunction.
      */
     @Test
     public void testLambdaCallInt() {
-        System.out.println("call - using lambda int");
         int[] ints = {12345};
         try (EagerSession session = EagerSession.create()) {
             Ops tf = Ops.create(session);
             Shape shape = Shape.of(1);
-            
+
             // Test float
-            InitializerFunction<TInt32> func  = (dims, dtype) -> {
-                            return  tf.dtypes.cast(tf.constant(ints[0]), dtype);};
+            InitializerFunction<TInt32> func = (dims, dtype) -> {
+                return tf.dtypes.cast(tf.constant(ints[0]), dtype);
+            };
             Operand<TInt32> operand = func.call(tf.constant(shape.asArray()), TInt32.DTYPE);
             int[] actual = new int[ints.length];
             operand.asTensor().data().read(DataBuffers.of(actual));
             assertArrayEquals(ints, actual);
-            
-            
+
         }
     }
-    
 
     /**
      * Test of call method, of class OptimizerFunction.
      */
     @Test
     public void testLambdaCallLong() {
-        System.out.println("call - using lambda long");
         long[] longs = {12345L};
         try (EagerSession session = EagerSession.create()) {
             Ops tf = Ops.create(session);
             Shape shape = Shape.of(1);
-            
+
             // Test float
-            InitializerFunction<TInt64> func  = (dims, dtype) -> {
-                            return  tf.dtypes.cast(tf.constant(longs[0]), dtype);};
+            InitializerFunction<TInt64> func = (dims, dtype) -> {
+                return tf.dtypes.cast(tf.constant(longs[0]), dtype);
+            };
             Operand<TInt64> operand = func.call(tf.constant(shape.asArray()), TInt64.DTYPE);
             long[] actual = new long[longs.length];
             operand.asTensor().data().read(DataBuffers.of(actual));
             assertArrayEquals(longs, actual);
-            
-            
+
         }
     }
-    
+
     public void testLambdaCallDouble() {
-        System.out.println("call - using lambda dlouble");
         double[] doubles = {Math.PI};
         try (EagerSession session = EagerSession.create()) {
             Ops tf = Ops.create(session);
             Shape shape = Shape.of(1);
-            
+
             // Test float
-            InitializerFunction<TFloat64> func  = (dims, dtype) -> {
-                            return  tf.dtypes.cast(tf.constant(doubles[0]), dtype);};
+            InitializerFunction<TFloat64> func = (dims, dtype) -> {
+                return tf.dtypes.cast(tf.constant(doubles[0]), dtype);
+            };
             Operand<TFloat64> operand = func.call(tf.constant(shape.asArray()), TFloat64.DTYPE);
             double[] actual = new double[doubles.length];
             operand.asTensor().data().read(DataBuffers.of(actual));
             assertArrayEquals(doubles, actual, EPSILON_F);
-            
-            
+
         }
     }
 
-    
 }

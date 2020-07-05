@@ -36,27 +36,28 @@ import org.tensorflow.types.TFloat64;
  * @author Jim Clarke
  */
 public class HeUniformTest {
+
     private static final double EPSILON = 1e-7;
     private static final float EPSILON_F = 1e-7f;
     private static final long SEED = 1000L;
-    
+
     int counter;
-    
+
     public HeUniformTest() {
     }
-    
+
     @BeforeAll
     public static void setUpClass() {
     }
-    
+
     @AfterAll
     public static void tearDownClass() {
     }
-    
+
     @BeforeEach
     public void setUp() {
     }
-    
+
     @AfterEach
     public void tearDown() {
     }
@@ -66,29 +67,27 @@ public class HeUniformTest {
      */
     @Test
     public void testGetConfig() {
-        System.out.println("getConfig");
         Map<String, Object> config = new HashMap<>();
         config.put(HeUniform.SCALE_KEY, 2.0);
         config.put(HeUniform.MODE_KEY, "fan_in");
         config.put(HeUniform.DISTRIBUTION_KEY, "uniform");
-        config.put(HeUniform.SEED_KEY, SEED);    
+        config.put(HeUniform.SEED_KEY, SEED);
         HeUniform instance = new HeUniform(null, SEED);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
     }
-    
+
     /**
      * Test of getConfig method, of class HeUniform.
      */
     @Test
     public void testConfigCTORMap() {
-        System.out.println("ctor Map");
         Map<String, Object> config = new HashMap<>();
         config.put(HeUniform.SCALE_KEY, 2.0);
         config.put(HeUniform.MODE_KEY, "fan_in");
         config.put(HeUniform.DISTRIBUTION_KEY, "uniform");
-        config.put(HeUniform.SEED_KEY, SEED);    
+        config.put(HeUniform.SEED_KEY, SEED);
         HeUniform instance = new HeUniform(null, config);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
@@ -100,36 +99,34 @@ public class HeUniformTest {
      */
     @Test
     public void testCall_Float() {
-        System.out.println("call Float");
-        float[] actual = { 0,0, 0, 0};
-        float[] expected = { 1.3104724F, 1.1583493F, 1.5936272F, 0.93282115F };
+        float[] actual = {0, 0, 0, 0};
+        float[] expected = {1.3104724F, 1.1583493F, 1.5936272F, 0.93282115F};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-            HeUniform<TFloat32> instance = 
-                    new HeUniform<>(tf, SEED);
-            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+            HeUniform<TFloat32> instance
+                    = new HeUniform<>(tf, SEED);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()), TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             //counter = 0;
-           // operand.asTensor().data().scalars().forEach(s -> {counter++;});
+            // operand.asTensor().data().scalars().forEach(s -> {counter++;});
             //assertEquals(counter, 2*2);
             assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
-    
+
     @Test
     public void testCall_Double() {
-        System.out.println("call Double");
-        double[] actual = { 0,0, 0, 0};
-        double[] expected = { .09147407402970674, 0.6246627788317102, 
-                            0.09490870950065552, 0.8879452169740599};
+        double[] actual = {0, 0, 0, 0};
+        double[] expected = {.09147407402970674, 0.6246627788317102,
+            0.09490870950065552, 0.8879452169740599};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-            HeUniform<TFloat64> instance = 
-                    new HeUniform<>(tf, SEED);
-            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+            HeUniform<TFloat64> instance
+                    = new HeUniform<>(tf, SEED);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()), TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             //ounter = 0;
@@ -138,5 +135,5 @@ public class HeUniformTest {
             assertArrayEquals(expected, actual, EPSILON);
         }
     }
-    
+
 }

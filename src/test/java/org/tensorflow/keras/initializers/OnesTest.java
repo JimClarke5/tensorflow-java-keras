@@ -39,156 +39,148 @@ import org.tensorflow.types.TUint8;
  * @author Jim Clarke
  */
 public class OnesTest {
+
     private static final double EPSILON = 1e-7;
     private static final float EPSILON_F = 1e-7f;
-    
+
     private int counter;
-    
+
     public OnesTest() {
     }
-    
+
     @BeforeAll
     public static void setUpClass() {
     }
-    
+
     @AfterAll
     public static void tearDownClass() {
     }
-    
+
     @BeforeEach
     public void setUp() {
     }
-    
+
     @AfterEach
     public void tearDown() {
     }
-    
-    
+
     /**
      * Test of call method, of class Ones.
      */
     @Test
     public void testCallUInt() {
-        System.out.println("call UInt");
-        byte[] actual = { 0,0, 0, 0};
-        byte[] expected = { 1, 1, 1, 1 }; // init to ones to make sure they all changet to zero
+        byte[] actual = {0, 0, 0, 0};
+        byte[] expected = {1, 1, 1, 1}; // init to ones to make sure they all changet to zero
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
             Ones<TUint8> instance = new Ones<>(tf);
-            Operand<TUint8> operand = instance.call(tf.constant(shape.asArray()),  TUint8.DTYPE);
+            Operand<TUint8> operand = instance.call(tf.constant(shape.asArray()), TUint8.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-           // PrintUtils.print(operand.asTensor());
+            // PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual);
         }
     }
-    
+
     /**
      * Test of call method, of class Ones.
      */
     @Test
     public void testCallInt() {
-        System.out.println("call Int");
-        int[] actual = { 0,0, 0, 0};
-        int[]expected = { 1, 1, 1, 1 }; // init to ones to make sure they all changet to zero
+        int[] actual = {0, 0, 0, 0};
+        int[] expected = {1, 1, 1, 1}; // init to ones to make sure they all changet to zero
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
             Ones<TInt32> instance = new Ones<>(tf);
-            Operand<TInt32> operand = instance.call(tf.constant(shape.asArray()),  TInt32.DTYPE);
+            Operand<TInt32> operand = instance.call(tf.constant(shape.asArray()), TInt32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-           // PrintUtils.print(operand.asTensor());
+            // PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual);
         }
     }
-    
+
     /**
      * Test of call method, of class Ones.
      */
     @Test
     public void testCallLong() {
-        System.out.println("call Long");
-        long[] actual = { 0,0, 0, 0};
-        long[]expected = { 1, 1, 1, 1 }; // init to ones to make sure they all changet to zero
+        long[] actual = {0, 0, 0, 0};
+        long[] expected = {1, 1, 1, 1}; // init to ones to make sure they all changet to zero
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
             Ones<TInt64> instance = new Ones<>(tf);
-            Operand<TInt64> operand = instance.call(tf.constant(shape.asArray()),  TInt64.DTYPE);
+            Operand<TInt64> operand = instance.call(tf.constant(shape.asArray()), TInt64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-           // PrintUtils.print(operand.asTensor());
+            // PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual);
         }
     }
-    
 
     /**
      * Test of call method, of class Ones.
      */
     @Test
     public void testCallFloat() {
-        System.out.println("call float");
-        float[] actual = { 0.F,0.F, 0.F, 0.F};
-        float[]expected = { 1.f, 1.f, 1.f, 1.f };
+        float[] actual = {0.F, 0.F, 0.F, 0.F};
+        float[] expected = {1.f, 1.f, 1.f, 1.f};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
             Ones<TFloat32> instance = new Ones<>(tf);
-            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()), TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
-    
+
     /**
      * Test of call method, of class Ones.
      */
     @Test
     public void testCallDouble() {
-        System.out.println("call double");
-        double[] actual = {  0.,0., 0., 0.};
-        double[]expected = { 1., 1., 1., 1. };
+        double[] actual = {0., 0., 0., 0.};
+        double[] expected = {1., 1., 1., 1.};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-           
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+
             Ones<TFloat64> instance = new Ones<>(tf);
-            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()), TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);
         }
     }
-    
+
     /**
      * Test of call method, of class Ones.
      */
     @Test
     public void testCallString() {
-        System.out.println("call String");
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-           
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+
             Ones<TString> instance = new Ones<>(tf);
-            Operand<TString> operand = instance.call(tf.constant(shape.asArray()),  TString.DTYPE);
+            Operand<TString> operand = instance.call(tf.constant(shape.asArray()), TString.DTYPE);
             fail("AssertionError should have been thrown for TString");
-        }catch(AssertionError expected) {
+        } catch (AssertionError expected) {
         }
     }
-    
+
     @Test
     public void testCallBool() {
-        System.out.println("call Boolean");
-        boolean[] expected = { true, true, true, true };
-        boolean[] actual = { false, false, false, false};
+        boolean[] expected = {true, true, true, true};
+        boolean[] actual = {false, false, false, false};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-           
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+
             Ones<TBool> instance = new Ones<>(tf);
-            Operand<TBool> operand = instance.call(tf.constant(shape.asArray()),  TBool.DTYPE);
+            Operand<TBool> operand = instance.call(tf.constant(shape.asArray()), TBool.DTYPE);
             //counter = 0;
             //operand.asTensor().data().scalars().forEach(s -> {/*counter++;*/ assertFalse(s.getBoolean());});
             //assertEquals(counter, 2*2);
@@ -196,8 +188,5 @@ public class OnesTest {
             assertArrayEquals(expected, actual);
         }
     }
-    
-        
-   
-    
+
 }

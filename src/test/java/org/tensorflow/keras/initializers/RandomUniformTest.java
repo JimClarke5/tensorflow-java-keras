@@ -37,59 +37,56 @@ import org.tensorflow.types.TInt32;
  * @author Jim Clarke
  */
 public class RandomUniformTest {
+
     private static final double EPSILON = 1e-7;
     private static final float EPSILON_F = 1e-7f;
     private static final long SEED = 1000L;
     private static final double MIN_VALUE = 0.0;
     private static final double MAX_VALUE = 10.0;
-    
+
     public RandomUniformTest() {
     }
-    
+
     @BeforeAll
     public static void setUpClass() {
     }
-    
+
     @AfterAll
     public static void tearDownClass() {
     }
-    
+
     @BeforeEach
     public void setUp() {
     }
-    
+
     @AfterEach
     public void tearDown() {
     }
 
-    
-    
-     /**
+    /**
      * Test of getConfig method, of class RandomUniform.
      */
     @Test
     public void testGetConfig() {
-        System.out.println("getConfig");
         Map<String, Object> config = new HashMap<>();
         config.put(RandomUniform.MINVAL_KEY, MIN_VALUE);
         config.put(RandomUniform.MAXVAL_KEY, MAX_VALUE);
-        config.put(RandomUniform.SEED_KEY, SEED);    
+        config.put(RandomUniform.SEED_KEY, SEED);
         RandomUniform instance = new RandomUniform(null, MIN_VALUE, MAX_VALUE, SEED);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
     }
-    
+
     /**
      * Test of getConfig method, of class RandomUniform.
      */
     @Test
     public void testConfigCTORMap() {
-        System.out.println("ctor Map");
         Map<String, Object> config = new HashMap<>();
         config.put(RandomUniform.MINVAL_KEY, MIN_VALUE);
         config.put(RandomUniform.MAXVAL_KEY, MAX_VALUE);
-        config.put(RandomUniform.SEED_KEY, SEED);    
+        config.put(RandomUniform.SEED_KEY, SEED);
         RandomUniform instance = new RandomUniform(null, config);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
@@ -101,58 +98,54 @@ public class RandomUniformTest {
      */
     @Test
     public void testCall_Int() {
-        System.out.println("call Int");
-        int[] actual = { 0,0, 0, 0};
-        int[] expected = {  6, 1, 4, 1 };
+        int[] actual = {0, 0, 0, 0};
+        int[] expected = {6, 1, 4, 1};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-            RandomUniform<TInt32> instance = 
-                    new RandomUniform<>(tf, MIN_VALUE, MAX_VALUE, SEED);
-            Operand<TInt32> operand = instance.call(tf.constant(shape.asArray()),  TInt32.DTYPE);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+            RandomUniform<TInt32> instance
+                    = new RandomUniform<>(tf, MIN_VALUE, MAX_VALUE, SEED);
+            Operand<TInt32> operand = instance.call(tf.constant(shape.asArray()), TInt32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTInt32(operand.asTensor());
             assertArrayEquals(expected, actual);
         }
     }
-    
-    
+
     /**
      * Test of call method, of class RandomUniform.
      */
     @Test
     public void testCall_Float() {
-        System.out.println("call Float");
-        float[] actual = { 0,0, 0, 0};
-        float[] expected = { 7.5660157F, 6.6877327F, 9.200811F, 5.385646F };
+        float[] actual = {0, 0, 0, 0};
+        float[] expected = {7.5660157F, 6.6877327F, 9.200811F, 5.385646F};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-            RandomUniform<TFloat32> instance = 
-                    new RandomUniform<>(tf, MIN_VALUE, MAX_VALUE, SEED);
-            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+            RandomUniform<TFloat32> instance
+                    = new RandomUniform<>(tf, MIN_VALUE, MAX_VALUE, SEED);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()), TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat32(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
-    
+
     @Test
     public void testCall_Double() {
-        System.out.println("call Double");
-        double[] actual = { 0,0, 0, 0};
-        double[] expected = { 0.5281258126492294, 3.6064922351122752, 
-                              0.5479556897864346, 5.126554100456142 };
+        double[] actual = {0, 0, 0, 0};
+        double[] expected = {0.5281258126492294, 3.6064922351122752,
+            0.5479556897864346, 5.126554100456142};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-            RandomUniform<TFloat64> instance = 
-                    new RandomUniform<>(tf, MIN_VALUE, MAX_VALUE, SEED);
-            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+            RandomUniform<TFloat64> instance
+                    = new RandomUniform<>(tf, MIN_VALUE, MAX_VALUE, SEED);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()), TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat64(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);
         }
     }
-    
+
 }

@@ -36,27 +36,28 @@ import org.tensorflow.types.TFloat64;
  * @author Jim Clarke
  */
 public class LeCunUniformTest {
+
     private static final double EPSILON = 1e-7;
     private static final float EPSILON_F = 1e-7f;
     private static final long SEED = 1000L;
-    
+
     int counter;
-    
+
     public LeCunUniformTest() {
     }
-    
+
     @BeforeAll
     public static void setUpClass() {
     }
-    
+
     @AfterAll
     public static void tearDownClass() {
     }
-    
+
     @BeforeEach
     public void setUp() {
     }
-    
+
     @AfterEach
     public void tearDown() {
     }
@@ -66,29 +67,27 @@ public class LeCunUniformTest {
      */
     @Test
     public void testGetConfig() {
-        System.out.println("getConfig");
         Map<String, Object> config = new HashMap<>();
         config.put(LeCunUniform.SCALE_KEY, 1.0);
         config.put(LeCunUniform.MODE_KEY, "fan_in");
         config.put(LeCunUniform.DISTRIBUTION_KEY, "uniform");
-        config.put(LeCunUniform.SEED_KEY, SEED);    
+        config.put(LeCunUniform.SEED_KEY, SEED);
         LeCunUniform instance = new LeCunUniform(null, SEED);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
     }
-    
+
     /**
      * Test of getConfig method, of class LeCunUniform.
      */
     @Test
     public void testConfigCTORMap() {
-        System.out.println("ctor Map");
         Map<String, Object> config = new HashMap<>();
         config.put(LeCunUniform.SCALE_KEY, 1.0);
         config.put(LeCunUniform.MODE_KEY, "fan_in");
         config.put(LeCunUniform.DISTRIBUTION_KEY, "uniform");
-        config.put(LeCunUniform.SEED_KEY, SEED);    
+        config.put(LeCunUniform.SEED_KEY, SEED);
         LeCunUniform instance = new LeCunUniform(null, config);
         Map<String, Object> expResult = config;
         Map<String, Object> result = instance.getConfig();
@@ -100,15 +99,14 @@ public class LeCunUniformTest {
      */
     @Test
     public void testCall_Float() {
-        System.out.println("call Float");
-        float[] actual = { 0,0, 0, 0};
-        float[] expected = {  0.9266439F, 0.8190767F, 1.1268647F, 0.6596042F };
+        float[] actual = {0, 0, 0, 0};
+        float[] expected = {0.9266439F, 0.8190767F, 1.1268647F, 0.6596042F};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-            LeCunUniform<TFloat32> instance = 
-                    new LeCunUniform<>(tf, SEED);
-            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+            LeCunUniform<TFloat32> instance
+                    = new LeCunUniform<>(tf, SEED);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()), TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             //counter = 0;
@@ -117,26 +115,25 @@ public class LeCunUniformTest {
             assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
-    
+
     @Test
     public void testCall_Double() {
-        System.out.println("call Double");
-        double[] actual = { 0,0, 0, 0};
-        double[] expected = { 0.06468193804916589, 0.44170328686673477, 
-                            0.06711059208157763, 0.6278720842445181 };
+        double[] actual = {0, 0, 0, 0};
+        double[] expected = {0.06468193804916589, 0.44170328686673477,
+            0.06711059208157763, 0.6278720842445181};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-            LeCunUniform<TFloat64> instance = 
-                    new LeCunUniform<>(tf, SEED);
-            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+            LeCunUniform<TFloat64> instance
+                    = new LeCunUniform<>(tf, SEED);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()), TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             //counter = 0;
             //operand.asTensor().data().scalars().forEach(s -> {counter++;});
             //assertEquals(shape.size(), counter);
-           assertArrayEquals(expected, actual, EPSILON);
+            assertArrayEquals(expected, actual, EPSILON);
         }
     }
-    
+
 }

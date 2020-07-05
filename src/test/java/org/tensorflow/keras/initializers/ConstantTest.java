@@ -41,26 +41,27 @@ import org.tensorflow.types.TUint8;
  * @author Jim Clarke
  */
 public class ConstantTest {
+
     private static final double EPSILON = 1e-7;
     private static final float EPSILON_F = 1e-7f;
-    
+
     private int counter = 0;
-    
+
     public ConstantTest() {
     }
-    
+
     @BeforeAll
     public static void setUpClass() {
     }
-    
+
     @AfterAll
     public static void tearDownClass() {
     }
-    
+
     @BeforeEach
     public void setUp() {
     }
-    
+
     @AfterEach
     public void tearDown() {
     }
@@ -70,7 +71,6 @@ public class ConstantTest {
      */
     @Test
     public void testGetConfigNumber() {
-        System.out.println("getConfig");
         Constant instance = new Constant(null, 2.0);
         Map<String, Object> map = new HashMap<>();
         map.put("value", 2.0);
@@ -78,12 +78,12 @@ public class ConstantTest {
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
     }
+
     /**
      * Test of getConfig method, of class Constant.
      */
     @Test
     public void testGetConfigBoolean() {
-        System.out.println("getConfig");
         Map<String, Object> map = new HashMap<>();
         map.put("value", true);
         Constant instance = new Constant(null, true);
@@ -91,13 +91,12 @@ public class ConstantTest {
         Map<String, Object> result = instance.getConfig();
         assertEquals(expResult, result);
     }
-    
+
     /**
      * Test of getConfig method, of class Constant.
      */
     @Test
     public void testGetConfigMapCTOR() {
-        System.out.println("ctor Map");
         Map<String, Object> map = new HashMap<>();
         map.put("value", true);
         Constant instance = new Constant(null, map);
@@ -106,135 +105,126 @@ public class ConstantTest {
         assertEquals(expResult, result);
     }
 
-       /**
+    /**
      * Test of call method, of class Constant.
      */
     @Test
     public void testCallUInt() {
-        System.out.println("call UInt");
-        byte[] actual = { 0,0, 0, 0};
-        byte[] expected = { 0xf, 0xf, 0xf, 0xf }; // init to constant to make sure they all changet to zero
+        byte[] actual = {0, 0, 0, 0};
+        byte[] expected = {0xf, 0xf, 0xf, 0xf}; // init to constant to make sure they all changet to zero
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
             Constant<TUint8> instance = new Constant<>(tf, 0xf);
-            Operand<TUint8> operand = instance.call(tf.constant(shape.asArray()),  TUint8.DTYPE);
+            Operand<TUint8> operand = instance.call(tf.constant(shape.asArray()), TUint8.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-           //PrintUtils.print(operand.asTensor());
+            //PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual);
         }
     }
-    
+
     /**
      * Test of call method, of class Constant.
      */
     @Test
     public void testCallInt() {
-        System.out.println("call Int");
-        int[] actual = { 0,0, 0, 0};
-        int[]expected = {0xf, 0xf, 0xf, 0xf }; // init to constant to make sure they all changet to zero
+        int[] actual = {0, 0, 0, 0};
+        int[] expected = {0xf, 0xf, 0xf, 0xf}; // init to constant to make sure they all changet to zero
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
             Constant<TInt32> instance = new Constant<>(tf, 0xf);
-            Operand<TInt32> operand = instance.call(tf.constant(shape.asArray()),  TInt32.DTYPE);
+            Operand<TInt32> operand = instance.call(tf.constant(shape.asArray()), TInt32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-           // PrintUtils.print(operand.asTensor());
+            // PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual);
         }
     }
-    
+
     /**
      * Test of call method, of class Constant.
      */
     @Test
     public void testCallLong() {
-        System.out.println("call Long");
-        long[] actual = { 0,0, 0, 0};
-        long[]expected = { 0xff, 0xff, 0xff, 0xff }; // init to constant to make sure they all changet to zero
+        long[] actual = {0, 0, 0, 0};
+        long[] expected = {0xff, 0xff, 0xff, 0xff}; // init to constant to make sure they all changet to zero
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
             Constant<TInt64> instance = new Constant<>(tf, 0xff);
-            Operand<TInt64> operand = instance.call(tf.constant(shape.asArray()),  TInt64.DTYPE);
+            Operand<TInt64> operand = instance.call(tf.constant(shape.asArray()), TInt64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
-           // PrintUtils.print(operand.asTensor());
+            // PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual);
         }
     }
-    
 
     /**
      * Test of call method, of class Constant.
      */
     @Test
     public void testCallFloat() {
-        System.out.println("call float");
-        float[] actual = { 0.F,0.F, 0.F, 0.F};
-        float[]expected = { 12.f, 12.f, 12.f, 12.f };
+        float[] actual = {0.F, 0.F, 0.F, 0.F};
+        float[] expected = {12.f, 12.f, 12.f, 12.f};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
             Constant<TFloat32> instance = new Constant<>(tf, 12.F);
-            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()), TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             //PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
-    
+
     /**
      * Test of call method, of class Constant.
      */
     @Test
     public void testCallDouble() {
-        System.out.println("call double");
-        double[] actual = {  0.,0., 0., 0.};
-        double[]expected = { 11., 11., 11., 11. };
+        double[] actual = {0., 0., 0., 0.};
+        double[] expected = {11., 11., 11., 11.};
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-           
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+
             Constant<TFloat64> instance = new Constant<>(tf, 11.);
-            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()), TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             //PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);
         }
     }
-    
+
     /**
      * Test of call method, of class Constant.
      */
     @Test
     public void testCallString() {
-        System.out.println("call String");
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-           
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+
             Constant<TString> instance = new Constant<>(tf, 22);
-            Operand<TString> operand = instance.call(tf.constant(shape.asArray()),  TString.DTYPE);
+            Operand<TString> operand = instance.call(tf.constant(shape.asArray()), TString.DTYPE);
             fail("AssertionError should have been thrown for TString");
-        }catch(AssertionError expected) {
+        } catch (AssertionError expected) {
         }
     }
-    
-        
+
     /**
      * Test of call method, of class Constant.
      */
     @Test
     public void testCallBool() {
-        System.out.println("call Boolean");
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(2,2);
-            boolean[] actual = {  false, false, false, false};
-            boolean[] expected = { true, true, true, true };
-           
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(2, 2);
+            boolean[] actual = {false, false, false, false};
+            boolean[] expected = {true, true, true, true};
+
             Constant<TBool> instance = new Constant<>(tf, true);
-            Operand<TBool> operand = instance.call(tf.constant(shape.asArray()),  TBool.DTYPE);
+            Operand<TBool> operand = instance.call(tf.constant(shape.asArray()), TBool.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.print(operand.asTensor());
             //counter = 0;
@@ -243,5 +233,5 @@ public class ConstantTest {
             assertArrayEquals(expected, actual);
         }
     }
-    
+
 }

@@ -17,7 +17,6 @@ package org.tensorflow.keras.initializers;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,9 +56,8 @@ public class InitializersTest {
      */
     @Test
     public void testGet_Object_String() {
-        System.out.println("get");
         String initializerFunction = "identity";
-        try ( EagerSession session = EagerSession.create()) {
+        try (EagerSession session = EagerSession.create()) {
             Ops tf = Ops.create(session);
             Initializer result = Initializers.get(tf, initializerFunction);
             assertNotNull(result);
@@ -72,8 +70,7 @@ public class InitializersTest {
      */
     @Test
     public void testGet_Object_Lambda() {
-        System.out.println("get");
-        try ( EagerSession session = EagerSession.create()) {
+        try (EagerSession session = EagerSession.create()) {
             Ops tf = Ops.create(session);
             Initializer result = Initializers.get(tf, ops -> new HeNormal(ops));
             assertNotNull(result);
@@ -86,8 +83,7 @@ public class InitializersTest {
      */
     @Test
     public void testGet_Object_Class() {
-        System.out.println("get");
-        try ( EagerSession session = EagerSession.create()) {
+        try (EagerSession session = EagerSession.create()) {
             Ops tf = Ops.create(session);
             Initializer result = Initializers.get(tf, Ones.class);
             assertNotNull(result);
@@ -100,8 +96,7 @@ public class InitializersTest {
      */
     @Test
     public void testGet_Object_Initializer() {
-        System.out.println("get");
-        try ( EagerSession session = EagerSession.create()) {
+        try (EagerSession session = EagerSession.create()) {
             Ops tf = Ops.create(session);
             Function<Ops, Initializer> initializerFunction = ops -> new Zeros(ops);
             Initializer result = Initializers.get(tf, initializerFunction);
@@ -115,8 +110,7 @@ public class InitializersTest {
      */
     @Test
     public void testGet_Object_Unknown() {
-        System.out.println("get");
-        try ( EagerSession session = EagerSession.create()) {
+        try (EagerSession session = EagerSession.create()) {
             Ops tf = Ops.create(session);
             String initializerFunction = "bogus";
             Initializer result = Initializers.get(tf, initializerFunction);
@@ -129,8 +123,7 @@ public class InitializersTest {
      */
     @Test
     public void testGet_Object_Map() {
-        System.out.println("get");
-        try ( EagerSession session = EagerSession.create()) {
+        try (EagerSession session = EagerSession.create()) {
             Ops tf = Ops.create(session);
             Map<String, Function<Ops, Initializer>> custom_functions = new HashMap<String, Function<Ops, Initializer>>();
             custom_functions.put("foobar", ops -> new TruncatedNormal(ops));

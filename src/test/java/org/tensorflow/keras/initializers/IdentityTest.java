@@ -35,42 +35,42 @@ import org.tensorflow.types.TInt32;
  * @author Jim Clarke
  */
 public class IdentityTest {
+
     private static final double EPSILON = 1e-7;
     private static final float EPSILON_F = 1e-7f;
-    
+
     public IdentityTest() {
     }
-    
+
     @BeforeAll
     public static void setUpClass() {
     }
-    
+
     @AfterAll
     public static void tearDownClass() {
     }
-    
+
     @BeforeEach
     public void setUp() {
     }
-    
+
     @AfterEach
     public void tearDown() {
     }
-    
-    
-     /**
+
+    /**
      * Test of call method, of class Orthogonal.
      */
     @Test
     public void testCall_Int() {
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(10,10);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(10, 10);
             Identity<TInt32> instance = new Identity<>(tf, 2.);
-            Operand<TInt32> operand = instance.call(tf.constant(shape.asArray()),  TInt32.DTYPE);
+            Operand<TInt32> operand = instance.call(tf.constant(shape.asArray()), TInt32.DTYPE);
             fail("Should have thrown assertion on Integer type");
-        }catch (AssertionError expected) {
-            
+        } catch (AssertionError expected) {
+
         }
     }
 
@@ -79,9 +79,8 @@ public class IdentityTest {
      */
     @Test
     public void testCallFloat() {
-        System.out.println("call float");
-        float[] actual = new float[10*10];
-        float[]expected = {
+        float[] actual = new float[10 * 10];
+        float[] expected = {
             2.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F,
             0.0F, 2.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F,
             0.0F, 0.0F, 2.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F,
@@ -94,24 +93,23 @@ public class IdentityTest {
             0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 2.0F
         };
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(10,10);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(10, 10);
             Identity<TFloat32> instance = new Identity<>(tf, 2.);
-            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()),  TFloat32.DTYPE);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()), TFloat32.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat32(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
-    
+
     /**
      * Test of call method, of class Constant.
      */
     @Test
     public void testCallDouble() {
-        System.out.println("call double");
-        double[] actual = new double[10*10];
-        double[]expected = {
+        double[] actual = new double[10 * 10];
+        double[] expected = {
             2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
             0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
             0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -124,14 +122,14 @@ public class IdentityTest {
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0
         };
         try (EagerSession session = EagerSession.create()) {
-           Ops tf = Ops.create(session);
-            Shape shape = Shape.of(10,10);
+            Ops tf = Ops.create(session);
+            Shape shape = Shape.of(10, 10);
             Identity<TFloat64> instance = new Identity<>(tf, 2.);
-            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()),  TFloat64.DTYPE);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()), TFloat64.DTYPE);
             operand.asTensor().data().read(DataBuffers.of(actual));
             PrintUtils.printTFloat64(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON);
         }
     }
-    
+
 }
