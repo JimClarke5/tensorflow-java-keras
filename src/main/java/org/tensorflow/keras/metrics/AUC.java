@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
-import org.tensorflow.keras.backend.ControlDependencies;
+import org.tensorflow.keras.backend.tf.ControlDependencies;
 import org.tensorflow.keras.backend.K;
 import org.tensorflow.keras.initializers.Zeros;
 import org.tensorflow.keras.metrics.impl.ConfusionMatrixEnum;

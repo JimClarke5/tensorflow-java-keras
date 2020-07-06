@@ -16,8 +16,8 @@ package org.tensorflow.keras.metrics;
 
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
-import org.tensorflow.keras.backend.ConfusionMatrix;
-import org.tensorflow.keras.backend.Tuple;
+import org.tensorflow.keras.backend.tf.ConfusionMatrix;
+import org.tensorflow.keras.backend.tf.Tuple;
 import org.tensorflow.keras.losses.impl.LossesImpl;
 import org.tensorflow.keras.utils.ShapeUtils;
 import org.tensorflow.op.Op;

@@ -16,7 +16,7 @@ package org.tensorflow.keras.metrics;
 
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
-import org.tensorflow.keras.backend.ConfusionMatrix;
+import org.tensorflow.keras.backend.tf.ConfusionMatrix;
 import org.tensorflow.keras.backend.K;
 import org.tensorflow.keras.initializers.Zeros;
 import org.tensorflow.keras.metrics.impl.MetricsImpl;

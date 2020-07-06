@@ -22,7 +22,7 @@ import org.tensorflow.DataType;
 import org.tensorflow.Graph;
 import org.tensorflow.Operand;
 import org.tensorflow.Session;
-import org.tensorflow.keras.backend.ControlDependencies;
+import org.tensorflow.keras.backend.tf.ControlDependencies;
 import org.tensorflow.keras.initializers.Initializer;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
