@@ -77,20 +77,6 @@ public class AUCTest {
             assertEquals(AUCCurve.ROC, instance.getCurve());
             assertEquals(AUCSummationMethod.MAJORING, instance.getSummationMethod());
             
-            Operand<TFloat32> yPred = tf.constant(new float[][][] {{{0f, 0.5f}, {0.3f, 0.9f}}});
-            Shape<TInt32> predShape = tf.shape(yPred);
-            Operand<TInt32> numLabels =
-                tf.reduceProd(tf.shape.takeLast(predShape, // take all but the first dimension
-                       tf.math.sub(  // by subtract 1 from the total dimensions represent by  predShape
-                         tf.shape.numDimensions(predShape),
-                         tf.constant(1))),
-                       tf.constant(0));
-
-             Operand<TInt32> numPred = tf.shape.size(predShape, tf.constant(0));
-             Operand<TFloat32> predFlat = tf.shape.flatten(yPred);
-
-             Shape<TInt64> predShape64 = tf.shape(yPred, TInt64.DTYPE);
-             Operand<TInt64> predSqueezed = tf.shape.squeeze(predShape64, TInt64.DTYPE);
         }
     }
 
