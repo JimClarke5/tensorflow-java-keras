@@ -14,14 +14,12 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.backend;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
+import org.tensorflow.keras.backend.tf.NN;
 import org.tensorflow.keras.losses.impl.LossesImpl;
-import org.tensorflow.keras.utils.ShapeUtils;
-import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.ReduceSum;
 import org.tensorflow.op.core.Variable;
@@ -459,105 +457,9 @@ public class K {
         return cost;
     }
 
-    /**
-     * Broadcast `weights` to the same shape as `values`.
-     *
-     * @param tf the TensorFlow ops
-     * @param weights `Tensor` whose shape is broadcastable to `values`
-     * @param values Tensor` of any shape
-     * @param <T> the type of Operand
-     * @return `weights` broadcast to `values` shape
-     */
-    public static <T extends TType> Operand<T> broadcastWeights(Ops tf, Operand<T> weights, Operand<T> values) {
-        tf = tf.withSubScope("broadcast_weights");
-        values = tf.dtypes.cast(values, weights.asOutput().dataType());
 
-        Shape weightsShape = weights.asOutput().shape();
-        Shape valuesShape = values.asOutput().shape();
-
-        if (!weightsShape.hasUnknownDimension()
-                && !valuesShape.hasUnknownDimension()
-                && ShapeUtils.isCompatibleWith(weightsShape, valuesShape)) {
-            return weights;
-        }
-
-        weights = tf.math.mul(weights, tf.onesLike(values));
-        Op dependencies = assertBroadcastable(tf, weights, values);
-        return ControlDependencies.addControlDependencies(tf, weights, "assertBroadcastable", dependencies);
-    }
-
-    private static final String ASSERT_BROADCASTABLE_ERROR_PREFIX = "";
-
-    public static <T extends TType> Op assertBroadcastable(Ops tf, Operand<T> weights, Operand<T> values) {
-
-        // try static checks
-        Shape wShape = weights.asOutput().shape();
-        Shape vShape = values.asOutput().shape();
-
-        if (wShape.numDimensions() == 0) { // Scalar
-            return ControlDependencies.addControlDependencies(tf, "static_scalar_check_success");
-        }
-
-        if (wShape.numDimensions() != vShape.numDimensions()) {
-            throw new IllegalArgumentException(
-                    String.format("%s values.rank=%d. weights.rank=%d. values.shape=%s. weights.shape=%s.",
-                            ASSERT_BROADCASTABLE_ERROR_PREFIX,
-                            vShape.numDimensions(), wShape.numDimensions(),
-                            vShape.toString(), wShape.toString())
-            );
-        }
-
-        if (!wShape.hasUnknownDimension() && !vShape.hasUnknownDimension()) {
-            for (int i = 0; i < wShape.numDimensions(); i++) {
-                if (wShape.size(i) != vShape.size(i)) {
-                    throw new IllegalArgumentException(
-                            String.format("%s Mismatch at dim %d. values.shape=%s weights.shape=%s.",
-                                    ASSERT_BROADCASTABLE_ERROR_PREFIX,
-                                    i, vShape.toString(), wShape.toString())
-                    );
-                }
-            }
-            return ControlDependencies.addControlDependencies(tf, "static_dims_check_success");
-        }
-
-        // dynamic checks
-        org.tensorflow.op.core.Shape weightsShape = tf.shape(weights);
-        org.tensorflow.op.core.Shape valuesShape = tf.shape(values);
-        Operand weightsRank = tf.rank(weights);
-        Operand valuesRank = tf.rank(values);
-
-        Operand isScalar = tf.math.equal(weightsRank, tf.constant(0));
-
-        List<Operand<?>> data = new ArrayList<>();
-        data.add(tf.constant(ASSERT_BROADCASTABLE_ERROR_PREFIX));
-        data.add(tf.constant(String.format("assertBroadcastable: weights.shape= (%s)", wShape.toString())));
-        data.add(tf.constant(String.format("assertBroadcastable: values.shape= (%s)", vShape.toString())));
-        data.add(tf.constant(String.format("isScalar: %b", vShape.numDimensions() == 0)));
-
-        Operand isValidShape = tf.select(
-                isScalar, isScalar,
-                hasValidNonscalarShape(tf, weightsRank, weightsShape, valuesRank, valuesShape)
-        );
-
-        return tf.assertThat(isValidShape, data);
-
-    }
-
-    private static <T extends TType> Operand<TBool> hasValidNonscalarShape(
-            Ops tf, Operand<T> weightsRank, Operand<T> weightsShape, Operand valuesRank, Operand valuesShape) {
-        tf = tf.withSubScope("has_valid_nonscalar_shape");
-        Operand isSameRank = tf.math.equal(valuesRank, weightsRank);
-        return tf.select(isSameRank,
-                hasValidDims(tf, weightsShape, valuesShape),
-                isSameRank
-        );
-    }
-
-    private static <T extends TType> Operand<TBool> hasValidDims(Ops tf, Operand<T> weightsShape, Operand valuesShape) {
-        tf = tf.withSubScope("has_invalid_dims");
-        Operand diff = tf.reduceSum(tf.math.sub(weightsShape, valuesShape), tf.constant(0));
-        return tf.math.equal(tf.constant(0), diff);
-    }
+    
+    
 
     /// END nn OPS
     //TODO for debug, remove when done
