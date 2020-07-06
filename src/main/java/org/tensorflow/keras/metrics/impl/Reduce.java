@@ -27,6 +27,7 @@ import org.tensorflow.keras.backend.K;
 import org.tensorflow.keras.backend.Tuple;
 import org.tensorflow.keras.initializers.Zeros;
 import org.tensorflow.keras.losses.impl.LossesImpl;
+import static org.tensorflow.keras.metrics.AUC.TRUE_POSITIVES;
 import org.tensorflow.keras.metrics.Metric;
 import org.tensorflow.keras.metrics.Reduction;
 import org.tensorflow.op.Op;
@@ -81,28 +82,20 @@ public class Reduce extends Metric {
     }
 
     private void init() {
-        List<Op> initList = new ArrayList<>();
+        Zeros zeros = new Zeros(tf);
+        
         total = getVariable(TOTAL);
         if (total == null) {
-            total = tf.withName(TOTAL).variable(Shape.scalar(), TFloat32.DTYPE);
-            Zeros zeros = new Zeros(tf);
-            Assign totalInit = tf.assign(total, zeros.call(tf.constant(Shape.scalar()), TFloat32.DTYPE));
+            total = tf.withName(TOTAL).variable(
+                    zeros.call(tf.constant(Shape.scalar()), TFloat32.DTYPE));
             this.addVariable(TOTAL, total, zeros);
-            initList.add(totalInit);
         }
         if (reduction == Reduction.SUM_OVER_BATCH_SIZE || reduction == Reduction.WEIGHTED_MEAN) {
             count = getVariable(COUNT);
             if (count == null) {
-                count = tf.withName(COUNT).variable(Shape.scalar(), TFloat32.DTYPE);
-                Zeros zeros = new Zeros(tf);
-                Assign totalInit = tf.assign(count, zeros.call(tf.constant(Shape.scalar()), TFloat32.DTYPE));
-                this.addVariable(COUNT, count, zeros);
-                initList.add(totalInit);
-            }
-        }
-        if (tf.scope().env().isGraph()) {
-            try (Session session = new Session(graph)) {
-                initList.forEach(op -> session.run(op));
+                 count = tf.withName(COUNT).variable(
+                    zeros.call(tf.constant(Shape.scalar()), TFloat32.DTYPE));
+                    this.addVariable(COUNT, count, zeros);
             }
         }
     }
