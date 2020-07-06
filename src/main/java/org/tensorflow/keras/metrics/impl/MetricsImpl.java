@@ -30,7 +30,7 @@ import org.tensorflow.Operand;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 import org.tensorflow.keras.backend.K;
-import org.tensorflow.keras.backend.Tuple;
+import org.tensorflow.keras.backend.tf.Tuple;
 import org.tensorflow.keras.losses.impl.LossesImpl;
 import static org.tensorflow.keras.losses.impl.LossesImpl.l2Normalize;
 import org.tensorflow.keras.utils.ShapeUtils;

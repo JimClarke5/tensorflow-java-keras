@@ -22,17 +22,16 @@ import org.tensorflow.Graph;
 import org.tensorflow.Operand;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
-import org.tensorflow.keras.backend.ControlDependencies;
+import org.tensorflow.keras.backend.tf.ControlDependencies;
 import org.tensorflow.keras.backend.K;
-import org.tensorflow.keras.backend.Tuple;
+import org.tensorflow.keras.backend.tf.Tuple;
+import org.tensorflow.keras.backend.tf.WeightsBroadcastOps;
 import org.tensorflow.keras.initializers.Zeros;
 import org.tensorflow.keras.losses.impl.LossesImpl;
-import static org.tensorflow.keras.metrics.AUC.TRUE_POSITIVES;
 import org.tensorflow.keras.metrics.Metric;
 import org.tensorflow.keras.metrics.Reduction;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
-import org.tensorflow.op.core.Assign;
 import org.tensorflow.op.core.Variable;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat32;
@@ -114,7 +113,7 @@ public class Reduce extends Metric {
             Tuple tuple = LossesImpl.squeezeOrExpandDimensions(tf, null, values, sampleWeight);
             values = tuple.getPredictions();
             sampleWeight = tuple.getSampleWeights();
-            sampleWeight = K.broadcastWeights(tf, sampleWeight, values);
+            sampleWeight = WeightsBroadcastOps.broadcastWeights(tf, sampleWeight, values);
             values = tf.math.mul(values, sampleWeight);
 
         }
