@@ -77,7 +77,6 @@ public abstract class Metric implements MetricInterface {
      * create a metric
      *
      * @param tf the TensorFlow Ops when using Eager Mode
-     * @param reduction the reduction
      * @param dType the DataType to use
      */
     protected Metric(Ops tf, DataType dType) {
