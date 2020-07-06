@@ -14,12 +14,22 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.backend;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import org.tensorflow.DataType;
 import org.tensorflow.Operand;
+import org.tensorflow.keras.losses.impl.LossesImpl;
+import org.tensorflow.keras.metrics.impl.MetricsImpl;
 import org.tensorflow.keras.utils.ShapeUtils;
+import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Squeeze;
+import org.tensorflow.op.core.Stack;
 import org.tensorflow.tools.Shape;
+import org.tensorflow.types.TInt64;
+import org.tensorflow.types.family.TNumber;
+import org.tensorflow.types.family.TType;
 
 /**
  *
@@ -79,8 +89,7 @@ public class ConfusionMatrix {
              * now do the tf.squeeze predictions = tf.select(
              * tf.math.equal(tf.constant(expectedRankDiff+1),rankDiff ),
              * tf.squeeze(predictions, Squeeze.axis(Arrays.asList(-1L))),
-             * predictions );
-            * *
+             * predictions ); *
              */
             predictions = tf.squeeze(predictions, Squeeze.axis(Arrays.asList(-1L)));
         }
@@ -89,12 +98,94 @@ public class ConfusionMatrix {
              * TODO, if we ever get a select that does lazy evaluation labels =
              * tf.select( tf.math.equal(tf.constant(expectedRankDiff+1),rankDiff
              * ), tf.squeeze(labels, Squeeze.axis(Arrays.asList(-1L))),
-             * predictions );
-            * *
+             * predictions ); *
              */
             labels = tf.squeeze(labels, Squeeze.axis(Arrays.asList(-1L)));
         }
         return new Tuple(labels, predictions);
+    }
+
+    /**
+     * Computes the confusion matrix from predictions and labels.
+     *
+     * @param tf the TensorFlow Ops
+     * @param labels 1-D `Tensor` of real labels for the classification task.
+     * @param predictions 1-D `Tensor` of predictions for a given
+     * classification.
+     * @param numClasses The possible number of labels the classification task
+     * can have.
+     * @param weights optional weights to be applied to the confusion matris
+     * @param dtype Data type of the confusion matrix.
+     * @param <T> the type of Operands
+     * @param <U> the data type.
+     * @return A `Tensor` of type `dtype` with shape `[n, n]` representing the
+     * confusion matrix, where `n` is the number of possible labels in the
+     * classification task.
+     *
+     * @throws IllegalArgumentException If both predictions and labels are not
+     * 1-D vectors and have mismatched shapes, or if `weights` is not `None` and
+     * its shape doesn't match `predictions`.
+     */
+    public static <T extends TType, U extends TNumber> Operand confusionMatrix(
+           Ops tf,  Operand<T> labels, Operand<T> predictions, Operand<TInt64> numClasses, 
+            Operand<T> weights, DataType<U> dtype) {
+        tf = tf.withSubScope("confusion_matrix");
+        Tuple ops = LossesImpl.squeezeOrExpandDimensions(tf, predictions, labels, null);
+        predictions = tf.dtypes.cast(ops.getPredictions(), TInt64.DTYPE);
+        labels =  tf.dtypes.cast(ops.getLabels(), TInt64.DTYPE);
+        
+        List<Op> labelControls = new ArrayList<>();
+        List<Op> predictionControls = new ArrayList<>();
+        
+        labelControls.add(tf.assertThat(
+                        tf.reduceAny(tf.math.greaterEqual((Operand<TInt64>)labels, tf.constant(0L)),K.allAxis(tf, labels)), 
+                        Arrays.asList(tf.constant("`labels` contains negative values"))));
+        
+        predictionControls.add(tf.assertThat(
+                        tf.reduceAny(tf.math.greaterEqual((Operand<TInt64>)predictions, tf.constant(0L)),K.allAxis(tf, labels)), 
+                        Arrays.asList(tf.constant("`predictions` contains negative values"))));
+        if(numClasses == null) {
+            numClasses = tf.math.maximum(
+                    tf.reduceMax(predictions, K.allAxis(tf, predictions)), 
+                    tf.reduceMax(labels, K.allAxis(tf, labels)));
+        }else {
+            labelControls.add(tf.assertThat(
+                        tf.reduceAny(tf.math.less((Operand<TInt64>)labels, numClasses),K.allAxis(tf, labels)),
+                        Arrays.asList(tf.constant("``labels` out of bound"))));
+            predictionControls.add(tf.assertThat(
+                        tf.reduceAny(tf.math.less((Operand<TInt64>)predictions, numClasses), K.allAxis(tf, predictions)), 
+                        Arrays.asList(tf.constant("``predictions` out of bound"))));
+        }
+        
+        if(weights != null) {
+            if(!ShapeUtils.isCompatibleWith(
+                    predictions.asOutput().shape(), 
+                    weights.asOutput().shape())) {
+                throw new IllegalArgumentException(
+                        String.format("Prediction shape %s is not compatible with weights shaope %s",
+                                predictions.asOutput().shape(),
+                                weights.asOutput().shape()));
+            }
+        }
+        labels = ControlDependencies.addControlDependencies(tf,labels, "confusionMatrix", labelControls);
+        predictions = ControlDependencies.addControlDependencies(tf,predictions, "confusionMatrix", labelControls);
+        
+        Operand<TInt64> shape = tf.stack(Arrays.asList(numClasses, numClasses));
+        Operand indices = tf.stack(
+                Arrays.asList(labels, predictions), Stack.axis(1L) );
+        Operand values = weights == null ? 
+                tf.dtypes.cast(tf.onesLike(predictions), dtype):  
+                tf.dtypes.cast(weights, dtype);
+        SparseTensor cmSparse = new SparseTensor(indices, values, shape);
+        Operand zeroMatrix = tf.zeros(shape, dtype);
+        
+        MetricsImpl.debug("indices", indices);
+        MetricsImpl.debug("values", values);
+        MetricsImpl.debug("shape", shape);
+        MetricsImpl.debug("zeroMatrix", zeroMatrix);
+        
+        return tf.sparse.sparseTensorDenseAdd(cmSparse.getIndices(), cmSparse.getValues(),
+                cmSparse.getDenseShape(), zeroMatrix);
     }
 
 }
