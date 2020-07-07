@@ -14,6 +14,8 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.metrics.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +27,7 @@ import org.tensorflow.keras.metrics.Metric;
 import org.tensorflow.keras.metrics.Metrics;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
+import org.tensorflow.op.core.Assign;
 import org.tensorflow.op.core.Variable;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat32;
@@ -37,6 +40,8 @@ public abstract class ConfusionMatrixConditionCount extends Metric {
     public static final String ACCUMULATOR = "accumulator";
     
     private Variable<TFloat32> accumulator;
+    private Assign initializer;
+    private boolean initialized = false;
     
     private ConfusionMatrixEnum confusion_matrix_cond;
     private final float[] thresholds;
@@ -65,19 +70,23 @@ public abstract class ConfusionMatrixConditionCount extends Metric {
             Zeros zeros = new Zeros(tf);
             accumulator = tf.withName(ACCUMULATOR).variable(
                     zeros.call(tf.constant(variableShape), TFloat32.DTYPE));
+            initializer = tf.assign(accumulator, zeros.call(tf.constant(variableShape), TFloat32.DTYPE));
             this.addVariable(ACCUMULATOR, accumulator, zeros);
         }
         
         confusionMatrix.put(confusion_matrix_cond, accumulator);
     }
+    
 
     @Override
     public Op updateState(Operand... operands) {
         Operand yTrue = operands[0];
         Operand yPred = operands[1];
         Operand sampleWeights = operands.length > 2 ? operands[2] : null;
-        List<Op> updateOperations = Metrics.update_confusion_matrix_variables(tf,
+        List<Op> updateOperations = new ArrayList<>();
+        updateOperations.addAll(Metrics.update_confusion_matrix_variables(tf,
                 confusionMatrix,
+                Collections.EMPTY_MAP,
                 yTrue,
                 yPred, 
                 this.thresholds,
@@ -85,7 +94,7 @@ public abstract class ConfusionMatrixConditionCount extends Metric {
                 null,
                 sampleWeights, 
                 false, 
-                null);
+                null));
         
         return ControlDependencies.addControlDependencies(tf,
                 "updateState", updateOperations);

@@ -30,6 +30,7 @@ import org.tensorflow.Operand;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 import org.tensorflow.keras.backend.K;
+import org.tensorflow.keras.backend.tf.ControlDependencies;
 import org.tensorflow.keras.backend.tf.Tuple;
 import org.tensorflow.keras.losses.impl.LossesImpl;
 import static org.tensorflow.keras.losses.impl.LossesImpl.l2Normalize;
@@ -38,6 +39,7 @@ import org.tensorflow.keras.utils.SymbolicShape;
 import org.tensorflow.keras.utils.SymbolicShapeDict;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
+import org.tensorflow.op.core.Assign;
 import org.tensorflow.op.core.OneHot;
 import org.tensorflow.op.core.ReduceSum;
 import org.tensorflow.op.core.Variable;
@@ -202,18 +204,15 @@ public class MetricsImpl {
     }
 
     public static List<Op> update_confusion_matrix_variables(Ops tf,
-            Map<ConfusionMatrixEnum, Variable> variablesToUpdate, Operand yTrue, Operand yPred,
+            Map<ConfusionMatrixEnum, Variable> variablesToUpdate, 
+            Map<ConfusionMatrixEnum, Assign> varInitalizers,
+            Operand yTrue, Operand yPred,
             float[] thresholds, Integer topK, Integer classId, Operand sampleWeight, boolean multiLabel, Operand labelWeights) {
         assert !(multiLabel && labelWeights != null) :
                 "`labelWeights` for multilabel data should be handled outside of `update_confusion_matrix_variables` when `multiLabel` is True.'";
         if (variablesToUpdate == null || variablesToUpdate.isEmpty()) {
             return Collections.EMPTY_LIST;
         }
-        //TODO remove debug("Before/TRUE_POSITIVES", variablesToUpdate.get(ConfusionMatrixEnum.TRUE_POSITIVES));
-        //TODO remove debug("Before/FALSE_POSITIVES", variablesToUpdate.get(ConfusionMatrixEnum.FALSE_POSITIVES));
-        //TODO remove 
-        debug("Before/TRUE_NEGATIVES", variablesToUpdate.get(ConfusionMatrixEnum.TRUE_NEGATIVES));
-        //TODO remove debug("Before/FALSE_NEGATIVES", variablesToUpdate.get(ConfusionMatrixEnum.FALSE_NEGATIVES));
         yTrue = tf.dtypes.cast(yTrue, TFloat32.DTYPE);
         yPred = tf.dtypes.cast(yPred, TFloat32.DTYPE);
         Operand<TInt32> numThresholds;
@@ -303,23 +302,14 @@ public class MetricsImpl {
             dataTiles = Arrays.asList(numThresholds, tf.constant(1));
         }
 
-        //TODO remove threshPretileShape.forEach(op -> print(tf, "threshPretileShape", op));
-        //TODO remove threshTiles.forEach(op -> print(tf, "threshTiles", op));
-        //TODO remove dataTiles.forEach(op -> print(tf, "dataTiles", op));
-        //TODO remove debug("constant thresholds", tf.constant(thresholds));
         Operand thresholdsReshaped = tf.reshape(tf.constant(thresholds), tf.stack(threshPretileShape));
         Operand threshTilesShape = tf.stack(threshTiles);
-        //TODO remove debug("threshTilesShape",threshTilesShape);
         Operand threshTiled = tf.tile(thresholdsReshaped, threshTilesShape);
-        //TODO remove debug("update_confusion_matrix_variables/threshTiled",threshTiled);
         Operand predsTiled = tf.tile(predictionsExtraDim, tf.stack(dataTiles));
-        //TODO remove debug("update_confusion_matrix_variables/predsTiled",predsTiled);
         //Compare predictions and threshold.
         Operand predIsPos = tf.math.greater(predsTiled, threshTiled);
         // Tile labels by number of thresholds
         Operand labelIsPos = tf.tile(labelsExtraDim, tf.stack(dataTiles));
-        //TODO remove debug("update_confusion_matrix_variables/predIsPos",predIsPos);
-        //TODO remove debug("update_confusion_matrix_variables/labelIsPos",labelIsPos);
 
         Operand weightsTiled;
         if (sampleWeight != null) {
@@ -377,7 +367,7 @@ public class MetricsImpl {
                 Operand[] op = loopVars.get(c);
                 // op[0] = label, op[1] == prediction
                 updateOps.add(
-                        weightedAssignAdd(tf, op[0], op[1], weightsTiledF, variablesToUpdate.get(c)));
+                        weightedAssignAdd(tf, op[0], op[1], weightsTiledF, variablesToUpdate.get(c), varInitalizers.get(c)));
             }
         });
 
@@ -385,20 +375,23 @@ public class MetricsImpl {
 
     }
 
-    private static Operand weightedAssignAdd(Ops tf, Operand label, Operand pred, Operand weights, Variable variable) {
+    private static Operand weightedAssignAdd(Ops tf, Operand label, 
+            Operand pred, Operand weights, Variable variable, Assign initializer) {
 
-        //TODO remove debug("weightedAssignAdd/label", label);
-        //TODO remove debug("weightedAssignAdd/pred", pred);
         Operand label_and_pred = tf.dtypes.cast(tf.math.logicalAnd(label, pred), TFloat32.DTYPE);
 
         if (weights != null) {
-            //TODO remove  debug("weightedAssignAdd/weights", weights);
             label_and_pred = tf.math.mul(label_and_pred, weights);
         }
-        //TODO remove  debug("weightedAssignAdd/label_and_pred", label_and_pred);
         Operand valueSum = tf.reduceSum(label_and_pred, tf.constant(1));
-        //TODO remove  debug("weightedAssignAdd/valueSum", valueSum);
-        return tf.assignAdd(variable, valueSum);
+        Operand assignAdd;
+        if(initializer != null) {
+            assignAdd = ControlDependencies.addControlDependencies(tf, 
+                tfc -> tfc.assignAdd(variable, valueSum), "weightedAssignAdd", initializer);
+        }else {
+            assignAdd = tf.assignAdd(variable, valueSum);
+        }
+        return assignAdd;
     }
 
     private static Operand filterTopK(Ops tf, Operand x, int topK) {
