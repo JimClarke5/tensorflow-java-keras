@@ -17,6 +17,7 @@ package org.tensorflow.keras.backend.tf;
 import org.tensorflow.keras.backend.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import org.tensorflow.Operand;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
@@ -32,31 +33,32 @@ public class ControlDependencies {
      * Create a control dependency for the operand;
      *
      * @param tf the TensorFlow Ops
-     * @param operand the operand.
+     * @param createOperand a function that creates an operand with the control dependency context
      * @param name the scope name to use
      * @param dependencies a list of control ops.
      * @param <T> the type of Operand
      * @return the Operand with control dependency scope
      */
     public static <T extends TType> Operand<T> addControlDependencies(
-            Ops tf, Operand<T> operand, String name, Op... dependencies) {
-        return addControlDependencies(tf, operand, name, Arrays.asList(dependencies));
+            Ops tf, Function<Ops, Operand<T>> createOperand, String name, Op... dependencies) {
+        return addControlDependencies(tf, createOperand, name, Arrays.asList(dependencies));
     }
 
     /**
-     * Create a control dependency for the operand;
+     * Create a control dependency for an operand.
      *
      * @param tf the TensorFlow Ops
-     * @param operand the operand.
+     * @param createOperand function that creates an operand with the control dependency context
      * @param name the scope name to use
      * @param dependencies a list of control ops.
      * @param <T> the type of Operand
      * @return the Operand with control dependency scope
      */
+    
     public static <T extends TType> Operand<T> addControlDependencies(
-            Ops tf, Operand<T> operand, String name, List<Op> dependencies) {
+            Ops tf, Function<Ops, Operand<T>> createOperand, String name, List<Op> dependencies) {
         tf = tf.withSubScope(name).withControlDependencies(dependencies);
-        return tf.identity(operand);
+        return createOperand.apply(tf);
     }
 
     /**

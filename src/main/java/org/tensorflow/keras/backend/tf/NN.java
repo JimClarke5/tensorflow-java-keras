@@ -116,13 +116,18 @@ public class NN {
         precise_logits = tf.reshape(precise_logits, tf.constant(new long[]{-1, numClassses}));
         labels = tf.reshape(labels, tf.constant(-1));
         SparseSoftmaxCrossEntropyWithLogits smax = tf.nn.sparseSoftmaxCrossEntropyWithLogits(precise_logits, labels);
-        Operand cost = smax.loss();
-        cost = tf.reshape(cost, labels_shape);
-        if (logits.asOutput().dataType() == TFloat16.DTYPE) {
-            cost = tf.dtypes.cast(cost, TFloat16.DTYPE);
-        }
+        
 
-        return ControlDependencies.addControlDependencies(tf, cost,
+        return ControlDependencies.addControlDependencies(tf, 
+                tfc -> {
+                    Operand cost = smax.loss();
+        
+                    cost = tfc.reshape(cost, labels_shape);
+                    if (logits.asOutput().dataType() == TFloat16.DTYPE) {
+                        cost = tfc.dtypes.cast(cost, TFloat16.DTYPE);
+                    }
+                    return cost;
+                },
                 "sparse_softmax_cross_entropy_with_logits", shapeChecks);
     }
 

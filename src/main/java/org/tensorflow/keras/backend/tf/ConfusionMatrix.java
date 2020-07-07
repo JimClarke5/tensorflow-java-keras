@@ -168,8 +168,14 @@ public class ConfusionMatrix {
                                 weights.asOutput().shape()));
             }
         }
-        labels = ControlDependencies.addControlDependencies(tf,labels, "confusionMatrix", labelControls);
-        predictions = ControlDependencies.addControlDependencies(tf,predictions, "confusionMatrix", labelControls);
+        final Operand labelsFinal = labels;
+        labels = ControlDependencies.addControlDependencies(tf,
+                tfc -> tfc.identity(labelsFinal), 
+                "confusionMatrix", labelControls);
+        final Operand predictionsFinal = predictions;
+        predictions = ControlDependencies.addControlDependencies(tf,
+                tfc -> tfc.identity(predictionsFinal),
+                "confusionMatrix", labelControls);
         
         Operand<TInt64> shape = tf.stack(Arrays.asList(numClasses, numClasses));
         Operand indices = tf.stack(

@@ -140,7 +140,11 @@ public class WeightsBroadcastOps {
 
         weights = tf.math.mul(weights, tf.onesLike(values));
         Op dependencies = assertBroadcastable(tf, weights, values);
-        return ControlDependencies.addControlDependencies(tf, weights, "assertBroadcastable", dependencies);
+        final Operand weightsFinal = weights;
+        return ControlDependencies.addControlDependencies(tf, 
+                tfc -> tfc.identity(weightsFinal), 
+                "assertBroadcastable", 
+                dependencies);
     }
 
     

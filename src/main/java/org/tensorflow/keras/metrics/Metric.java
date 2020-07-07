@@ -115,7 +115,7 @@ public abstract class Metric implements MetricInterface {
      */
     public Operand call(Operand... args) {
         Op op = updateState(args);
-        return ControlDependencies.addControlDependencies(tf, result(), name + "/call", op);
+        return ControlDependencies.addControlDependencies(tf, (tf) -> result(), name + "/call", op);
     }
 
     /**

@@ -307,12 +307,15 @@ public class AUC extends Metric {
         
         if (labelWeights != null) {
             // assert that labelWeights are non-negative.
-            labelWeights = tf.dtypes.cast(getLabelWeights(), dType);
+            
+            this.labelWeights  = tf.dtypes.cast(getLabelWeights(), dType);
             Op checks = tf.assertThat(tf.math.greaterEqual(labelWeights, K.zero(tf, getLabelWeights().asOutput().dataType())),
                     Arrays.asList(tf.constant("All values of `label_weights` must be non-negative."))
             );
-            this.labelWeights = ControlDependencies.addControlDependencies(tf, labelWeights, 
-                "updateState", checks);
+            
+            this.labelWeights = ControlDependencies.addControlDependencies(tf, 
+                    tfc -> tfc.dtypes.cast(getLabelWeights(), dType),
+                    "updateState", checks);
         }
 
         if (this.multiLabel) {
@@ -328,9 +331,9 @@ public class AUC extends Metric {
      * @param shape the prediction shape if called from updateState, otherwise
      * null
      */
-    private void build(Shape shape) {
+    private List<Op>  build(Shape shape) {
         Shape variableShape;
-
+        List<Op> initializers = new ArrayList<>();
         if (this.isMultiLabel()) {
             assert shape != null : "For multiLabel, a shape must be provided";
             assert shape.numDimensions() == 2 :
@@ -347,31 +350,36 @@ public class AUC extends Metric {
         
         truePositives = getVariable(TRUE_POSITIVES);
         if (truePositives == null) {
-            
             truePositives = tf.withName(TRUE_POSITIVES).variable(
                     zeros.call(tf.constant(variableShape), TFloat32.DTYPE));
             this.addVariable(TRUE_POSITIVES, truePositives, zeros);
+            initializers.add(tf.assign(truePositives, zeros.call(tf.constant(variableShape), TFloat32.DTYPE)));
+            
         }
         falsePositives = getVariable(FALSE_POSITIVES);
         if (falsePositives == null) {
             falsePositives = tf.withName(FALSE_POSITIVES).variable(
                     zeros.call(tf.constant(variableShape), TFloat32.DTYPE));
             this.addVariable(FALSE_POSITIVES, falsePositives, zeros);
+            initializers.add(tf.assign(falsePositives, zeros.call(tf.constant(variableShape), TFloat32.DTYPE)));
         }
         trueNegatives = getVariable(TRUE_NEGATIVES);
         if (trueNegatives == null) {
             trueNegatives = tf.withName(TRUE_NEGATIVES).variable(
                     zeros.call(tf.constant(variableShape), TFloat32.DTYPE));
             this.addVariable(TRUE_NEGATIVES, trueNegatives, zeros);
+            initializers.add(tf.assign(trueNegatives, zeros.call(tf.constant(variableShape), TFloat32.DTYPE)));
         }
         falseNegatives = getVariable(FALSE_NEGATIVES);
         if (falseNegatives == null) {
             falseNegatives = tf.withName(FALSE_NEGATIVES).variable(
                     zeros.call(tf.constant(variableShape), TFloat32.DTYPE));
             this.addVariable(FALSE_NEGATIVES, falseNegatives, zeros);
+            initializers.add(tf.assign(falseNegatives, zeros.call(tf.constant(variableShape), TFloat32.DTYPE)));
         }
 
         this.initialized = true;
+        return initializers;
     }
     
     
@@ -389,7 +397,7 @@ public class AUC extends Metric {
         List<Op> updateOperations = new ArrayList<>();
 
         if (!this.initialized) {
-            build(yPred.asOutput().shape());
+            updateOperations.addAll(build(yPred.asOutput().shape()));
         }
         if (this.isMultiLabel() || this.getLabelWeights() != null) {
             List<SymbolicShape> symbols = new ArrayList<>();
