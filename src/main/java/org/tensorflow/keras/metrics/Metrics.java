@@ -30,6 +30,7 @@ import org.tensorflow.keras.metrics.impl.MetricsImpl;
 import org.tensorflow.keras.utils.SymbolicShape;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
+import org.tensorflow.op.core.Assign;
 import org.tensorflow.op.core.Variable;
 
 /**
@@ -564,10 +565,12 @@ public class Metrics {
     }
 
     public static List<Op> update_confusion_matrix_variables(Ops tf, Map<ConfusionMatrixEnum, Variable> confusionMatrix,
+            Map<ConfusionMatrixEnum, Assign> initializers,
             Operand yTrue, Operand yPred, float[] thresholds,
             Integer topK, Integer classId, Operand sampleWeights,
             boolean multiLabel, Operand labelWeights) {
-        return MetricsImpl.update_confusion_matrix_variables(tf, confusionMatrix, yTrue, yPred,
+        return MetricsImpl.update_confusion_matrix_variables(tf, confusionMatrix, 
+                initializers, yTrue, yPred,
                 thresholds, topK, classId, sampleWeights, multiLabel, labelWeights);
     }
 

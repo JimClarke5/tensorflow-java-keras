@@ -75,7 +75,7 @@ public class KLDivergenceTest {
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             KLDivergence instance = new KLDivergence(tf);
-            session.run(instance.resetStates());
+            session.run(instance.initializeVars());
             float[] true_np = { 
                 .5f, .8f, .12f, 
                 .7f, .43f, .8f

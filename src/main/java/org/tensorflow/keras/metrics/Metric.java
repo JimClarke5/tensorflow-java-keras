@@ -44,9 +44,9 @@ public abstract class Metric implements MetricInterface {
 
     // for graph mode
     protected static Graph graph;
+    
+    protected static Map<String, Map<String, MetricVariable>> variables = new HashMap<>();
 
-    // variable last only as long as the graph
-    protected static Map<String, MetricVariable> variables = new HashMap<>();
 
     protected boolean stateful = true;
     protected boolean built = true;
@@ -125,7 +125,11 @@ public abstract class Metric implements MetricInterface {
      * @param variable the variable
      */
     protected void addVariable(String name, Variable variable) {
-        this.variables.put(name, new MetricVariable(tf, name, variable));
+        Map<String, MetricVariable> thisMap = this.variables.get(this.name);
+        if(thisMap == null) {
+            thisMap = new HashMap<>();
+        }
+        thisMap.put(name, new MetricVariable(tf, name, variable));
     }
 
     /**
@@ -136,13 +140,36 @@ public abstract class Metric implements MetricInterface {
      * @param initializer the variable initializer
      */
     protected void addVariable(String name, Variable variable, Initializer initializer) {
-        this.variables.put(name, new MetricVariable(tf, name, variable, initializer));
+        Map<String, MetricVariable> thisMap = variables.get(this.name);
+        if(thisMap == null) {
+            thisMap = new HashMap<>();
+            variables.put(this.name, thisMap);
+        }
+        thisMap.put(name, new MetricVariable(tf, name, variable, initializer));
     }
 
     public List<Variable> getVariables() {
+        Map<String, MetricVariable> thisMap = this.variables.get(this.name);
         List<Variable> result = new ArrayList<>();
-        this.variables.values().forEach(mv -> result.add(mv.getVariable()));
+        if(thisMap != null) {
+            thisMap.values().forEach(mv -> result.add(mv.getVariable()));
+        }
         return result;
+    }
+    public Op initializeVars() {
+        return initializeVars("initializeVars");
+    }
+    
+    public Op initializeVars(String subScopeName) {
+        Map<String, MetricVariable> thisMap = this.variables.get(this.name);
+        
+        List<Op> updateOperations = new ArrayList<>();
+        if(thisMap != null) {
+            thisMap.values().forEach((v) -> 
+                updateOperations.add(tf.assign(v.getVariable(), v.initialize()))
+            );
+        }
+        return ControlDependencies.addControlDependencies(tf, subScopeName, updateOperations);
     }
 
     /**
@@ -150,16 +177,14 @@ public abstract class Metric implements MetricInterface {
      */
     @Override
     public Op resetStates() {
-        List<Op> updateOperations = new ArrayList<>();
-        variables.values().forEach((v) -> {
-            updateOperations.add(tf.assign(v.getVariable(), v.initialize()));
-        });
-        return ControlDependencies.addControlDependencies(tf, "resetStates", updateOperations);
+         return initializeVars("resetStates");
 
     }
 
     public Variable getVariable(String name) {
-        MetricVariable mv = variables.get(name);
+        Map<String, MetricVariable> thisMap = this.variables.get(this.name);
+        if(thisMap == null) return null;
+        MetricVariable mv = thisMap.get(name);
         return mv != null ? mv.getVariable() : null;
     }
 

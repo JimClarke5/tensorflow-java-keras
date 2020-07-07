@@ -187,7 +187,7 @@ public class AUCTest {
             session.run(update);
             Operand result = instance.result();
             
-            session.evaluate(1, instance.result());
+            session.evaluate(1, result);
         }
     }
     @Test

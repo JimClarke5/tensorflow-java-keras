@@ -86,6 +86,7 @@ public class FalsePositivesTest {
             Operand yTrue = tf.constant(this. trueArray);
             FalsePositives instance = new FalsePositives(tf);
             session.run(tf.init());
+            session.run(instance.initializeVars());
             Op update = instance.updateState(yTrue, yPred );
             session.run(update);
             Operand result = instance.result();
@@ -104,6 +105,7 @@ public class FalsePositivesTest {
             Operand sampleWeight = tf.constant(this.sampleWeightArray);
             FalsePositives instance = new FalsePositives(tf);
             session.run(tf.init());
+            session.run(instance.initializeVars());
             Op update = instance.updateState(yTrue, yPred, sampleWeight);
             session.run(update);
             Operand result = instance.result();
@@ -131,6 +133,7 @@ public class FalsePositivesTest {
             });
             FalsePositives instance = new FalsePositives(tf, new float[]{0.15f, 0.5f, 0.85f});
             session.run(tf.init());
+            session.run(instance.initializeVars());
             Op update = instance.updateState(yTrue, yPred);
             session.run(update);
             Operand result = instance.result();
@@ -165,6 +168,7 @@ public class FalsePositivesTest {
             });
             FalsePositives instance = new FalsePositives(tf, new float[]{0.15f, 0.5f, 0.85f});
             session.run(tf.init());
+            session.run(instance.initializeVars());
             Op update = instance.updateState(yTrue, yPred, sampleWeight);
             session.run(update);
             Operand result = instance.result();

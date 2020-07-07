@@ -130,30 +130,20 @@ public class MeanIoU extends Metric {
      */
     @Override
     public Operand result() {
-        MetricsImpl.debug("CM", this.getTotalCM());
         Operand sumOverRow = tf.dtypes.cast(tf.reduceSum(this.getTotalCM(), tf.constant(0)), this.dType);
-        MetricsImpl.debug("sumOverRow", sumOverRow);
         Operand sumOverCol = tf.dtypes.cast(tf.reduceSum(this.getTotalCM(), tf.constant(1)), this.dType);
-        MetricsImpl.debug("sumOverCol", sumOverCol);
         Operand truePositives = tf.dtypes.cast(tf.linalg.matrixDiagPart(getTotalCM(), tf.constant(0), 
                         tf.dtypes.cast(tf.constant(0), this.getTotalCM().asOutput().dataType())),
                 this.dType);
-        MetricsImpl.debug("truePositives",truePositives);
         Operand denomintor = tf.math.add(sumOverRow, tf.math.sub(sumOverCol, truePositives));
-        MetricsImpl.debug("denomintor", denomintor);
         Operand numValidEntries = tf.reduceSum(
            tf.dtypes.cast(    
                 tf.math.notEqual(denomintor, tf.dtypes.cast(tf.constant(0), denomintor.asOutput().dataType())),
                 this.dType), K.allAxis(tf, denomintor));
-        MetricsImpl.debug("numValidEntries", numValidEntries);
         Operand iou = tf.math.divNoNan(truePositives, denomintor);
-        MetricsImpl.debug("iou", iou);
         
         Operand iouSum = tf.reduceSum(iou, K.allAxis(tf, iou));
-        MetricsImpl.debug("iouSum", iouSum);
-        Operand result=  tf.math.divNoNan(iouSum, numValidEntries);
-        MetricsImpl.debug("result", result);
-        return result;
+        return tf.math.divNoNan(iouSum, numValidEntries);
     }
 
     /**

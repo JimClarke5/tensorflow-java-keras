@@ -16,6 +16,7 @@ package org.tensorflow.keras.metrics;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import org.tensorflow.keras.metrics.impl.ConfusionMatrixEnum;
 import org.tensorflow.keras.utils.SymbolicShape;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
+import org.tensorflow.op.core.Assign;
 import org.tensorflow.op.core.Variable;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat32;
@@ -320,8 +322,8 @@ public class AUC extends Metric {
 
         if (this.multiLabel) {
             this.numLabels = null;
-        } else {
-            build(null);
+        //} else {
+        //    build(null);
         }
     }
 
@@ -331,9 +333,10 @@ public class AUC extends Metric {
      * @param shape the prediction shape if called from updateState, otherwise
      * null
      */
-    private List<Op>  build(Shape shape) {
+    private Map<ConfusionMatrixEnum, Assign>  build(Shape shape) {
         Shape variableShape;
-        List<Op> initializers = new ArrayList<>();
+        if(initialized) return Collections.EMPTY_MAP;
+        Map<ConfusionMatrixEnum, Assign> initializers = new HashMap<>();
         if (this.isMultiLabel()) {
             assert shape != null : "For multiLabel, a shape must be provided";
             assert shape.numDimensions() == 2 :
@@ -353,7 +356,8 @@ public class AUC extends Metric {
             truePositives = tf.withName(TRUE_POSITIVES).variable(
                     zeros.call(tf.constant(variableShape), TFloat32.DTYPE));
             this.addVariable(TRUE_POSITIVES, truePositives, zeros);
-            initializers.add(tf.assign(truePositives, zeros.call(tf.constant(variableShape), TFloat32.DTYPE)));
+            initializers.put(ConfusionMatrixEnum.TRUE_POSITIVES,
+                tf.assign(truePositives, zeros.call(tf.constant(variableShape), TFloat32.DTYPE)));
             
         }
         falsePositives = getVariable(FALSE_POSITIVES);
@@ -361,21 +365,24 @@ public class AUC extends Metric {
             falsePositives = tf.withName(FALSE_POSITIVES).variable(
                     zeros.call(tf.constant(variableShape), TFloat32.DTYPE));
             this.addVariable(FALSE_POSITIVES, falsePositives, zeros);
-            initializers.add(tf.assign(falsePositives, zeros.call(tf.constant(variableShape), TFloat32.DTYPE)));
+            initializers.put(ConfusionMatrixEnum.FALSE_POSITIVES,
+                tf.assign(falsePositives, zeros.call(tf.constant(variableShape), TFloat32.DTYPE)));
         }
         trueNegatives = getVariable(TRUE_NEGATIVES);
         if (trueNegatives == null) {
             trueNegatives = tf.withName(TRUE_NEGATIVES).variable(
                     zeros.call(tf.constant(variableShape), TFloat32.DTYPE));
             this.addVariable(TRUE_NEGATIVES, trueNegatives, zeros);
-            initializers.add(tf.assign(trueNegatives, zeros.call(tf.constant(variableShape), TFloat32.DTYPE)));
+            initializers.put(ConfusionMatrixEnum.TRUE_NEGATIVES,
+                tf.assign(trueNegatives, zeros.call(tf.constant(variableShape), TFloat32.DTYPE)));
         }
         falseNegatives = getVariable(FALSE_NEGATIVES);
         if (falseNegatives == null) {
             falseNegatives = tf.withName(FALSE_NEGATIVES).variable(
                     zeros.call(tf.constant(variableShape), TFloat32.DTYPE));
             this.addVariable(FALSE_NEGATIVES, falseNegatives, zeros);
-            initializers.add(tf.assign(falseNegatives, zeros.call(tf.constant(variableShape), TFloat32.DTYPE)));
+            initializers.put(ConfusionMatrixEnum.FALSE_NEGATIVES,
+                tf.assign(falseNegatives, zeros.call(tf.constant(variableShape), TFloat32.DTYPE)));
         }
 
         this.initialized = true;
@@ -395,9 +402,9 @@ public class AUC extends Metric {
         Operand yPred = args[1];
         Operand sampleWeights = args.length > 2 ? args[2] : null;
         List<Op> updateOperations = new ArrayList<>();
-
+        Map<ConfusionMatrixEnum, Assign> varInitalizers = Collections.EMPTY_MAP;
         if (!this.initialized) {
-            updateOperations.addAll(build(yPred.asOutput().shape()));
+            varInitalizers = build(yPred.asOutput().shape());
         }
         if (this.isMultiLabel() || this.getLabelWeights() != null) {
             List<SymbolicShape> symbols = new ArrayList<>();
@@ -426,6 +433,7 @@ public class AUC extends Metric {
 
         updateOperations.addAll(Metrics.update_confusion_matrix_variables(tf,
                 confusionMatrix,
+                varInitalizers,
                 yTrue,
                 yPred, this.thresholds,
                 null,
@@ -621,15 +629,15 @@ public class AUC extends Metric {
         List<Op> updateOperations = new ArrayList<>();
         if (isMultiLabel()) {
             final Shape varShape = Shape.of(this.getNumThresholds(), this.getNumLabels());
-            variables.values().forEach((v)
-                    -> updateOperations.add(tf.assign(v.getVariable(),
-                            tf.zeros(tf.constant(varShape), v.getVariable().asOutput().dataType())))
+            this.getVariables().forEach((v)
+                    -> updateOperations.add(tf.assign(v,
+                            tf.zeros(tf.constant(varShape), v.asOutput().dataType())))
             );
         } else {
             final Shape varShape = Shape.of(this.getNumThresholds());
-            variables.values().forEach((v)
-                    -> updateOperations.add(tf.assign(v.getVariable(),
-                            tf.zeros(tf.constant(varShape), v.getVariable().asOutput().dataType())))
+            this.getVariables().forEach((v)
+                    -> updateOperations.add(tf.assign(v,
+                            tf.zeros(tf.constant(varShape), v.asOutput().dataType())))
             );
         }
         return ControlDependencies.addControlDependencies(tf, "resetStates", updateOperations);
