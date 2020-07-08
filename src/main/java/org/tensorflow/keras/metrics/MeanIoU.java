@@ -19,7 +19,6 @@ import org.tensorflow.Operand;
 import org.tensorflow.keras.backend.tf.ConfusionMatrix;
 import org.tensorflow.keras.backend.K;
 import org.tensorflow.keras.initializers.Zeros;
-import org.tensorflow.keras.metrics.impl.MetricsImpl;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Variable;
