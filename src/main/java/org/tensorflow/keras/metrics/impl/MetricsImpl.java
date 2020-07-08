@@ -215,8 +215,16 @@ public class MetricsImpl {
         if (variablesToUpdate == null || variablesToUpdate.isEmpty()) {
             return Collections.EMPTY_LIST;
         }
+        //TODO remove 
+        debug("beforeCast/yTrue", yTrue);
+        //TODO remove 
+        debug("beforeCast/yPred", yPred);
         yTrue = tf.dtypes.cast(yTrue, TFloat32.DTYPE);
         yPred = tf.dtypes.cast(yPred, TFloat32.DTYPE);
+        //TODO remove 
+        debug("afterCast/yTrue", yTrue);
+        //TODO remove 
+        debug("afterCast/yPred", yPred);
         Operand<TInt32> numThresholds;
         Operand<TBool> oneThresh;
         if (multiLabel) {
@@ -242,26 +250,33 @@ public class MetricsImpl {
         ));
         Tuple result = LossesImpl.squeezeOrExpandDimensions(tf, yTrue, yPred, sampleWeight);
         yPred = result.getPredictions();
+        //TODO remove 
+        debug("yPred2", yPred);
         yTrue = result.getLabels();
         sampleWeight = result.getSampleWeights();
-        //TODO remove debug("sampleWeight", sampleWeight);
+        //TODO remove 
+        debug("sampleWeight", sampleWeight);
         assert ShapeUtils.isCompatibleWith(yPred.asOutput().shape(), yTrue.asOutput().shape()) :
                 String.format("Shapes %s and %s are incompatible)", yPred.asOutput().shape().toString(),
                         yTrue.asOutput().shape().toString());
 
         if (topK != null) {
             yPred = filterTopK(tf, yPred, topK);
-            MetricsImpl.debug("topK/yPred", yPred);
+            //TODO remove MetricsImpl.debug("topK/yPred", yPred);
         }
 
         if (classId != null) {
             yTrue = tf.squeeze(tf.gather(yTrue, tf.constant(new int[]{classId}), tf.constant(1)));
             yPred = tf.squeeze(tf.gather(yPred, tf.constant(new int[]{classId}), tf.constant(1)));
+            yTrue = tf.expandDims(yTrue, tf.constant(0));
+            yPred = tf.expandDims(yPred, tf.constant(0));
+            //TODO remove debug("classId/yTrue", yTrue);
+            //TODO remove debug("classId/yPred", yPred);
         }
         org.tensorflow.op.core.Shape<TInt32> predShape = tf.shape(yPred);
         Operand<TInt32> numPredictions = tf.reshape(tf.shape.size(yPred, tf.constant(0)), tf.constant(Shape.scalar()));
         //TODO remove 
-        debug("predShape", predShape);
+        //TODO remove debug("predShape", predShape);
         Operand<TInt32> numLabels = tf.select(
                 tf.math.equal(tf.shape.numDimensions(predShape), tf.constant(1)),
                 tf.constant(1),
@@ -270,9 +285,9 @@ public class MetricsImpl {
                                 tf.constant(1))),
                         tf.constant(0))
         );
-        //TODO remove 
+        //TODO remove  
         debug("numPredictions",numPredictions);
-        //TODO remove 
+        //TODO remove  
         debug("numLabels", numLabels);
         Operand<TInt32> threshLabelTile = tf.select(
                 oneThresh, numLabels, tf.constant(1));
@@ -284,15 +299,16 @@ public class MetricsImpl {
             labelsExtraDim = tf.expandDims(
                     tf.dtypes.cast(yTrue, TBool.DTYPE), tf.constant(0));
         } else {
-            //TODO remove 
+            //TODO remove  
             debug("yPred", yPred);
             predictionsExtraDim = tf.reshape(yPred, tf.constant(Shape.of(1, -1)));
-            //TODO remove 
+            //TODO remove  
             debug("predictionsExtraDim", predictionsExtraDim);
             labelsExtraDim = tf.reshape(
                     tf.dtypes.cast(yTrue, TBool.DTYPE),
                     tf.constant(Shape.of(1, -1)));
         }
+        //TODO remove 
         debug("labelsExtraDim", labelsExtraDim);
         
         List<Operand<TInt32>> threshPretileShape;
@@ -315,15 +331,19 @@ public class MetricsImpl {
         Operand thresholdsReshaped = tf.reshape(tf.constant(thresholds), tf.stack(threshPretileShape));
         Operand threshTilesShape = tf.stack(threshTiles);
         Operand threshTiled = tf.tile(thresholdsReshaped, threshTilesShape);
+        //TODO remove 
         debug("threshTiled", threshTiled);
         Operand predsTiled = tf.tile(predictionsExtraDim, tf.stack(dataTiles));
+        //TODO remove 
         debug("predsTiled", predsTiled);
         
         //Compare predictions and threshold.
         Operand predIsPos = tf.math.greater(predsTiled, threshTiled);
         // Tile labels by number of thresholds
         Operand labelIsPos = tf.tile(labelsExtraDim, tf.stack(dataTiles));
+        //TODO remove 
         debug("predIsPos", predIsPos);
+        //TODO remove 
         debug("labelIsPos", labelIsPos);
         Operand weightsTiled;
         if (sampleWeight != null) {
@@ -346,12 +366,10 @@ public class MetricsImpl {
                     tf.stack(dataTiles));
             if (weightsTiled == null) {
                 weightsTiled = labelWeightsTiled;
-                //TODO remove 
-                debug("weightsTiled_labelWeightsTiled", weightsTiled);
+                //TODO remove  debug("weightsTiled_labelWeightsTiled", weightsTiled);
             } else {
                 weightsTiled = tf.math.mul(weightsTiled, labelWeightsTiled);
-                //TODO remove 
-                debug("weightsTiled_mul", weightsTiled);
+                //TODO remove  debug("weightsTiled_mul", weightsTiled);
             }
         }
 
@@ -366,12 +384,14 @@ public class MetricsImpl {
         Operand labelIsNeg;
         if (update_fn != null || update_tn != null) {
             predIsNeg = tf.math.logicalNot(predIsPos);
+            //TODO remove 
             debug("predIsNeg", predIsNeg);
             loopVars.put(ConfusionMatrixEnum.FALSE_NEGATIVES, new Operand[]{labelIsPos, predIsNeg});
         }
 
         if (update_fp != null || update_tn != null) {
             labelIsNeg = tf.math.logicalNot(labelIsPos);
+            //TODO remove 
             debug("labelIsNeg", labelIsNeg);
             loopVars.put(ConfusionMatrixEnum.FALSE_POSITIVES, new Operand[]{labelIsNeg, predIsPos});
             if (update_tn != null) {
@@ -396,15 +416,19 @@ public class MetricsImpl {
     private static Operand weightedAssignAdd(Ops tf, ConfusionMatrixEnum c, Operand label, 
             Operand pred, Operand weights, Variable variable, Assign initializer) {
 
+        //TODO remove 
         MetricsImpl.debug("weightedAssignAdd/" + c + "/label", label);
+        //TODO remove 
         MetricsImpl.debug("weightedAssignAdd/" + c + "/pred", pred);
         Operand label_and_pred = tf.dtypes.cast(tf.math.logicalAnd(label, pred), TFloat32.DTYPE);
 
         if (weights != null) {
             label_and_pred = tf.math.mul(label_and_pred, weights);
         }
-         MetricsImpl.debug("weightedAssignAdd/" + c + "/label_and_pred", label_and_pred);
+        //TODO remove  
+        MetricsImpl.debug("weightedAssignAdd/" + c + "/label_and_pred", label_and_pred);
         Operand valueSum = tf.reduceSum(label_and_pred, tf.constant(1));
+        //TODO remove 
         MetricsImpl.debug("weightedAssignAdd/" + c + "/valueSum", valueSum);
         Operand assignAdd;
         if(initializer != null) {
@@ -994,11 +1018,17 @@ public class MetricsImpl {
     }
 
     private static <T extends TType> void print(Session session, String prefix, Operand<T> input) {
-        boolean isScalar = input.asOutput().shape().size() == 1;
+        
         PrintWriter writer = new PrintWriter(System.out);
-        writer.printf("\n===================  %s  ===================\n", prefix);
+        if(input == null) {
+             writer.printf("\n===================  %s  (null) ===================\n", prefix);
+            return;
+        }
+        
+        writer.printf("\n===================  %s (%s)  ===================\n", prefix, input.asOutput().toString());
         writer.printf("%s shape = (%s)\n", prefix, input.asOutput().shape().toString());
         DataType dtype = input.asOutput().dataType();
+        boolean isScalar = input.asOutput().shape().size() == 1;
         if (dtype == TFloat32.DTYPE) {
             AtomicInteger index = new AtomicInteger();
             try (Tensor<TFloat32> result = session.runner().fetch(input).run().get(0).expect(TFloat32.DTYPE)) {
