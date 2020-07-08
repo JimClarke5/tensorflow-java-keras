@@ -16,7 +16,6 @@ package org.tensorflow.keras.metrics;
 
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
-import org.tensorflow.keras.metrics.impl.MetricsImpl;
 import org.tensorflow.keras.metrics.impl.SensitivitySpecificityBase;
 import org.tensorflow.op.Ops;
 import org.tensorflow.types.TInt32;
