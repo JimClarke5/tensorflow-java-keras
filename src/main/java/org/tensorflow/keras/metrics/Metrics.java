@@ -38,6 +38,8 @@ import org.tensorflow.op.core.Variable;
  * @author Jim Clarke
  */
 public class Metrics {
+    
+    public static final float NEG_INF = MetricsImpl.NEG_INF;
 
     static Map<String, Function<Ops, Metric>> map = new HashMap<String, Function<Ops, Metric>>() {
         {

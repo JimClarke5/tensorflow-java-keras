@@ -59,6 +59,8 @@ import org.tensorflow.types.family.TType;
  * @author Jim Clarke
  */
 public class MetricsImpl {
+    
+    public static final float NEG_INF = -1e10f;
 
     public static Operand accuracy(Ops tf, Operand yTrue, Operand yPred) {
         Shape yTrueShape = yTrue.asOutput().shape();
@@ -249,6 +251,7 @@ public class MetricsImpl {
 
         if (topK != null) {
             yPred = filterTopK(tf, yPred, topK);
+            MetricsImpl.debug("topK/yPred", yPred);
         }
 
         if (classId != null) {
@@ -257,7 +260,8 @@ public class MetricsImpl {
         }
         org.tensorflow.op.core.Shape<TInt32> predShape = tf.shape(yPred);
         Operand<TInt32> numPredictions = tf.reshape(tf.shape.size(yPred, tf.constant(0)), tf.constant(Shape.scalar()));
-        //TODO remove debug("predShape", predShape);
+        //TODO remove 
+        debug("predShape", predShape);
         Operand<TInt32> numLabels = tf.select(
                 tf.math.equal(tf.shape.numDimensions(predShape), tf.constant(1)),
                 tf.constant(1),
@@ -266,8 +270,10 @@ public class MetricsImpl {
                                 tf.constant(1))),
                         tf.constant(0))
         );
-        //TODO remove debug("numPredictions",numPredictions);
-        //TODO remove debug("numLabels", numLabels);
+        //TODO remove 
+        debug("numPredictions",numPredictions);
+        //TODO remove 
+        debug("numLabels", numLabels);
         Operand<TInt32> threshLabelTile = tf.select(
                 oneThresh, numLabels, tf.constant(1));
 
@@ -278,13 +284,17 @@ public class MetricsImpl {
             labelsExtraDim = tf.expandDims(
                     tf.dtypes.cast(yTrue, TBool.DTYPE), tf.constant(0));
         } else {
-            //TODO remove debug("yPred", yPred);
+            //TODO remove 
+            debug("yPred", yPred);
             predictionsExtraDim = tf.reshape(yPred, tf.constant(Shape.of(1, -1)));
-            //TODO remove debug("predictionsExtraDim", predictionsExtraDim);
+            //TODO remove 
+            debug("predictionsExtraDim", predictionsExtraDim);
             labelsExtraDim = tf.reshape(
                     tf.dtypes.cast(yTrue, TBool.DTYPE),
                     tf.constant(Shape.of(1, -1)));
         }
+        debug("labelsExtraDim", labelsExtraDim);
+        
         List<Operand<TInt32>> threshPretileShape;
         List<Operand<TInt32>> threshTiles;
         List<Operand<TInt32>> dataTiles;
@@ -305,12 +315,16 @@ public class MetricsImpl {
         Operand thresholdsReshaped = tf.reshape(tf.constant(thresholds), tf.stack(threshPretileShape));
         Operand threshTilesShape = tf.stack(threshTiles);
         Operand threshTiled = tf.tile(thresholdsReshaped, threshTilesShape);
+        debug("threshTiled", threshTiled);
         Operand predsTiled = tf.tile(predictionsExtraDim, tf.stack(dataTiles));
+        debug("predsTiled", predsTiled);
+        
         //Compare predictions and threshold.
         Operand predIsPos = tf.math.greater(predsTiled, threshTiled);
         // Tile labels by number of thresholds
         Operand labelIsPos = tf.tile(labelsExtraDim, tf.stack(dataTiles));
-
+        debug("predIsPos", predIsPos);
+        debug("labelIsPos", labelIsPos);
         Operand weightsTiled;
         if (sampleWeight != null) {
             sampleWeight = tf.broadcastTo(tf.dtypes.cast(sampleWeight, TFloat32.DTYPE), tf.shape(yPred));
@@ -332,10 +346,12 @@ public class MetricsImpl {
                     tf.stack(dataTiles));
             if (weightsTiled == null) {
                 weightsTiled = labelWeightsTiled;
-                //TODO remove debug("weightsTiled_labelWeightsTiled", weightsTiled);
+                //TODO remove 
+                debug("weightsTiled_labelWeightsTiled", weightsTiled);
             } else {
                 weightsTiled = tf.math.mul(weightsTiled, labelWeightsTiled);
-                //TODO remove debug("weightsTiled_mul", weightsTiled);
+                //TODO remove 
+                debug("weightsTiled_mul", weightsTiled);
             }
         }
 
@@ -350,11 +366,13 @@ public class MetricsImpl {
         Operand labelIsNeg;
         if (update_fn != null || update_tn != null) {
             predIsNeg = tf.math.logicalNot(predIsPos);
+            debug("predIsNeg", predIsNeg);
             loopVars.put(ConfusionMatrixEnum.FALSE_NEGATIVES, new Operand[]{labelIsPos, predIsNeg});
         }
 
         if (update_fp != null || update_tn != null) {
             labelIsNeg = tf.math.logicalNot(labelIsPos);
+            debug("labelIsNeg", labelIsNeg);
             loopVars.put(ConfusionMatrixEnum.FALSE_POSITIVES, new Operand[]{labelIsNeg, predIsPos});
             if (update_tn != null) {
                 loopVars.put(ConfusionMatrixEnum.TRUE_NEGATIVES, new Operand[]{labelIsNeg, predIsNeg});
@@ -367,7 +385,7 @@ public class MetricsImpl {
                 Operand[] op = loopVars.get(c);
                 // op[0] = label, op[1] == prediction
                 updateOps.add(
-                        weightedAssignAdd(tf, op[0], op[1], weightsTiledF, variablesToUpdate.get(c), varInitalizers.get(c)));
+                        weightedAssignAdd(tf, c, op[0], op[1], weightsTiledF, variablesToUpdate.get(c), varInitalizers.get(c)));
             }
         });
 
@@ -375,15 +393,19 @@ public class MetricsImpl {
 
     }
 
-    private static Operand weightedAssignAdd(Ops tf, Operand label, 
+    private static Operand weightedAssignAdd(Ops tf, ConfusionMatrixEnum c, Operand label, 
             Operand pred, Operand weights, Variable variable, Assign initializer) {
 
+        MetricsImpl.debug("weightedAssignAdd/" + c + "/label", label);
+        MetricsImpl.debug("weightedAssignAdd/" + c + "/pred", pred);
         Operand label_and_pred = tf.dtypes.cast(tf.math.logicalAnd(label, pred), TFloat32.DTYPE);
 
         if (weights != null) {
             label_and_pred = tf.math.mul(label_and_pred, weights);
         }
+         MetricsImpl.debug("weightedAssignAdd/" + c + "/label_and_pred", label_and_pred);
         Operand valueSum = tf.reduceSum(label_and_pred, tf.constant(1));
+        MetricsImpl.debug("weightedAssignAdd/" + c + "/valueSum", valueSum);
         Operand assignAdd;
         if(initializer != null) {
             assignAdd = ControlDependencies.addControlDependencies(tf, 
@@ -394,24 +416,30 @@ public class MetricsImpl {
         return assignAdd;
     }
 
+    
     private static Operand filterTopK(Ops tf, Operand x, int topK) {
         DataType dtype = x.asOutput().dataType();
+        Shape xShape = x.asOutput().shape();
         TopK top = tf.nn.topK(x, tf.constant(topK), TopK.sorted(false));
-
-        Operand topKMask = tf.reduceSum(
-                tf.oneHot(
+        OneHot oneHot = tf.oneHot(
                         top.indices(),
-                        tf.shape.size(x, tf.constant(-1)),
+                        tf.dtypes.cast(tf.constant(xShape.size(xShape.numDimensions()-1)), TInt32.DTYPE),
                         tf.constant(1),
                         tf.constant(0),
-                        OneHot.axis(-1L)),
+                        OneHot.axis(-1L));
+        Operand topKMask = tf.reduceSum(
+                oneHot,
                 tf.constant(-2));
+        
+        
         //x * top_k_mask + NEG_INF * (1 - top_k_mask)
-        return tf.math.add(
-                tf.math.mul(x, topKMask),
-                tf.math.mul(
-                        tf.constant(Float.NEGATIVE_INFINITY),
-                        tf.math.sub(tf.dtypes.cast(tf.constant(1), dtype), topKMask)));
+        topKMask = tf.dtypes.cast(topKMask, dtype);
+        Operand add1 = tf.math.mul(x, topKMask);
+        Operand add2 = tf.math.mul(
+                        tf.constant(NEG_INF),
+                        tf.math.sub(tf.dtypes.cast(tf.constant(1), dtype), topKMask));
+        Operand result =  tf.math.add(add1, add2);
+        return result;
     }
 
     /**
