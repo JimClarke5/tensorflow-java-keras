@@ -23,51 +23,108 @@ import org.tensorflow.types.family.TNumber;
 
 /**
  * Calculates how often predictions equals labels.
+ *
  * @author Jim Clarke
  */
-public class BinaryAccuracy extends MeanMetricWrapper  implements LossFunction {
-    
+public class BinaryAccuracy extends MeanMetricWrapper implements LossFunction {
+
     public static final String DEFAULT_NAME = "binary_accuracy";
     private static final float DEFAULT_THRESHOLD = 0.5f;
-    
+
     private final float threshold;
-    
+
+    /**
+     * Creates a BinaryAccuracy metric
+     *
+     * @param tf the TensorFlow Ops
+     */
     public BinaryAccuracy(Ops tf) {
         this(tf, DEFAULT_NAME, DEFAULT_THRESHOLD, null);
     }
+
+    /**
+     * Creates a BinaryAccuracy metric
+     *
+     * @param tf the TensorFlow Ops
+     * @param threshold
+     */
     public BinaryAccuracy(Ops tf, float threshold) {
         this(tf, DEFAULT_NAME, threshold, null);
     }
-    
+
+    /**
+     * Creates a BinaryAccuracy metric
+     *
+     * @param tf the TensorFlow Ops
+     * @param dType the data type of the metric result
+     */
     public BinaryAccuracy(Ops tf, DataType dType) {
         this(tf, DEFAULT_NAME, DEFAULT_THRESHOLD, dType);
     }
+
+    /**
+     * Creates a BinaryAccuracy metric
+     *
+     * @param tf the TensorFlow Ops
+     * @param name the name of the metric instance
+     */
     public BinaryAccuracy(Ops tf, String name) {
         this(tf, name, DEFAULT_THRESHOLD, null);
     }
-    
+
+    /**
+     * Creates a BinaryAccuracy metric
+     *
+     * @param tf the TensorFlow Ops
+     * @param name the name of the metric instance
+     * @param threshold
+     */
     public BinaryAccuracy(Ops tf, String name, float threshold) {
         this(tf, name, threshold, null);
     }
-    
+
+    /**
+     * Creates a BinaryAccuracy metric
+     *
+     * @param tf the TensorFlow Ops
+     * @param name the name of the metric instance
+     * @param dType the data type of the metric result
+     */
     public BinaryAccuracy(Ops tf, String name, DataType dType) {
         this(tf, name, DEFAULT_THRESHOLD, dType);
     }
-    
+
+    /**
+     * Creates a BinaryAccuracy metric
+     *
+     * @param tf the TensorFlow Ops
+     * @param name the name of the metric instance
+     * @param threshold a the threshold for deciding whether prediction values
+     * are 1 or 0
+     * @param dType the data type of the metric result
+     */
     public BinaryAccuracy(Ops tf, String name, float threshold, DataType dType) {
         super(tf, name, dType);
         this.threshold = threshold;
         super.setLoss(this);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T extends TNumber> Operand<T> call(Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
         Operand losses = Metrics.binary_accuracy(tf, labels, predictions, threshold);
         return losses;
     }
-    
+
+    /**
+     * Gets the threshold value
+     *
+     * @return the threshold value
+     */
     public double getThreshold() {
         return this.threshold;
     }
-    
+
 }
