@@ -37,7 +37,8 @@ import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat32;
 
 /**
- *
+ * Encapsulates metrics that perform a reduce operation on the values.
+ * 
  * @author Jim Clarke
  */
 public class Reduce extends Metric {
@@ -50,36 +51,84 @@ public class Reduce extends Metric {
 
     protected final Reduction reduction;
 
+    /**
+     * Creates a `Reduce` instance.
+     * 
+     * @param tf The TensorFlow Ops
+     */
     public Reduce(Ops tf) {
         this(tf, null, Reduction.SUM, null);
     }
 
+    /**
+     * Creates a `Reduce` instance.
+     * 
+     * @param tf The TensorFlow Ops
+     * @param reduction the type of reduction
+     */
     public Reduce(Ops tf, Reduction reduction) {
         this(tf, null, reduction, null);
     }
 
+    /**
+     * Creates a `Reduce` instance.
+     * 
+     * @param tf The TensorFlow Ops
+     * @param reduction the type of reduction
+     * @param dType the  data type of the metric result
+     */
     public Reduce(Ops tf, Reduction reduction, DataType dType) {
         this(tf, null, reduction, dType);
     }
 
+    /**
+     * Creates a `Reduce` instance.
+     * 
+     * @param tf The TensorFlow Ops
+     * @param dType the  data type of the metric result
+     */
     public Reduce(Ops tf, DataType dType) {
         this(tf, null, Reduction.SUM, dType);
     }
 
+    /**
+     * Creates a `Reduce` instance.
+     * 
+     * @param tf The TensorFlow Ops
+     * @param name the name of the metric instance.
+     */
     public Reduce(Ops tf, String name) {
         this(tf, name, Reduction.SUM, null);
     }
 
+    /**
+     * Creates a `Reduce` instance.
+     * 
+     * @param tf The TensorFlow Ops
+     * @param name the name of the metric instance.
+     * @param reduction the type of reduction 
+     */
     public Reduce(Ops tf, String name, Reduction reduction) {
         this(tf, name, reduction, null);
     }
 
+    /**
+     * Creates a `Reduce` instance.
+     * 
+     * @param tf The TensorFlow Ops
+     * @param name the name of the metric instance.
+     * @param reduction the type of reduction
+     * @param dType the  data type of the metric result
+     */
     public Reduce(Ops tf, String name, Reduction reduction, DataType dType) {
         super(tf, name, dType);
         this.reduction = reduction;
         init();
     }
 
+    /**
+     * initialize the Variables
+     */
     private void init() {
         Zeros zeros = new Zeros(tf);
         
@@ -99,6 +148,9 @@ public class Reduce extends Metric {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Op updateState(Operand... operands) {
         Operand values = operands[0];
@@ -148,6 +200,9 @@ public class Reduce extends Metric {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Operand result() {
         switch (this.reduction) {

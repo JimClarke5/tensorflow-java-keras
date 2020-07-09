@@ -19,23 +19,49 @@ import org.tensorflow.keras.metrics.impl.Reduce;
 import org.tensorflow.op.Ops;
 
 /**
- *
+ * Computes the (weighted) mean of the given values.
+ * 
  * @author Jim Clarke
  */
 public class Mean extends Reduce {
 
+    /**
+     * Creates a Mean metric.
+     * 
+     * @param tf  The TensorFlow Ops
+     */
     public Mean(Ops tf) {
         this(tf, null, null);
     }
 
+    /**
+     * Creates a Mean metric.
+     * 
+     * @param tf The TensorFlow Ops
+     * @param dType the type of the metric result.
+     */
     public Mean(Ops tf, DataType dType) {
         this(tf, null, dType);
     }
 
+    /**
+     * Creates a Mean metric.
+     * 
+     * @param tf  The TensorFlow Ops
+     * @param name name of the metric instance.
+     */
     public Mean(Ops tf, String name) {
         this(tf, name, null);
     }
 
+    
+    /**
+     * Creates a Mean metric.
+     * 
+     * @param tf  The TensorFlow Ops
+     * @param name name of the metric instance.
+     * @param dType the data type of the metric result.
+     */
     public Mean(Ops tf, String name, DataType dType) {
         super(tf, name, Reduction.WEIGHTED_MEAN, dType);
     }
