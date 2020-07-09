@@ -71,8 +71,7 @@ public class ControlDependencies {
      */
     public static Op addControlDependencies(
             Ops tf, String name, Op... dependencies) {
-        tf = tf.withSubScope(name).withControlDependencies(Arrays.asList(dependencies));
-        return tf.noOp();
+        return addControlDependencies(tf, name, Arrays.asList(dependencies));
     }
 
     /**
