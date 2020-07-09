@@ -459,6 +459,26 @@ public class K {
 
 
     
+    /**
+     * returns the larger DataType between the two.
+     * @param a the first DataType to compare
+     * @param b the second DataType to compare
+     * @return the wider DataType
+     */
+    public DataType wider(DataType a, DataType b) {
+        return a.byteSize() < b.byteSize() ? b : a;
+    }
+    
+    /**
+     * returns the smaller DataType between the two.
+     * @param a the first DataType to compare
+     * @param b the second DataType to compare
+     * @return the smaller DataType
+     */
+    public DataType narrower(DataType a, DataType b) {
+        return a.byteSize() > b.byteSize() ? b : a;
+    }
+    
     
 
     /// END nn OPS

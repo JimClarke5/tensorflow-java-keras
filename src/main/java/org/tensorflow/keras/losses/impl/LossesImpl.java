@@ -30,6 +30,7 @@ import org.tensorflow.op.core.ReduceAll;
 import org.tensorflow.op.core.ReduceMax;
 import org.tensorflow.op.core.ReduceSum;
 import org.tensorflow.op.core.Squeeze;
+import org.tensorflow.op.math.Softplus;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TFloat64;
@@ -47,7 +48,7 @@ public class LossesImpl {
     public static int WEIGHT = 2;
 
     public static Operand kullback_leibler_divergence(Ops tf, Operand yTrue, Operand yPred) {
-        Tuple ops = preamble(tf, yTrue, yPred, null);
+        Tuple ops = preamble(tf, yTrue, yPred, null, yPred.asOutput().dataType());
         yPred = ops.getPredictions();
         yTrue = ops.getLabels();
 
@@ -60,7 +61,7 @@ public class LossesImpl {
     }
 
     public static Operand mean_absolute_error(Ops tf, Operand yTrue, Operand yPred) {
-        Tuple ops = preamble(tf, yTrue, yPred, null);
+        Tuple ops = preamble(tf, yTrue, yPred, null, yPred.asOutput().dataType());
         yPred = ops.getPredictions();
         yTrue = ops.getLabels();
         return K.mean(tf, tf.math.abs(tf.math.sub(yPred, yTrue)), tf.constant(-1));
@@ -68,7 +69,7 @@ public class LossesImpl {
 
     public static Operand mean_absolute_percentage_error(Ops tf, Operand yTrue, Operand yPred) {
         DataType dtype = yPred.asOutput().dataType();
-        Tuple ops = preamble(tf, yTrue, yPred, null);
+        Tuple ops = preamble(tf, yTrue, yPred, null, yPred.asOutput().dataType());
         yPred = ops.getPredictions();
         yTrue = ops.getLabels();
         Operand diff = tf.math.abs(
@@ -81,7 +82,7 @@ public class LossesImpl {
     }
 
     public static Operand mean_squared_error(Ops tf, Operand yTrue, Operand yPred) {
-        Tuple ops = preamble(tf, yTrue, yPred, null);
+        Tuple ops = preamble(tf, yTrue, yPred, null, yPred.asOutput().dataType());
         yPred = ops.getPredictions();
         yTrue = ops.getLabels();
         return K.mean(tf, tf.math.squaredDifference(yPred, yTrue), tf.constant(-1));
@@ -90,7 +91,7 @@ public class LossesImpl {
 
     public static Operand mean_squared_logarithmic_error(Ops tf, Operand yTrue, Operand yPred) {
         DataType dtype = yPred.asOutput().dataType();
-        Tuple ops = preamble(tf, yTrue, yPred, null);
+        Tuple ops = preamble(tf, yTrue, yPred, null, yPred.asOutput().dataType());
         yPred = ops.getPredictions();
         yTrue = ops.getLabels();
         Operand epsilonConst = K.epsilonConstant(tf, dtype);
@@ -123,7 +124,7 @@ public class LossesImpl {
     }
 
     public static Operand binary_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, float labelSmoothing) {
-        Tuple ops = preamble(tf, yTrue, yPred, null);
+        Tuple ops = preamble(tf, yTrue, yPred, null, yPred.asOutput().dataType());
         yPred = ops.getPredictions();
         yTrue = ops.getLabels();
 
@@ -160,7 +161,7 @@ public class LossesImpl {
     }
 
     public static Operand categorical_crossentropy(final Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, float labelSmoothing, int axis) {
-        Tuple ops = preamble(tf, yTrue, yPred, null);
+        Tuple ops = preamble(tf, yTrue, yPred, null, yPred.asOutput().dataType());
         yPred = ops.getPredictions();
         yTrue = ops.getLabels();
         yTrue = SmartCond.select(tf,
@@ -173,7 +174,7 @@ public class LossesImpl {
 
     public static Operand categorical_hinge(Ops tf, Operand yTrue, Operand yPred) {
         DataType dtype = yPred.asOutput().dataType();
-        Tuple ops = preamble(tf, yTrue, yPred, null);
+        Tuple ops = preamble(tf, yTrue, yPred, null, yPred.asOutput().dataType());
         yPred = ops.getPredictions();
         yTrue = ops.getLabels();
 
@@ -210,7 +211,7 @@ public class LossesImpl {
     }
 
     public static Operand cosine_similarity(Ops tf, Operand yTrue, Operand yPred, int axis) {
-        Tuple ops = preamble(tf, yTrue, yPred, null);
+        Tuple ops = preamble(tf, yTrue, yPred, null, yPred.asOutput().dataType());
         yPred = ops.getPredictions();
         yTrue = ops.getLabels();
         yTrue = l2Normalize(tf, yTrue, axis);
@@ -238,7 +239,7 @@ public class LossesImpl {
 
     public static Operand hinge(Ops tf, Operand yTrue, Operand yPred) {
         DataType dtype = yPred.asOutput().dataType();
-        Tuple ops = preamble(tf, yTrue, yPred, null);
+        Tuple ops = preamble(tf, yTrue, yPred, null, yPred.asOutput().dataType());
         yPred = ops.getPredictions();
         yTrue = ops.getLabels();
         yTrue = maybeConvertLables(tf, yTrue);
@@ -252,13 +253,16 @@ public class LossesImpl {
 
     public static Operand logcosh(Ops tf, Operand yTrue, Operand yPred) {
         DataType dtype = yPred.asOutput().dataType();
-        Tuple ops = preamble(tf, yTrue, yPred, null);
+        Tuple ops = preamble(tf, yTrue, yPred, null, dtype);
         yPred = ops.getPredictions();
         yTrue = ops.getLabels();
+        
+        
 
         Operand diff = tf.math.sub(yPred, yTrue);
+        Softplus softplus = tf.math.softplus(tf.math.mul(K.constant(tf, -2., dtype), diff));
         Operand _logcosh = tf.math.sub(
-                tf.math.add(diff, tf.math.softplus(tf.math.mul(K.constant(tf, -2., dtype), diff))),
+                tf.math.add(diff, softplus),
                 tf.dtypes.cast(tf.math.log(tf.constant(2.)), dtype)
         );
         return K.mean(tf, _logcosh, tf.constant(-1));
@@ -266,7 +270,7 @@ public class LossesImpl {
 
     public static Operand poisson(Ops tf, Operand yTrue, Operand yPred) {
         DataType dtype = yPred.asOutput().dataType();
-        Tuple ops = preamble(tf, yTrue, yPred, null);
+        Tuple ops = preamble(tf, yTrue, yPred, null, yPred.asOutput().dataType());
         yPred = ops.getPredictions();
         yTrue = ops.getLabels();
         return K.mean(tf,
@@ -281,7 +285,7 @@ public class LossesImpl {
 
     public static Operand sparse_categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, int axis) {
         DataType dtype = yPred.asOutput().dataType();
-        Tuple ops = preamble(tf, yTrue, yPred, null);
+        Tuple ops = preamble(tf, yTrue, yPred, null, yPred.asOutput().dataType());
         yPred = ops.getPredictions();
         yTrue = ops.getLabels();
         return K.sparse_categorical_crossentropy(tf, yTrue, yPred, fromLogits, axis);
@@ -289,7 +293,7 @@ public class LossesImpl {
 
     public static Operand squared_hinge(Ops tf, Operand yTrue, Operand yPred) {
         DataType dtype = yPred.asOutput().dataType();
-        Tuple ops = preamble(tf, yTrue, yPred, null);
+        Tuple ops = preamble(tf, yTrue, yPred, null, yPred.asOutput().dataType());
         yPred = ops.getPredictions();
         yTrue = ops.getLabels();
         yTrue = maybeConvertLables(tf, yTrue);
@@ -303,7 +307,7 @@ public class LossesImpl {
 
     public static Operand huber(Ops tf, Operand yTrue, Operand yPred, float delta) {
         DataType dtype = yPred.asOutput().dataType();
-        Tuple ops = preamble(tf, yTrue, yPred, null);
+        Tuple ops = preamble(tf, yTrue, yPred, null, yPred.asOutput().dataType());
         yPred = ops.getPredictions();
         yTrue = ops.getLabels();
         Operand error = tf.math.sub(yPred, yTrue);
@@ -367,10 +371,15 @@ public class LossesImpl {
                 maybeExpandWeights(tf, sampleWeight, rankDiff));
     }
 
-    private static Tuple preamble(Ops tf, Operand yTrue, Operand yPred, Operand sampleWeight) {
-        yTrue = tf.dtypes.cast(yTrue, yPred.asOutput().dataType());
+    
+    private static Tuple preamble(Ops tf, Operand yTrue, Operand yPred, Operand sampleWeight, DataType dType) {
+        if(!yPred.asOutput().dataType().equals(dType)) {
+            yPred = tf.dtypes.cast(yPred, dType);
+        }
+        if(!yTrue.asOutput().dataType().equals(dType)) {
+            yTrue = tf.dtypes.cast(yTrue, dType);
+        }
         return squeezeOrExpandDimensions(tf, yTrue, yPred, sampleWeight);
-
     }
     
     /**

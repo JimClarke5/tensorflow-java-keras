@@ -18,6 +18,7 @@ import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.keras.losses.LossFunction;
 import org.tensorflow.keras.metrics.Mean;
+import org.tensorflow.keras.metrics.Metrics;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 
@@ -55,6 +56,7 @@ public class MeanMetricWrapper extends Mean {
         Operand predictions = operands[1];
         Operand sampleWeights = operands.length > 2 ? operands[2] : null;
         Operand losses = loss.call(labels, predictions, null);
+        MetricsImpl.debug("losses", losses);
         return super.updateState(losses, sampleWeights);
     }
 
