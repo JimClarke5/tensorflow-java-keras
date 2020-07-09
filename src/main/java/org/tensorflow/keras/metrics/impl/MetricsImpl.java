@@ -52,6 +52,7 @@ import org.tensorflow.types.TFloat64;
 import org.tensorflow.types.TInt32;
 import org.tensorflow.types.TInt64;
 import org.tensorflow.types.TString;
+import org.tensorflow.types.family.TNumber;
 import org.tensorflow.types.family.TType;
 
 /**
@@ -61,6 +62,7 @@ import org.tensorflow.types.family.TType;
 public class MetricsImpl {
     
     public static final float NEG_INF = -1e10f;
+    public static final int DEFAULT_K = 5;
 
     public static Operand accuracy(Ops tf, Operand yTrue, Operand yPred) {
         Shape yTrueShape = yTrue.asOutput().shape();
@@ -989,6 +991,33 @@ public class MetricsImpl {
         run(graph, op);
         return instance.result();
     }
+    public static <T extends TNumber> Operand<TFloat32> top_k_categorical_accuracy(
+            Ops tf, Operand<T> labels, Operand<T> predictions, int k) {
+        Operand<TFloat32> castPredictions = tf.dtypes.cast(predictions, TFloat32.DTYPE);
+        return tf.dtypes.cast(
+                tf.nn.inTopK(castPredictions,  tf.math.argMax(labels, tf.constant(-1)), tf.constant((long)k)),
+                TFloat32.DTYPE);
+    }
+    
+     public static <T extends TNumber> Operand<TFloat32> sparse_top_k_categorical_accuracy(
+            Ops tf, Operand<T> labels, Operand<T> predictions, int k) {
+         int predictionsRank = predictions.asOutput().shape().numDimensions();
+         int labelsRank = labels.asOutput().shape().numDimensions();
+         
+         if(predictionsRank != -1 && labelsRank != -1) {
+             if(predictionsRank > 2) {
+                 predictions = tf.shape.reduceDims(predictions, tf.constant(1));
+             }
+             if(labelsRank > 1) {
+                 labels = tf.shape.flatten(labels);
+             }
+         }
+         Operand<TFloat32> castPredictions = tf.dtypes.cast(predictions, TFloat32.DTYPE);
+         return tf.dtypes.cast(
+                tf.nn.inTopK(castPredictions, tf.dtypes.cast(labels, TInt32.DTYPE), tf.constant(k)),
+                TFloat32.DTYPE);
+     }
+    
 
     // helper functions
     private static void initialize(Graph graph) {
