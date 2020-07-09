@@ -132,18 +132,18 @@ public class Reduce extends Metric {
     private void init() {
         Zeros zeros = new Zeros(tf);
         
-        total = getVariable(TOTAL);
-        if (getTotal() == null) {
-            total = tf.withName(TOTAL).variable(
+        this.total = getVariable(TOTAL);
+        if (this.total == null) {
+            this.total = tf.withName(TOTAL).variable(
                     zeros.call(tf.constant(Shape.scalar()), TFloat32.DTYPE));
-            this.addVariable(TOTAL, getTotal(), zeros);
+            this.addVariable(TOTAL, this.total, zeros);
         }
         if (reduction == Reduction.SUM_OVER_BATCH_SIZE || reduction == Reduction.WEIGHTED_MEAN) {
-            count = getVariable(COUNT);
+            this.count = getVariable(COUNT);
             if (getCount() == null) {
-                 count = tf.withName(COUNT).variable(
+                 this.count = tf.withName(COUNT).variable(
                     zeros.call(tf.constant(Shape.scalar()), TFloat32.DTYPE));
-                    this.addVariable(COUNT, getCount(), zeros);
+                this.addVariable(COUNT, this.count, zeros);
             }
         }
     }
@@ -154,7 +154,7 @@ public class Reduce extends Metric {
     @Override
     public Op updateState(Operand... operands) {
         Operand values = operands[0];
-        Operand sampleWeight = operands[1];
+        Operand sampleWeight = operands.length > 1 ? operands[1] : null;
         if (dType != null) {
             values = tf.dtypes.cast(values, dType);
         }
