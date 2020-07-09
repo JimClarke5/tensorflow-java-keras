@@ -46,8 +46,8 @@ public class Reduce extends Metric {
     public static final String TOTAL = "total";
     public static final String COUNT = "count";
 
-    private Variable<TFloat32> total;
-    private Variable<TFloat32> count;
+    protected Variable<TFloat32> total;
+    protected Variable<TFloat32> count;
 
     protected final Reduction reduction;
 
