@@ -53,6 +53,15 @@ public abstract class SensitivitySpecificityBase extends Metric {
     protected final float value;
     protected final float[] thresholds;
     
+    /**
+     * 
+     * @param tf
+     * @param name
+     * @param value
+     * @param numThresholds
+     * @param dType 
+     */
+    
     protected SensitivitySpecificityBase(Ops tf, String name, float value, int numThresholds, DataType dType) {
         super(tf, name, dType);
         assert numThresholds > 0 : "`num_thresholds` must be > 0.";
