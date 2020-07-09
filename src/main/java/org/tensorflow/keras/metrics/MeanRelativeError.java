@@ -148,7 +148,7 @@ public class MeanRelativeError extends Mean{
         
         yTrue = tf.shape.flatten(tf.dtypes.cast(yTrue, this.dType));
         yPred = tf.shape.flatten(tf.dtypes.cast(yPred, this.dType));
-        Tuple ops = LossesImpl.squeezeOrExpandDimensions(tf, yPred, yTrue, null);
+        Tuple ops = LossesImpl.squeezeOrExpandDimensions(tf, yPred, yTrue);
         yPred = ops.getPredictions();
         yTrue = ops.getLabels();
         if(sampleWeight != null) {

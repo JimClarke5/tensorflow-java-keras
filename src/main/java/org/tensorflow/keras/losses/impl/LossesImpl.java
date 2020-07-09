@@ -372,6 +372,25 @@ public class LossesImpl {
         return squeezeOrExpandDimensions(tf, yTrue, yPred, sampleWeight);
 
     }
+    
+    /**
+     * Squeeze or expand last dimension if needed. 1. Squeezes last dim of
+     * `y_pred` or `y_true` if their rank differs by 1 (using
+     * `confusion_matrix.remove_squeezable_dimensions`). 2. Squeezes or expands
+     * last dim of `sample_weight` if its rank differs by 1 from the new rank of
+     * `y_pred`. If `sample_weight` is scalar, it is kept scalar.
+     *
+     * @param tf the TensorVlow Ops
+     * @param yPred Predicted values, a `Tensor` of arbitrary dimensions.
+     * @param yTrue Optional label `Tensor` whose dimensions match `y_pred`.
+     * @return Tuple of `y_pred`, `y_true` and `sample_weight`. Each of them
+     * possibly has the last dimension squeezed, `sample_weight` could be
+     * extended by one dimension. If `sample_weight` is null, (y_pred, y_true)
+     * is returned.
+     */
+    public static Tuple squeezeOrExpandDimensions(Ops tf, Operand yTrue, Operand yPred) {
+        return squeezeOrExpandDimensions(tf, yTrue, yPred, null);
+    }
 
     /**
      * Squeeze or expand last dimension if needed. 1. Squeezes last dim of
