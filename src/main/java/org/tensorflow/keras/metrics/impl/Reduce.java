@@ -46,8 +46,8 @@ public class Reduce extends Metric {
     public static final String TOTAL = "total";
     public static final String COUNT = "count";
 
-    protected Variable<TFloat32> total;
-    protected Variable<TFloat32> count;
+    private Variable<TFloat32> total;
+    private Variable<TFloat32> count;
 
     protected final Reduction reduction;
 
@@ -133,17 +133,17 @@ public class Reduce extends Metric {
         Zeros zeros = new Zeros(tf);
         
         total = getVariable(TOTAL);
-        if (total == null) {
+        if (getTotal() == null) {
             total = tf.withName(TOTAL).variable(
                     zeros.call(tf.constant(Shape.scalar()), TFloat32.DTYPE));
-            this.addVariable(TOTAL, total, zeros);
+            this.addVariable(TOTAL, getTotal(), zeros);
         }
         if (reduction == Reduction.SUM_OVER_BATCH_SIZE || reduction == Reduction.WEIGHTED_MEAN) {
             count = getVariable(COUNT);
-            if (count == null) {
+            if (getCount() == null) {
                  count = tf.withName(COUNT).variable(
                     zeros.call(tf.constant(Shape.scalar()), TFloat32.DTYPE));
-                    this.addVariable(COUNT, count, zeros);
+                    this.addVariable(COUNT, getCount(), zeros);
             }
         }
     }
@@ -172,7 +172,7 @@ public class Reduce extends Metric {
 
         Operand<TFloat32> valueSum = tf.dtypes.cast(tf.reduceSum(values, K.allAxis(tf, values)), TFloat32.DTYPE);
 
-        Op totalUpdate = tf.assignAdd(total, valueSum);
+        Op totalUpdate = tf.assignAdd(getTotal(), valueSum);
         updateOperations.add(totalUpdate);
         Operand<TFloat32> numValues;
         if (reduction != Reduction.SUM) {
@@ -193,7 +193,7 @@ public class Reduce extends Metric {
                     throw new UnsupportedOperationException(
                             String.format("reduction [%s] not implemented", reduction));
             }
-            Op totalCount = tf.assignAdd(count, tf.dtypes.cast(numValues, TFloat32.DTYPE));
+            Op totalCount = tf.assignAdd(getCount(), tf.dtypes.cast(numValues, TFloat32.DTYPE));
             updateOperations.add(totalCount);
         }
         return ControlDependencies.addControlDependencies(tf, "updateState", updateOperations);
@@ -207,10 +207,10 @@ public class Reduce extends Metric {
     public Operand result() {
         switch (this.reduction) {
             case SUM:
-                return dType == null ? tf.identity(this.total) : tf.dtypes.cast(tf.identity(this.total), dType);
+                return dType == null ? tf.identity(this.getTotal()) : tf.dtypes.cast(tf.identity(this.getTotal()), dType);
             case WEIGHTED_MEAN:
             case SUM_OVER_BATCH_SIZE:
-                Operand result = tf.math.divNoNan(total.asOutput(), tf.dtypes.cast(count.asOutput(), total.asOutput().dataType()));
+                Operand result = tf.math.divNoNan(getTotal().asOutput(), tf.dtypes.cast(getCount().asOutput(), getTotal().asOutput().dataType()));
                 return dType == null ? result : tf.dtypes.cast(result, dType);
             default:
                 throw new UnsupportedOperationException(
@@ -240,6 +240,20 @@ public class Reduce extends Metric {
      */
     public Reduction getReduction() {
         return reduction;
+    }
+
+    /**
+     * @return the total
+     */
+    public Variable<TFloat32> getTotal() {
+        return total;
+    }
+
+    /**
+     * @return the count
+     */
+    public Variable<TFloat32> getCount() {
+        return count;
     }
 
 }
