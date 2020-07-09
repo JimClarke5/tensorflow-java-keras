@@ -124,16 +124,12 @@ public class PrecisionAtRecallTest {
             yPred = tf.dtypes.cast(yPred, TFloat32.DTYPE);
             yTrue = tf.dtypes.cast(yTrue, TFloat32.DTYPE);
             
-            //instance.setDebug(session.getGraphSession());
-            MetricsImpl.debug("test/yPred", yPred);
-             MetricsImpl.debug("test/yTrue", yTrue);
             Op update = instance.updateState(yTrue, yPred);
             session.run(update);
             
             Operand precision = instance.result();
             
             session.evaluate(1f, precision);
-            //instance.setDebug(null);
         }
     }
     
