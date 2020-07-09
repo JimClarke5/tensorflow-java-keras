@@ -99,7 +99,11 @@ public class GraphTestSession extends TestSession {
 
     @Override
     public <T extends TNumber> void evaluate(Number[] expected, Output<T> input) {
-        assertEquals(expected.length, input.shape().size());
+        int size = input.shape().size() == 0 ? 1 : (int)input.shape().size();
+        assertEquals( expected.length, size,
+            () -> String.format("expected length (%d) != to input length (%d)", 
+                    expected.length, size)
+        );
         DataType dtype = input.asOutput().dataType();
         if (dtype == TFloat32.DTYPE) {
             AtomicInteger index = new AtomicInteger();
@@ -169,7 +173,11 @@ public class GraphTestSession extends TestSession {
 
     @Override
     public void evaluate(String[] expected, Output<TString> input) {
-        assertEquals(expected.length, input.shape().size());
+         int size = input.shape().size() == 0 ? 1 : (int)input.shape().size();
+        assertEquals( expected.length, size,
+            () -> String.format("expected length (%d) != to input length (%d)", 
+                    expected.length, size)
+        );
         AtomicInteger index = new AtomicInteger();
         if (debug) {
             try (Tensor<TString> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TString.DTYPE)) {
@@ -188,7 +196,11 @@ public class GraphTestSession extends TestSession {
 
     @Override
     public void evaluate(Boolean[] expected, Output<TBool> input) {
-        assertEquals(expected.length, input.shape().size());
+         int size = input.shape().size() == 0 ? 1 : (int)input.shape().size();
+        assertEquals( expected.length, size,
+            () -> String.format("expected length (%d) != to input length (%d)", 
+                    expected.length, size)
+        );
         AtomicInteger index = new AtomicInteger();
         if (debug) {
             try (Tensor<TBool> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TBool.DTYPE)) {
@@ -207,8 +219,9 @@ public class GraphTestSession extends TestSession {
 
     @Override
     public <T extends TType> void evaluate(Output<T> expected, Output<T> input) {
-
-        assert (input.shape().equals(expected.shape()));
+        assert input.shape().equals(expected.shape()) :
+                String.format("expected shape (%s) != to input shape (%ds)",
+                     expected.shape().toString(),  input.shape().toString());
         AtomicInteger index = new AtomicInteger();
         DataType dtype = input.asOutput().dataType();
         boolean isScalar = input.shape().equals(Shape.scalar());

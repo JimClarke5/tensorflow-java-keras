@@ -76,7 +76,11 @@ public class EagerTestSession extends TestSession {
 
     @Override
     public <T extends TNumber> void evaluate(Number[] expected, Output<T> input) {
-        assertEquals(expected.length, input.shape().size());
+        int size = input.shape().size() == 0 ? 1 : (int)input.shape().size();
+        assertEquals( expected.length, size,
+            () -> String.format("expected length (%d) != to input length (%d)", 
+                    expected.length, size)
+        );
         DataType dtype = input.dataType();
         if (dtype == TFloat32.DTYPE) {
             Output<TFloat32> o = (Output<TFloat32>) input;
@@ -133,7 +137,11 @@ public class EagerTestSession extends TestSession {
 
     @Override
     public void evaluate(String[] expected, Output<TString> input) {
-        assertEquals(expected.length, input.shape().size());
+        int size = input.shape().size() == 0 ? 1 : (int)input.shape().size();
+        assertEquals( expected.length, size,
+            () -> String.format("expected length (%d) != to input length (%d)", 
+                    expected.length, size)
+        );
         AtomicInteger index = new AtomicInteger();
         if (debug) {
             input.data().scalars().forEach(f -> {
@@ -148,7 +156,11 @@ public class EagerTestSession extends TestSession {
 
     @Override
     public void evaluate(Boolean[] expected, Output<TBool> input) {
-        assertEquals(expected.length, input.shape().size());
+        int size = input.shape().size() == 0 ? 1 : (int)input.shape().size();
+        assertEquals( expected.length, size,
+            () -> String.format("expected size (%d) != to input length (%d)", 
+                    expected.length, size)
+        );
         AtomicInteger index = new AtomicInteger();
         if (debug) {
             input.data().scalars().forEach(f -> {
@@ -163,7 +175,9 @@ public class EagerTestSession extends TestSession {
 
     @Override
     public <T extends TType> void evaluate(Output<T> expected, Output<T> input) {
-        assertEquals(expected.shape().size(), input.shape().size());
+        assert input.shape().equals(expected.shape()) :
+                String.format("expected shape (%s) != to input shape (%ds)",
+                     expected.shape().toString(),  input.shape().toString());
         DataType dtype = input.asOutput().dataType();
         boolean isScalar = input.shape().equals(Shape.scalar());
         if (dtype == TFloat32.DTYPE) {
