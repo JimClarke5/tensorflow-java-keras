@@ -65,8 +65,8 @@ public class HingeTest {
     public void testConfig() {
         try (TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
-            Hinge instance = new Hinge(tf, "cosine", TInt32.DTYPE);
-            assertEquals("cosine", instance.getName());
+            Hinge instance = new Hinge(tf, "my_hinge", TInt32.DTYPE);
+            assertEquals("my_hinge", instance.getName());
             assertEquals(TInt32.DTYPE, instance.getDataType());
         }
     }
