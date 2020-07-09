@@ -36,94 +36,92 @@ import org.tensorflow.types.TInt32;
  * @author Jim Clarke
  */
 public class HingeTest {
-    
-     private TestSession.Mode tf_mode = TestSession.Mode.GRAPH;
-    
+
+    private TestSession.Mode tf_mode = TestSession.Mode.GRAPH;
+
     public HingeTest() {
     }
-    
+
     @BeforeAll
     public static void setUpClass() {
     }
-    
+
     @AfterAll
     public static void tearDownClass() {
     }
-    
+
     @BeforeEach
     public void setUp() {
     }
-    
+
     @AfterEach
     public void tearDown() {
     }
 
-      /**
+    /**
      * Test of call method, of class Hinge.
      */
-   @Test
+    @Test
     public void testConfig() {
-        try(TestSession session = TestSession.createTestSession(tf_mode)) {
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
-            Hinge instance = new Hinge(tf,"cosine", TInt32.DTYPE);
+            Hinge instance = new Hinge(tf, "cosine", TInt32.DTYPE);
             assertEquals("cosine", instance.getName());
             assertEquals(TInt32.DTYPE, instance.getDataType());
         }
     }
-    
+
     @Test
     public void testUnweighted() {
-        try(TestSession session = TestSession.createTestSession(tf_mode)) {
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             Hinge instance = new Hinge(tf);
             session.run(instance.resetStates());
-            float[] true_np = { 0, 1, 0, 1, 0, 0, 1, 1 };
-            float[] pred_np = { -0.3f, 0.2f, -0.1f, 1.6f,
-                              -0.25f, -1.f, 0.5f, 0.6f};
+            float[] true_np = {0, 1, 0, 1, 0, 0, 1, 1};
+            float[] pred_np = {-0.3f, 0.2f, -0.1f, 1.6f,
+                -0.25f, -1.f, 0.5f, 0.6f};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 4)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 4)));
             Op op = instance.updateState(y_true, y_pred);
             session.run(op);
             Variable<TFloat32> total = instance.getVariable(TOTAL);
             Variable<TInt32> count = instance.getVariable(COUNT);
-            Operand result  = instance.result();
+            Operand result = instance.result();
             session.evaluate(1.0125F, total);
             session.evaluate(2, count);
             session.evaluate(.5062500F, result);
-            
+
         }
     }
-    
-    
+
     @Test
     public void test_weighted() {
-        try(TestSession session = TestSession.createTestSession(tf_mode)) {
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
             Hinge instance = new Hinge(tf);
             session.run(instance.resetStates());
-            float[] true_np = { 
-                -1, 1, -1, 1, 
-                -1, -1, 1, 1 
+            float[] true_np = {
+                -1, 1, -1, 1,
+                -1, -1, 1, 1
             };
-            float[] pred_np = { 
+            float[] pred_np = {
                 -0.3f, 0.2f, -0.1f, 1.6f,
                 -0.25f, -1.f, 0.5f, 0.6f
             };
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 4)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 4)));
-            
-            Operand sampleWeight = tf.constant(new float[] {1.5f, 2.f});
+
+            Operand sampleWeight = tf.constant(new float[]{1.5f, 2.f});
             Op op = instance.updateState(y_true, y_pred, sampleWeight);
             session.run(op);
             Variable<TFloat32> total = instance.getVariable(TOTAL);
             Variable<TInt32> count = instance.getVariable(COUNT);
-            Operand result  = instance.result();
+            Operand result = instance.result();
             session.evaluate(1.7250F, total);
             session.evaluate(3.5, count);
             session.evaluate(.49285714F, result);
-            
+
         }
     }
-    
-    
+
 }
