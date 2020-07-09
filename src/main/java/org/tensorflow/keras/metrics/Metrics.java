@@ -32,6 +32,7 @@ import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Assign;
 import org.tensorflow.op.core.Variable;
+import org.tensorflow.types.family.TNumber;
 
 /**
  *
@@ -40,6 +41,7 @@ import org.tensorflow.op.core.Variable;
 public class Metrics {
     
     public static final float NEG_INF = MetricsImpl.NEG_INF;
+    public static final int DEFAULT_K = MetricsImpl.DEFAULT_K;
 
     static Map<String, Function<Ops, Metric>> map = new HashMap<String, Function<Ops, Metric>>() {
         {
@@ -561,6 +563,22 @@ public class Metrics {
     public static Operand categorical_accuracy(Ops tf, Operand yTrue, Operand yPred) {
         return MetricsImpl.categorical_accuracy(tf, yTrue, yPred);
     }
+     public static <T extends Object & TNumber> Operand top_k_categorical_accuracy(
+            Ops tf, Operand<T> labels, Operand<T> predictions) {
+         return top_k_categorical_accuracy(tf, labels, predictions, DEFAULT_K);
+     }
+    public static <T extends Object & TNumber> Operand top_k_categorical_accuracy(
+            Ops tf, Operand<T> labels, Operand<T> predictions, int k) {
+        return MetricsImpl.top_k_categorical_accuracy(tf, labels, predictions, k);
+    }
+    
+    public static <T extends Object & TNumber> Operand sparse_top_k_categorical_accuracy(
+            Ops tf, Operand<T> labels, Operand<T> predictions) {
+         return top_k_categorical_accuracy(tf, labels, predictions, DEFAULT_K);
+     }
+    public static <T extends Object & TNumber> Operand sparse_top_k_categorical_accuracy(Ops tf, Operand<T> labels, Operand<T> predictions, int k) {
+        return MetricsImpl.sparse_top_k_categorical_accuracy(tf, labels, predictions, k);
+    }
 
     public static List<Op> assert_shapes(Ops tf, List<SymbolicShape> symbols, String message) {
         return MetricsImpl.assert_shapes(tf, symbols, message);
@@ -580,5 +598,9 @@ public class Metrics {
     public static void setDebug(Session session) {
         MetricsImpl.setDebug(session);
     }
+
+    
+
+    
 
 }
