@@ -24,10 +24,6 @@ import org.tensorflow.Operand;
 import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
-import org.tensorflow.op.core.Shape;
-import org.tensorflow.types.TFloat32;
-import org.tensorflow.types.TInt32;
-import org.tensorflow.types.TInt64;
 
 /**
  *
@@ -131,26 +127,7 @@ public class AUCTest {
         }
     }
     
-    @Test
-    public void basic_test() {
-        try(TestSession session = TestSession.createTestSession(tf_mode)) {
-            Ops tf = session.getTF();
-             AUC instance = new AUC(tf);
-             assertEquals(numThresholds, instance.getNumThresholds());
-             float[] expectedThresholds = new float[] {0.0f,  0.5f, 1 + 1e-7f};
-             assertArrayEquals(expectedThresholds, instance.getThresholds(), epsilon);
-             
-             instance.resetStates();
-             Operand yPred = tf.constant(new float[] {0, 0, 1, 1});
-             Operand yTrue = tf.constant(new float[] {0f, 0.5f, 0.3f, 0.9f});
-             
-             Op update = instance.updateState(yTrue,yPred);
-             session.run(update);
-             Operand result = instance.result();
-             session.evaluate(0.75, instance.result()); 
-              
-        }
-    }
+
     
     @Test
     public void basic_test_sample_weight() {
@@ -158,7 +135,7 @@ public class AUCTest {
             Ops tf = session.getTF();
              AUC instance = new AUC(tf, numThresholds);
              assertEquals(numThresholds, instance.getNumThresholds());
-             float[] expectedThresholds = new float[] {-1e07f,  0.5f, 1 + 1e-7f};
+             float[] expectedThresholds = new float[] {-1e-7f,  0.5f, 1 + 1e-7f};
              assertArrayEquals(expectedThresholds, instance.getThresholds(), epsilon);
              
              instance.resetStates();
