@@ -264,7 +264,8 @@ public class MetricsImpl {
 
         if (topK != null) {
             yPred = filterTopK(tf, yPred, topK);
-            //TODO remove MetricsImpl.debug("topK/yPred", yPred);
+            //TODO remove 
+            MetricsImpl.debug("topK/yPred", yPred);
         }
 
         if (classId != null) {
@@ -272,8 +273,10 @@ public class MetricsImpl {
             yPred = tf.squeeze(tf.gather(yPred, tf.constant(new int[]{classId}), tf.constant(1)));
             yTrue = tf.expandDims(yTrue, tf.constant(0));
             yPred = tf.expandDims(yPred, tf.constant(0));
-            //TODO remove debug("classId/yTrue", yTrue);
-            //TODO remove debug("classId/yPred", yPred);
+            //TODO remove 
+            debug("classId/yTrue", yTrue);
+            //TODO remove 
+            debug("classId/yPred", yPred);
         }
         org.tensorflow.op.core.Shape<TInt32> predShape = tf.shape(yPred);
         Operand<TInt32> numPredictions = tf.reshape(tf.shape.size(yPred, tf.constant(0)), tf.constant(Shape.scalar()));
@@ -1057,7 +1060,7 @@ public class MetricsImpl {
         writer.printf("\n===================  %s (%s)  ===================\n", prefix, input.asOutput().toString());
         writer.printf("%s shape = (%s)\n", prefix, input.asOutput().shape().toString());
         DataType dtype = input.asOutput().dataType();
-        boolean isScalar = input.asOutput().shape().size() == 1;
+        boolean isScalar = input.asOutput().shape().size() == 1||input.asOutput().shape().size()==0;
         if (dtype == TFloat32.DTYPE) {
             AtomicInteger index = new AtomicInteger();
             try (Tensor<TFloat32> result = session.runner().fetch(input).run().get(0).expect(TFloat32.DTYPE)) {

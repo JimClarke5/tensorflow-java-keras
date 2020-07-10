@@ -228,5 +228,9 @@ public abstract class Metric implements MetricInterface {
         this.session = session;
         Metrics.setDebug(session);
     }
+    
+    public void resetDebug() {
+        setDebug(null);
+    }
 
 }
