@@ -22,12 +22,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.Operand;
-import org.tensorflow.keras.metrics.impl.MetricsImpl;
 import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.random.RandomUniform;
-import org.tensorflow.op.random.RandomUniformInt;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat32;
 
