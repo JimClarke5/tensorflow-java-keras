@@ -14,6 +14,7 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.metrics;
 
+import java.util.List;
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.keras.backend.tf.Tuple;
@@ -72,7 +73,7 @@ public class RootMeanSquaredError extends Mean {
      * {@inheritDoc}
      */
     @Override
-    public Op updateState(Operand... args) {
+    public List<Op> updateStateList(Operand... args) {
         Operand yTrue = args[0];
         Operand yPred = args[1];
         Operand sampleWeights = args.length > 2 ? args[2] : null;
@@ -85,7 +86,7 @@ public class RootMeanSquaredError extends Mean {
         yTrue = ops.getLabels();
         Operand errorSquared = tf.math.squaredDifference(yPred, yTrue);
         
-        return super.updateState(errorSquared, sampleWeights);
+        return super.updateStateList(errorSquared, sampleWeights);
         
     }
     
@@ -94,7 +95,7 @@ public class RootMeanSquaredError extends Mean {
      * {@inheritDoc}
      */
     @Override
-    public Operand result() {
-        return tf.math.sqrt(tf.math.divNoNan(this.total, this.count));
+    public Operand result(Ops rtf) {
+        return rtf.math.sqrt(rtf.math.divNoNan(this.total, this.count));
     }
 }

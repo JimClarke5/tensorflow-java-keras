@@ -21,8 +21,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.Operand;
-import static org.tensorflow.keras.metrics.impl.Reduce.COUNT;
-import static org.tensorflow.keras.metrics.impl.Reduce.TOTAL;
 import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
@@ -84,8 +82,8 @@ public class CategoricalCrossentropyTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Op op = instance.updateState(y_true, y_pred);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             session.evaluate(2.3538785F, total);
             session.evaluate(2, count);
@@ -106,8 +104,8 @@ public class CategoricalCrossentropyTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Op op = instance.updateState(y_true, y_pred);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             session.evaluate(7.0022807F, total);
             session.evaluate(2, count);
@@ -130,8 +128,8 @@ public class CategoricalCrossentropyTest {
             Operand sampleWeight = tf.constant(new float[] {1.5F, 2.F});
             Op op = instance.updateState(y_true, y_pred, sampleWeight);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
             //session.print(System.out, loss);
@@ -156,8 +154,8 @@ public class CategoricalCrossentropyTest {
             Operand sampleWeight = tf.constant(new float[] {1.5F, 2.F});
             Op op = instance.updateState(y_true, y_pred, sampleWeight);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             session.evaluate(14.004333F, total);
             session.evaluate(3.5, count);
@@ -181,8 +179,8 @@ public class CategoricalCrossentropyTest {
             
             Op op = instance.updateState(y_true, y_pred);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             session.evaluate(7.3356137f, total);
             session.evaluate(2, count);

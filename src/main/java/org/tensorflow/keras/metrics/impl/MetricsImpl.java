@@ -60,7 +60,7 @@ import org.tensorflow.types.family.TType;
  * @author Jim Clarke
  */
 public class MetricsImpl {
-    
+
     public static final float NEG_INF = -1e10f;
     public static final int DEFAULT_K = 5;
 
@@ -208,7 +208,7 @@ public class MetricsImpl {
     }
 
     public static List<Op> update_confusion_matrix_variables(Ops tf,
-            Map<ConfusionMatrixEnum, Variable> variablesToUpdate, 
+            Map<ConfusionMatrixEnum, Variable> variablesToUpdate,
             Map<ConfusionMatrixEnum, Assign> varInitalizers,
             Operand yTrue, Operand yPred,
             float[] thresholds, Integer topK, Integer classId, Operand sampleWeight, boolean multiLabel, Operand labelWeights) {
@@ -291,7 +291,7 @@ public class MetricsImpl {
                         tf.constant(0))
         );
         //TODO remove  
-        debug("numPredictions",numPredictions);
+        debug("numPredictions", numPredictions);
         //TODO remove  
         debug("numLabels", numLabels);
         Operand<TInt32> threshLabelTile = tf.select(
@@ -315,7 +315,7 @@ public class MetricsImpl {
         }
         //TODO remove 
         debug("labelsExtraDim", labelsExtraDim);
-        
+
         List<Operand<TInt32>> threshPretileShape;
         List<Operand<TInt32>> threshTiles;
         List<Operand<TInt32>> dataTiles;
@@ -341,7 +341,7 @@ public class MetricsImpl {
         Operand predsTiled = tf.tile(predictionsExtraDim, tf.stack(dataTiles));
         //TODO remove 
         debug("predsTiled", predsTiled);
-        
+
         //Compare predictions and threshold.
         Operand predIsPos = tf.math.greater(predsTiled, threshTiled);
         // Tile labels by number of thresholds
@@ -418,7 +418,7 @@ public class MetricsImpl {
 
     }
 
-    private static Operand weightedAssignAdd(Ops tf, ConfusionMatrixEnum c, Operand label, 
+    private static Operand weightedAssignAdd(Ops tf, ConfusionMatrixEnum c, Operand label,
             Operand pred, Operand weights, Variable variable, Assign initializer) {
 
         //TODO remove 
@@ -436,38 +436,36 @@ public class MetricsImpl {
         //TODO remove 
         MetricsImpl.debug("weightedAssignAdd/" + c + "/valueSum", valueSum);
         Operand assignAdd;
-        if(initializer != null) {
-            assignAdd = ControlDependencies.addControlDependencies(tf, 
-                tfc -> tfc.assignAdd(variable, valueSum), "weightedAssignAdd", initializer);
-        }else {
+        if (initializer != null) {
+            assignAdd = ControlDependencies.addControlDependencies(tf,
+                    tfc -> tfc.assignAdd(variable, valueSum), "weightedAssignAdd", initializer);
+        } else {
             assignAdd = tf.assignAdd(variable, valueSum);
         }
         return assignAdd;
     }
 
-    
     private static Operand filterTopK(Ops tf, Operand x, int topK) {
         DataType dtype = x.asOutput().dataType();
         Shape xShape = x.asOutput().shape();
         TopK top = tf.nn.topK(x, tf.constant(topK), TopK.sorted(false));
         OneHot oneHot = tf.oneHot(
-                        top.indices(),
-                        tf.dtypes.cast(tf.constant(xShape.size(xShape.numDimensions()-1)), TInt32.DTYPE),
-                        tf.constant(1),
-                        tf.constant(0),
-                        OneHot.axis(-1L));
+                top.indices(),
+                tf.dtypes.cast(tf.constant(xShape.size(xShape.numDimensions() - 1)), TInt32.DTYPE),
+                tf.constant(1),
+                tf.constant(0),
+                OneHot.axis(-1L));
         Operand topKMask = tf.reduceSum(
                 oneHot,
                 tf.constant(-2));
-        
-        
+
         //x * top_k_mask + NEG_INF * (1 - top_k_mask)
         topKMask = tf.dtypes.cast(topKMask, dtype);
         Operand add1 = tf.math.mul(x, topKMask);
         Operand add2 = tf.math.mul(
-                        tf.constant(NEG_INF),
-                        tf.math.sub(tf.dtypes.cast(tf.constant(1), dtype), topKMask));
-        Operand result =  tf.math.add(add1, add2);
+                tf.constant(NEG_INF),
+                tf.math.sub(tf.dtypes.cast(tf.constant(1), dtype), topKMask));
+        Operand result = tf.math.add(add1, add2);
         return result;
     }
 
@@ -507,14 +505,7 @@ public class MetricsImpl {
      */
     public static Operand kullback_leibler_divergence(Ops tf, Operand yTrue, Operand yPred) {
         KLDivergence instance = new KLDivergence(tf);
-        Graph graph = null;
-        if (tf.scope().env() instanceof Graph) {
-            graph = (Graph) tf.scope().env();
-        }
-        initialize(graph);
-        Op op = instance.updateState(yTrue, yPred);
-        run(graph, op);
-        return instance.result();
+        return instance.call(yTrue, yPred);
     }
 
     /**
@@ -551,14 +542,7 @@ public class MetricsImpl {
      */
     public static Operand mean_absolute_error(Ops tf, Operand yTrue, Operand yPred) {
         MeanAbsoluteError instance = new MeanAbsoluteError(tf);
-        Graph graph = null;
-        if (tf.scope().env() instanceof Graph) {
-            graph = (Graph) tf.scope().env();
-        }
-        initialize(graph);
-        Op op = instance.updateState(yTrue, yPred);
-        run(graph, op);
-        return instance.result();
+        return instance.call(yTrue, yPred);
     }
 
     /**
@@ -595,14 +579,7 @@ public class MetricsImpl {
      */
     public static Operand mean_absolute_percentage_error(Ops tf, Operand yTrue, Operand yPred) {
         MeanAbsolutePercentageError instance = new MeanAbsolutePercentageError(tf);
-        Graph graph = null;
-        if (tf.scope().env() instanceof Graph) {
-            graph = (Graph) tf.scope().env();
-        }
-        initialize(graph);
-        Op op = instance.updateState(yTrue, yPred);
-        run(graph, op);
-        return instance.result();
+        return instance.call(yTrue, yPred);
     }
 
     /**
@@ -639,14 +616,7 @@ public class MetricsImpl {
      */
     public static Operand mean_squared_error(Ops tf, Operand yTrue, Operand yPred) {
         MeanSquaredError instance = new MeanSquaredError(tf);
-        Graph graph = null;
-        if (tf.scope().env() instanceof Graph) {
-            graph = (Graph) tf.scope().env();
-        }
-        initialize(graph);
-        Op op = instance.updateState(yTrue, yPred);
-        run(graph, op);
-        return instance.result();
+        return instance.call(yTrue, yPred);
     }
 
     /**
@@ -683,14 +653,7 @@ public class MetricsImpl {
      */
     public static Operand mean_squared_logarithmic_error(Ops tf, Operand yTrue, Operand yPred) {
         MeanSquaredLogarithmicError instance = new MeanSquaredLogarithmicError(tf);
-        Graph graph = null;
-        if (tf.scope().env() instanceof Graph) {
-            graph = (Graph) tf.scope().env();
-        }
-        initialize(graph);
-        Op op = instance.updateState(yTrue, yPred);
-        run(graph, op);
-        return instance.result();
+        return instance.call(yTrue, yPred);
     }
 
     /**
@@ -752,14 +715,7 @@ public class MetricsImpl {
      */
     public static Operand binary_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, float labelSmoothing) {
         BinaryCrossentropy instance = new BinaryCrossentropy(tf, fromLogits, labelSmoothing);
-        Graph graph = null;
-        if (tf.scope().env() instanceof Graph) {
-            graph = (Graph) tf.scope().env();
-        }
-        initialize(graph);
-        Op op = instance.updateState(yTrue, yPred);
-        run(graph, op);
-        return instance.result();
+        return instance.call(yTrue, yPred);
     }
 
     /**
@@ -820,14 +776,7 @@ public class MetricsImpl {
      */
     public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, float labelSmoothing) {
         CategoricalCrossentropy instance = new CategoricalCrossentropy(tf, fromLogits, labelSmoothing);
-        Graph graph = null;
-        if (tf.scope().env() instanceof Graph) {
-            graph = (Graph) tf.scope().env();
-        }
-        initialize(graph);
-        Op op = instance.updateState(yTrue, yPred);
-        run(graph, op);
-        return instance.result();
+        return instance.call(yTrue, yPred);
     }
 
     /**
@@ -840,14 +789,7 @@ public class MetricsImpl {
      */
     public static Operand categorical_hinge(Ops tf, Operand yTrue, Operand yPred) {
         CategoricalHinge instance = new CategoricalHinge(tf);
-        Graph graph = null;
-        if (tf.scope().env() instanceof Graph) {
-            graph = (Graph) tf.scope().env();
-        }
-        initialize(graph);
-        Op op = instance.updateState(yTrue, yPred);
-        run(graph, op);
-        return instance.result();
+        return instance.call(yTrue, yPred);
     }
 
     /**
@@ -860,14 +802,7 @@ public class MetricsImpl {
      */
     public static Operand cosine_similarity(Ops tf, Operand yTrue, Operand yPred) {
         CosineSimilarity instance = new CosineSimilarity(tf);
-        Graph graph = null;
-        if (tf.scope().env() instanceof Graph) {
-            graph = (Graph) tf.scope().env();
-        }
-        initialize(graph);
-        Op op = instance.updateState(yTrue, yPred);
-        run(graph, op);
-        return instance.result();
+        return instance.call(yTrue, yPred);
     }
 
     /**
@@ -909,14 +844,7 @@ public class MetricsImpl {
      */
     public static Operand hinge(Ops tf, Operand yTrue, Operand yPred) {
         Hinge instance = new Hinge(tf);
-        Graph graph = null;
-        if (tf.scope().env() instanceof Graph) {
-            graph = (Graph) tf.scope().env();
-        }
-        initialize(graph);
-        Op op = instance.updateState(yTrue, yPred);
-        run(graph, op);
-        return instance.result();
+        return instance.call(yTrue, yPred);
     }
 
     /**
@@ -929,14 +857,7 @@ public class MetricsImpl {
      */
     public static Operand poisson(Ops tf, Operand yTrue, Operand yPred) {
         Poisson instance = new Poisson(tf);
-        Graph graph = null;
-        if (tf.scope().env() instanceof Graph) {
-            graph = (Graph) tf.scope().env();
-        }
-        initialize(graph);
-        Op op = instance.updateState(yTrue, yPred);
-        run(graph, op);
-        return instance.result();
+        return instance.call(yTrue, yPred);
     }
 
     /**
@@ -965,14 +886,29 @@ public class MetricsImpl {
      */
     public static Operand sparse_categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, int axis) {
         SparseCategoricalCrossentropy instance = new SparseCategoricalCrossentropy(tf, fromLogits, axis);
-        Graph graph = null;
-        if (tf.scope().env() instanceof Graph) {
-            graph = (Graph) tf.scope().env();
+        return instance.call(yTrue, yPred);
+    }
+
+    /**
+     * Calculates how often predictions matches integer labels.
+     *
+     * @param tf the TensorFlow Ops
+     * @param yTrue true targets
+     * @param yPred predictions
+     * @return Sparse categorical accuracy values.
+     */
+    public static Operand sparse_categorical_accuracy(Ops tf, Operand yTrue, Operand yPred) {
+        Operand yPredRank = tf.rank(yPred);
+        Operand yTrueRank = tf.rank(yTrue);
+        
+        yTrue = tf.squeeze(yTrue);
+        yPred = tf.math.argMax(yPred, tf.constant(-1));
+        
+        if(yPred.asOutput().dataType().equals(yTrue.asOutput().dataType())) {
+            yPred = tf.dtypes.cast(yPred, yTrue.asOutput().dataType());
         }
-        initialize(graph);
-        Op op = instance.updateState(yTrue, yPred);
-        run(graph, op);
-        return instance.result();
+        
+        return tf.dtypes.cast(tf.math.equal(yTrue, yPred), TFloat32.DTYPE);
     }
 
     /**
@@ -985,42 +921,35 @@ public class MetricsImpl {
      */
     public static Operand squared_hinge(Ops tf, Operand yTrue, Operand yPred) {
         SquaredHinge instance = new SquaredHinge(tf);
-        Graph graph = null;
-        if (tf.scope().env() instanceof Graph) {
-            graph = (Graph) tf.scope().env();
-        }
-        initialize(graph);
-        Op op = instance.updateState(yTrue, yPred);
-        run(graph, op);
-        return instance.result();
+        return instance.call(yTrue, yPred);
     }
+
     public static <T extends TNumber> Operand<TFloat32> top_k_categorical_accuracy(
             Ops tf, Operand<T> labels, Operand<T> predictions, int k) {
         Operand<TFloat32> castPredictions = tf.dtypes.cast(predictions, TFloat32.DTYPE);
         return tf.dtypes.cast(
-                tf.nn.inTopK(castPredictions,  tf.math.argMax(labels, tf.constant(-1)), tf.constant((long)k)),
+                tf.nn.inTopK(castPredictions, tf.math.argMax(labels, tf.constant(-1)), tf.constant((long) k)),
                 TFloat32.DTYPE);
     }
-    
-     public static <T extends TNumber> Operand<TFloat32> sparse_top_k_categorical_accuracy(
+
+    public static <T extends TNumber> Operand<TFloat32> sparse_top_k_categorical_accuracy(
             Ops tf, Operand<T> labels, Operand<T> predictions, int k) {
-         int predictionsRank = predictions.asOutput().shape().numDimensions();
-         int labelsRank = labels.asOutput().shape().numDimensions();
-         
-         if(predictionsRank != -1 && labelsRank != -1) {
-             if(predictionsRank > 2) {
-                 predictions = tf.shape.reduceDims(predictions, tf.constant(1));
-             }
-             if(labelsRank > 1) {
-                 labels = tf.shape.flatten(labels);
-             }
-         }
-         Operand<TFloat32> castPredictions = tf.dtypes.cast(predictions, TFloat32.DTYPE);
-         return tf.dtypes.cast(
+        int predictionsRank = predictions.asOutput().shape().numDimensions();
+        int labelsRank = labels.asOutput().shape().numDimensions();
+
+        if (predictionsRank != -1 && labelsRank != -1) {
+            if (predictionsRank > 2) {
+                predictions = tf.shape.reduceDims(predictions, tf.constant(1));
+            }
+            if (labelsRank > 1) {
+                labels = tf.shape.flatten(labels);
+            }
+        }
+        Operand<TFloat32> castPredictions = tf.dtypes.cast(predictions, TFloat32.DTYPE);
+        return tf.dtypes.cast(
                 tf.nn.inTopK(castPredictions, tf.dtypes.cast(labels, TInt32.DTYPE), tf.constant(k)),
                 TFloat32.DTYPE);
-     }
-    
+    }
 
     // helper functions
     private static void initialize(Graph graph) {
@@ -1050,17 +979,17 @@ public class MetricsImpl {
     }
 
     private static <T extends TType> void print(Session session, String prefix, Operand<T> input) {
-        
+
         PrintWriter writer = new PrintWriter(System.out);
-        if(input == null) {
-             writer.printf("\n===================  %s  (null) ===================\n", prefix);
+        if (input == null) {
+            writer.printf("\n===================  %s  (null) ===================\n", prefix);
             return;
         }
-        
+
         writer.printf("\n===================  %s (%s)  ===================\n", prefix, input.asOutput().toString());
         writer.printf("%s shape = (%s)\n", prefix, input.asOutput().shape().toString());
         DataType dtype = input.asOutput().dataType();
-        boolean isScalar = input.asOutput().shape().size() == 1||input.asOutput().shape().size()==0;
+        boolean isScalar = input.asOutput().shape().size() == 1 || input.asOutput().shape().size() == 0;
         if (dtype == TFloat32.DTYPE) {
             AtomicInteger index = new AtomicInteger();
             try (Tensor<TFloat32> result = session.runner().fetch(input).run().get(0).expect(TFloat32.DTYPE)) {

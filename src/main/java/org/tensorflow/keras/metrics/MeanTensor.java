@@ -41,6 +41,9 @@ public class MeanTensor extends Metric {
     private Shape shape;
     private Variable<TFloat32> total;
     private Variable<TFloat32> count;
+    private final String totalName;
+    private final String countName;
+    
     private boolean initialized;
     
     /**
@@ -81,6 +84,8 @@ public class MeanTensor extends Metric {
      */
     public MeanTensor(Ops tf, String name, DataType dType) {
         super(tf, name, dType);
+        this.totalName = this.getClass().getSimpleName() + "_" + TOTAL;
+        this.countName = this.getClass().getSimpleName() + "_" + COUNT;
     }
     
     private Op[] init(Shape shape) {
@@ -88,20 +93,20 @@ public class MeanTensor extends Metric {
         this.shape = shape;
         Zeros zeros = new Zeros(tf);
         
-        total = getVariable(TOTAL);
+        total = getVariable(this.getTotalName());
         if (total == null) {
-            total = tf.withName(TOTAL).variable(
+            total = tf.withName(this.getTotalName()).variable(
                     zeros.call(tf.constant(shape), TFloat32.DTYPE));
-            this.addVariable(TOTAL, total, zeros);
+            this.addVariable(this.getTotalName(), total, zeros);
             if(initializers == null)
                 initializers = new Op[2];
             initializers[0] = tf.assign(total, tf.zeros(tf.constant(shape), TFloat32.DTYPE));
         }
-        count = getVariable(COUNT);
+        count = getVariable(this.getCountName());
         if (count == null) {
-             count = tf.withName(COUNT).variable(
+             count = tf.withName(this.getCountName()).variable(
                 zeros.call(tf.constant(shape), TFloat32.DTYPE));
-                this.addVariable(COUNT, count, zeros);
+                this.addVariable(this.getCountName(), count, zeros);
                 if(initializers == null)
                     initializers = new Op[2];
                 initializers[1] = tf.assign(count, tf.zeros(tf.constant(shape), TFloat32.DTYPE));
@@ -115,7 +120,7 @@ public class MeanTensor extends Metric {
      * {@inheritDoc}
      */
     @Override
-    public Op updateState(Operand... args) {
+    public List<Op> updateStateList(Operand... args) {
         Operand values = args[0];
         Operand sampleWeight = args.length > 1? args[1] : null;
         
@@ -166,18 +171,19 @@ public class MeanTensor extends Metric {
             controlOps.add(initializers[0]);
         }
         Ops tf2 = tf.withSubScope("total_count").withControlDependencies(controlOps);
-        return tf2.assignAdd(this.total, values);
+        controlOps.add(tf2.assignAdd(this.total, values));
+        return controlOps;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Operand result() {
+    public Operand result(Ops rtf) {
         if(!this.initialized) {
             throw new IllegalStateException("MeanTensor does not have any result yet. Please  use `.update_state(value)` before retrieving the result.");
         }
-        return tf.math.divNoNan(total, count);
+        return rtf.math.divNoNan(total, count);
     }
 
     /**
@@ -192,5 +198,19 @@ public class MeanTensor extends Metric {
      */
     public Variable<TFloat32> getCount() {
         return count;
+    }
+
+    /**
+     * @return the totalName
+     */
+    public String getTotalName() {
+        return totalName;
+    }
+
+    /**
+     * @return the countName
+     */
+    public String getCountName() {
+        return countName;
     }
 }

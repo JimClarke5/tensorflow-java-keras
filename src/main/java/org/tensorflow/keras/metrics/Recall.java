@@ -21,10 +21,8 @@ import java.util.List;
 import java.util.Map;
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
-import org.tensorflow.keras.backend.tf.ControlDependencies;
 import org.tensorflow.keras.initializers.Zeros;
 import org.tensorflow.keras.metrics.impl.ConfusionMatrixEnum;
-import org.tensorflow.keras.metrics.impl.MetricsImpl;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Variable;
@@ -48,6 +46,23 @@ public class Recall extends Metric {
     
     private Variable<TFloat32> truePositives;
     private Variable<TFloat32> falseNegatives;
+    private final String truePositivesName;
+    private final String falseNegativesName;
+
+    /**
+     * @return the truePositivesName
+     */
+    public String getTruePositivesName() {
+        return truePositivesName;
+    }
+
+    /**
+     * @return the falseNegativesName
+     */
+    public String getFalseNegativesName() {
+        return falseNegativesName;
+    }
+    
     
     /**
      * Creates a `Recall` metric.
@@ -226,7 +241,8 @@ public class Recall extends Metric {
     public Recall(Ops tf, String name, float[] thresholds, int topK,
             int classID, DataType dType) {
         super(tf, name, dType);
-        
+        this.truePositivesName = this.getClass().getSimpleName() + "_" + TRUE_POSITIVES;
+        this.falseNegativesName = this.getClass().getSimpleName() + "_" + FALSE_NEGATIVES;
         float defaultThreshold = topK == NO_TOPK ? 0.5f : Metrics.NEG_INF;
         
         this.thresholds =  thresholds == null ? new float[]{defaultThreshold} : thresholds ;
@@ -242,22 +258,22 @@ public class Recall extends Metric {
     private void init() {
         Zeros zeros = new Zeros(tf);
         
-        this.truePositives = getVariable(TRUE_POSITIVES);
+        this.truePositives = getVariable(truePositivesName);
         if (truePositives == null) {
             
-            truePositives = tf.withName(TRUE_POSITIVES).variable(zeros.call(tf.constant(Shape.of(this.thresholds.length)), TFloat32.DTYPE));
-            this.addVariable(TRUE_POSITIVES, truePositives, zeros);
+            truePositives = tf.withName(truePositivesName).variable(zeros.call(tf.constant(Shape.of(this.thresholds.length)), TFloat32.DTYPE));
+            this.addVariable(truePositivesName, truePositives, zeros);
         }
-        this.falseNegatives = getVariable(FALSE_NEGATIVES);
+        this.falseNegatives = getVariable(falseNegativesName);
         if (this.falseNegatives == null) {
             
-            falseNegatives = tf.withName(FALSE_NEGATIVES).variable(zeros.call(tf.constant(Shape.of(this.thresholds.length)), TFloat32.DTYPE));
-            this.addVariable(FALSE_NEGATIVES, falseNegatives, zeros);
+            falseNegatives = tf.withName(falseNegativesName).variable(zeros.call(tf.constant(Shape.of(this.thresholds.length)), TFloat32.DTYPE));
+            this.addVariable(falseNegativesName, falseNegatives, zeros);
         }
     }
 
     @Override
-    public Op updateState(Operand... args) {
+    public List<Op> updateStateList(Operand... args) {
          Operand yTrue = args[0];
         Operand yPred = args[1];
         Operand sampleWeights = args.length > 2 ? args[2] : null;
@@ -276,19 +292,15 @@ public class Recall extends Metric {
                 this.topK,
                 this.classID,
                 sampleWeights, false, null));
-        return ControlDependencies.addControlDependencies(tf,
-                "updateState", updateOperations);
+        return updateOperations;
     }
 
     @Override
-    public Operand result() {
-        MetricsImpl.debug("result/truePositives", truePositives);
-        MetricsImpl.debug("result/falseNegatives", falseNegatives);
-        Operand result = tf.math.divNoNan(this.truePositives,
-                                 tf.math.add(this.truePositives, this.falseNegatives));
-        MetricsImpl.debug("result", result);
+    public Operand result(Ops rtf) {
+        Operand result = rtf.math.divNoNan(this.truePositives,
+                                 rtf.math.add(this.truePositives, this.falseNegatives));
         return this.thresholds.length == 1 ?  
-                tf.slice(result, tf.constant(new int[] { 0 }), tf.constant(new int[1]))
+                rtf.slice(result, rtf.constant(new int[] { 0 }), rtf.constant(new int[1]))
                 : result;
     }
     

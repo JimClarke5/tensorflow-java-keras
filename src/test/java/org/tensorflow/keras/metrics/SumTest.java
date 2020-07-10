@@ -21,8 +21,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.Operand;
-import static org.tensorflow.keras.metrics.impl.Reduce.COUNT;
-import static org.tensorflow.keras.metrics.impl.Reduce.TOTAL;
 import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;

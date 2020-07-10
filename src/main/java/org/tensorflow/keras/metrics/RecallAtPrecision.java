@@ -94,20 +94,20 @@ public class RecallAtPrecision extends SensitivitySpecificityBase {
     }
 
     @Override
-    public Operand result() {
+    public Operand result(Ops rtf) {
 
-        Operand precisions = tf.math.divNoNan(
-                this.truePositives, tf.math.add(this.truePositives, this.falsePositives));
-        Operand recalls = tf.math.divNoNan(
-                this.truePositives, tf.math.add(this.truePositives, this.falseNegatives));
+        Operand precisions = rtf.math.divNoNan(
+                this.truePositives, rtf.math.add(this.truePositives, this.falsePositives));
+        Operand recalls = rtf.math.divNoNan(
+                this.truePositives, rtf.math.add(this.truePositives, this.falseNegatives));
 
-        Operand isFeasible = tf.math.greaterEqual(precisions, tf.constant(this.value));
-        Operand feasible = tf.where(isFeasible);
-        Operand feasibleExists = tf.math.greater(tf.size(feasible), tf.constant(0));
+        Operand isFeasible = rtf.math.greaterEqual(precisions, rtf.constant(this.value));
+        Operand feasible = rtf.where(isFeasible);
+        Operand feasibleExists = rtf.math.greater(rtf.size(feasible), rtf.constant(0));
 
-        Operand gather = tf.expandDims(tf.gather(recalls, feasible, tf.constant(0)), tf.constant(0));
-        Operand bestRecall = tf.select(feasibleExists,
-                tf.reduceMax(gather, K.allAxis(tf, gather)), tf.constant(0.0f));
+        Operand gather = rtf.expandDims(rtf.gather(recalls, feasible, rtf.constant(0)), rtf.constant(0));
+        Operand bestRecall = rtf.select(feasibleExists,
+                rtf.reduceMax(gather, K.allAxis(rtf, gather)), rtf.constant(0.0f));
         return bestRecall;
 
     }

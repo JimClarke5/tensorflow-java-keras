@@ -14,8 +14,10 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.metrics;
 
+import java.util.List;
 import org.tensorflow.Operand;
 import org.tensorflow.op.Op;
+import org.tensorflow.op.Ops;
 
 /**
  *
@@ -35,6 +37,15 @@ public interface MetricInterface {
      * @return the updated State
      */
     public Op updateState(Operand... args);
+    
+    
+    /**
+     * update States
+     *
+     * @param args Operands
+     * @return the updated State
+     */
+    public List<Op> updateStateList(Operand... args);
 
     /**
      * get the result of the metric
@@ -42,4 +53,12 @@ public interface MetricInterface {
      * @return the result;
      */
     public Operand result();
+    
+     /**
+     * get the result of the metric
+     *
+     * @param tf the TensorFlow Ops
+     * @return the result;
+     */
+    public Operand result(Ops tf);
 }

@@ -21,9 +21,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.Operand;
-import org.tensorflow.keras.metrics.impl.MetricsImpl;
-import static org.tensorflow.keras.metrics.impl.Reduce.COUNT;
-import static org.tensorflow.keras.metrics.impl.Reduce.TOTAL;
 import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
@@ -81,8 +78,8 @@ public class LogCoshErrorTest {
             
             Op op = instance.updateState(y_true, y_pred);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             session.evaluate(4.829245f, result);
             session.evaluate(9.65849f, total);
@@ -106,8 +103,8 @@ public class LogCoshErrorTest {
             
             Op op = instance.updateState(y_true, y_pred, sampleWeight);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             session.evaluate(5.2178759f, result);
             session.evaluate(24.002228f, total);

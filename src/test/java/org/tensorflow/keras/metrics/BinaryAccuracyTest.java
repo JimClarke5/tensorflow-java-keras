@@ -21,8 +21,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.Operand;
-import static org.tensorflow.keras.metrics.impl.Reduce.COUNT;
-import static org.tensorflow.keras.metrics.impl.Reduce.TOTAL;
 import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
@@ -80,8 +78,8 @@ public class BinaryAccuracyTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 1)));
             Op op = instance.updateState(y_true, y_pred);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             session.evaluate(2F, total);
             session.evaluate(2, count);
@@ -101,8 +99,8 @@ public class BinaryAccuracyTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 1, 1)));
             Op op = instance.updateState(y_true, y_pred);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             session.evaluate(2F, total);
             session.evaluate(4, count);
@@ -125,8 +123,8 @@ public class BinaryAccuracyTest {
             Operand sampleWeight = tf.reshape(tf.constant(new float[] {.5F, .2F}), tf.constant(Shape.of(2, 1)));
             Op op = instance.updateState(y_true, y_true, sampleWeight);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             session.evaluate(0.2F, total);
             session.evaluate(.7, count);
@@ -149,8 +147,8 @@ public class BinaryAccuracyTest {
             Operand sampleWeight = tf.reshape(tf.constant(new float[] {.5F, .2F}), tf.constant(Shape.of(2, 1)));
             Op op = instance.updateState(y_true, y_true, sampleWeight);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             session.evaluate(0.2F, total);
             session.evaluate(.7, count);
@@ -198,8 +196,8 @@ public class BinaryAccuracyTest {
             
             Op op = instance.updateState(y_true, y_pred);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             session.evaluate(2F, total);
             session.evaluate(4, count);

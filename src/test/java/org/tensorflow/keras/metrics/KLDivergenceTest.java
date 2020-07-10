@@ -21,8 +21,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.Operand;
-import static org.tensorflow.keras.metrics.impl.Reduce.COUNT;
-import static org.tensorflow.keras.metrics.impl.Reduce.TOTAL;
 import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
@@ -76,21 +74,15 @@ public class KLDivergenceTest {
             Ops tf = session.getTF();
             KLDivergence instance = new KLDivergence(tf);
             session.run(instance.initializeVars());
-            float[] true_np = { 
-                .5f, .8f, .12f, 
-                .7f, .43f, .8f
-            };
-            float[] pred_np = { 
-                .4f, .9f, .12f, 
-                .36f, .3f, .4f 
-            };
+            float[][] true_np = { { .5f, .8f, .12f}, {.7f, .43f, .8f }};
+            float[][] pred_np = { { .4f, .9f, .12f}, {.36f, .3f, .4f  }};
+            Operand y_true = tf.constant(true_np);
+            Operand y_pred =tf.constant(pred_np);
             
-            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Op op = instance.updateState(y_true, y_pred);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             session.evaluate(1.1921477F, total);
             session.evaluate(2, count);
@@ -121,8 +113,8 @@ public class KLDivergenceTest {
             Operand sampleWeight = tf.constant(new float[] {1.2f, 3.4f});
             Op op = instance.updateState(y_true, y_pred, sampleWeight);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             session.evaluate(4.015142F, total);
             session.evaluate(4.6, count);

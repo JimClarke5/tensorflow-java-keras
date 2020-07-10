@@ -93,18 +93,18 @@ public class SensitivityAtSpecificity extends SensitivitySpecificityBase {
 
 
     @Override
-    public Operand result() {
+    public Operand result(Ops rtf) {
         
-        Operand specificitys = tf.math.divNoNan(
-                this.trueNegatives, tf.math.add(this.trueNegatives, this.falsePositives));
-        Operand sub = tf.math.sub(specificitys, tf.constant(this.getValue()));
-        Operand minIndex = tf.math.argMin(
-                tf.math.abs(sub), tf.constant(0), TInt32.DTYPE );
-        minIndex = tf.expandDims(minIndex, tf.constant(0));
+        Operand specificitys = rtf.math.divNoNan(
+                this.trueNegatives, rtf.math.add(this.trueNegatives, this.falsePositives));
+        Operand sub = rtf.math.sub(specificitys, rtf.constant(this.getValue()));
+        Operand minIndex = rtf.math.argMin(
+                rtf.math.abs(sub), rtf.constant(0), TInt32.DTYPE );
+        minIndex = rtf.expandDims(minIndex, rtf.constant(0));
         
-        Operand trueSlice = tf.slice(this.truePositives, minIndex, tf.constant(new int[]{1}));
-        Operand falseSlice = tf.slice(this.falseNegatives, minIndex, tf.constant(new int[]{1}));
-        Operand result =  tf.math.divNoNan( trueSlice, tf.math.add(trueSlice, falseSlice));
+        Operand trueSlice = rtf.slice(this.truePositives, minIndex, rtf.constant(new int[]{1}));
+        Operand falseSlice = rtf.slice(this.falseNegatives, minIndex, rtf.constant(new int[]{1}));
+        Operand result =  rtf.math.divNoNan( trueSlice, rtf.math.add(trueSlice, falseSlice));
         return result;
         
         

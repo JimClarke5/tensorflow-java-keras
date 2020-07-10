@@ -14,11 +14,11 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.metrics.impl;
 
+import java.util.List;
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.keras.losses.LossFunction;
 import org.tensorflow.keras.metrics.Mean;
-import org.tensorflow.keras.metrics.Metrics;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 
@@ -51,13 +51,12 @@ public class MeanMetricWrapper extends Mean {
     }
 
     @Override
-    public Op updateState(Operand... operands) {
+    public List<Op> updateStateList(Operand... operands) {
         Operand labels = operands[0];
         Operand predictions = operands[1];
         Operand sampleWeights = operands.length > 2 ? operands[2] : null;
         Operand losses = loss.call(labels, predictions, null);
-        MetricsImpl.debug("losses", losses);
-        return super.updateState(losses, sampleWeights);
+        return super.updateStateList(losses, sampleWeights);
     }
 
 }

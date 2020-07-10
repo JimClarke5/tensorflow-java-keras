@@ -49,6 +49,11 @@ public abstract class SensitivitySpecificityBase extends Metric {
     protected Variable<TFloat32> trueNegatives;
     protected Variable<TFloat32> falseNegatives;
     
+    private final String truePositivesName;
+    private final String falsePositivesName;
+    private final String trueNegativesName;
+    private final String falseNegativesName;
+    
     protected final int numThresholds;
     protected final float value;
     protected final float[] thresholds;
@@ -66,6 +71,11 @@ public abstract class SensitivitySpecificityBase extends Metric {
     protected SensitivitySpecificityBase(Ops tf, String name, float value, int numThresholds, DataType dType) {
         super(tf, name, dType);
         assert numThresholds > 0 : "`num_thresholds` must be > 0.";
+        this.truePositivesName = this.getClass().getSimpleName() + "_" + TRUE_POSITIVES;
+        this.falsePositivesName = this.getClass().getSimpleName() + "_" + FALSE_POSITIVES;
+        this.trueNegativesName = this.getClass().getSimpleName() + "_" + TRUE_NEGATIVES;
+        this.falseNegativesName = this.getClass().getSimpleName() + "_" + FALSE_NEGATIVES;
+        
         this.value = value;
         this.numThresholds = numThresholds;
         
@@ -87,29 +97,29 @@ public abstract class SensitivitySpecificityBase extends Metric {
     private void init() {
         Zeros zeros = new Zeros(tf);
         
-        this.truePositives = getVariable(TRUE_POSITIVES);
+        this.truePositives = getVariable(truePositivesName);
         if (this.getTruePositives() == null) {
             
-            truePositives = tf.withName(TRUE_POSITIVES).variable(zeros.call(tf.constant(Shape.of(getNumThresholds())), TFloat32.DTYPE));
-            this.addVariable(TRUE_POSITIVES, getTruePositives(), zeros);
+            truePositives = tf.withName(truePositivesName).variable(zeros.call(tf.constant(Shape.of(getNumThresholds())), TFloat32.DTYPE));
+            this.addVariable(truePositivesName, getTruePositives(), zeros);
         }
-        this.falsePositives = getVariable(FALSE_POSITIVES);
+        this.falsePositives = getVariable(falsePositivesName);
         if (this.getFalsePositives() == null) {
             
-            falsePositives = tf.withName(FALSE_POSITIVES).variable(zeros.call(tf.constant(Shape.of(getNumThresholds())), TFloat32.DTYPE));
-            this.addVariable(FALSE_POSITIVES, getFalsePositives(), zeros);
+            falsePositives = tf.withName(falsePositivesName).variable(zeros.call(tf.constant(Shape.of(getNumThresholds())), TFloat32.DTYPE));
+            this.addVariable(falsePositivesName, getFalsePositives(), zeros);
         }
-        this.trueNegatives = getVariable(TRUE_NEGATIVES);
+        this.trueNegatives = getVariable(trueNegativesName);
         if (this.getTrueNegatives() == null) {
             
-            trueNegatives = tf.withName(TRUE_NEGATIVES).variable(zeros.call(tf.constant(Shape.of(getNumThresholds())), TFloat32.DTYPE));
-            this.addVariable(TRUE_NEGATIVES, getTrueNegatives(), zeros);
+            trueNegatives = tf.withName(trueNegativesName).variable(zeros.call(tf.constant(Shape.of(getNumThresholds())), TFloat32.DTYPE));
+            this.addVariable(trueNegativesName, getTrueNegatives(), zeros);
         }
-        this.falseNegatives = getVariable(FALSE_NEGATIVES);
+        this.falseNegatives = getVariable(falseNegativesName);
         if (this.getFalseNegatives() == null) {
             
-            falseNegatives = tf.withName(FALSE_NEGATIVES).variable(zeros.call(tf.constant(Shape.of(getNumThresholds())), TFloat32.DTYPE));
-            this.addVariable(FALSE_NEGATIVES, getFalseNegatives(), zeros);
+            falseNegatives = tf.withName(falseNegativesName).variable(zeros.call(tf.constant(Shape.of(getNumThresholds())), TFloat32.DTYPE));
+            this.addVariable(falseNegativesName, getFalseNegatives(), zeros);
         }
     }
     
@@ -117,7 +127,7 @@ public abstract class SensitivitySpecificityBase extends Metric {
      * {@inheritDoc}
      */
     @Override
-    public Op updateState(Operand... args) {
+    public List<Op> updateStateList(Operand... args) {
         Operand yTrue = args[0];
         Operand yPred = args[1];
         Operand sampleWeights = args.length > 2 ? args[2] : null;
@@ -137,8 +147,7 @@ public abstract class SensitivitySpecificityBase extends Metric {
                 null,
                 null,
                 sampleWeights, false, null));
-        return ControlDependencies.addControlDependencies(tf,
-                "updateState", updateOperations);
+        return updateOperations;
     }
 
     /**
@@ -188,6 +197,34 @@ public abstract class SensitivitySpecificityBase extends Metric {
      */
     public float[] getThresholds() {
         return thresholds;
+    }
+
+    /**
+     * @return the truePositivesName
+     */
+    public String getTruePositivesName() {
+        return truePositivesName;
+    }
+
+    /**
+     * @return the falsePositivesName
+     */
+    public String getFalsePositivesName() {
+        return falsePositivesName;
+    }
+
+    /**
+     * @return the trueNegativesName
+     */
+    public String getTrueNegativesName() {
+        return trueNegativesName;
+    }
+
+    /**
+     * @return the falseNegativesName
+     */
+    public String getFalseNegativesName() {
+        return falseNegativesName;
     }
     
 }

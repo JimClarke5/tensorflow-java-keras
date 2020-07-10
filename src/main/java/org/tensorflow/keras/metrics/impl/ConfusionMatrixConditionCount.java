@@ -47,6 +47,7 @@ public abstract class ConfusionMatrixConditionCount extends Metric {
     private final float[] thresholds;
     
     private Map<ConfusionMatrixEnum, Variable> confusionMatrix = new HashMap<>();
+    private final String accumulatorName;
     
     
     public ConfusionMatrixConditionCount(Ops tf, String name, ConfusionMatrixEnum confusion_matrix_cond) {
@@ -57,6 +58,7 @@ public abstract class ConfusionMatrixConditionCount extends Metric {
     }
     public ConfusionMatrixConditionCount(Ops tf, String name, ConfusionMatrixEnum confusion_matrix_cond, float[] thresholds, DataType dType) {
         super(tf, name, dType);
+        accumulatorName = this.getClass().getSimpleName() + "_" + ACCUMULATOR;
         this.confusion_matrix_cond = confusion_matrix_cond;
         this.thresholds = thresholds;
         init();
@@ -65,13 +67,13 @@ public abstract class ConfusionMatrixConditionCount extends Metric {
     private void init() {
         Shape variableShape =  Shape.of(this.thresholds.length);
         
-        accumulator = getVariable(ACCUMULATOR);
+        accumulator = getVariable(getAccumulatorName());
         if(accumulator == null) {
             Zeros zeros = new Zeros(tf);
-            accumulator = tf.withName(ACCUMULATOR).variable(
+            accumulator = tf.withName(getAccumulatorName()).variable(
                     zeros.call(tf.constant(variableShape), TFloat32.DTYPE));
             initializer = tf.assign(accumulator, zeros.call(tf.constant(variableShape), TFloat32.DTYPE));
-            this.addVariable(ACCUMULATOR, accumulator, zeros);
+            this.addVariable(getAccumulatorName(), accumulator, zeros);
         }
         
         confusionMatrix.put(confusion_matrix_cond, accumulator);
@@ -79,7 +81,7 @@ public abstract class ConfusionMatrixConditionCount extends Metric {
     
 
     @Override
-    public Op updateState(Operand... operands) {
+    public List<Op> updateStateList(Operand... operands) {
         Operand yTrue = operands[0];
         Operand yPred = operands[1];
         Operand sampleWeights = operands.length > 2 ? operands[2] : null;
@@ -96,13 +98,12 @@ public abstract class ConfusionMatrixConditionCount extends Metric {
                 false, 
                 null));
         
-        return ControlDependencies.addControlDependencies(tf,
-                "updateState", updateOperations);
+        return updateOperations;
     }
 
     @Override
-    public Operand result() {
-        return tf.identity(accumulator);
+    public Operand result(Ops rtf) {
+        return rtf.identity(accumulator);
     }
     
     /**
@@ -111,6 +112,13 @@ public abstract class ConfusionMatrixConditionCount extends Metric {
      */
     public float[] getThresholds() {
         return this.thresholds;
+    }
+
+    /**
+     * @return the accumulatorName
+     */
+    public String getAccumulatorName() {
+        return accumulatorName;
     }
     
 }

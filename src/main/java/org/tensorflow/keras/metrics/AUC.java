@@ -26,6 +26,10 @@ import org.tensorflow.keras.backend.tf.ControlDependencies;
 import org.tensorflow.keras.backend.K;
 import org.tensorflow.keras.initializers.Zeros;
 import org.tensorflow.keras.metrics.impl.ConfusionMatrixEnum;
+import static org.tensorflow.keras.metrics.impl.SensitivitySpecificityBase.FALSE_NEGATIVES;
+import static org.tensorflow.keras.metrics.impl.SensitivitySpecificityBase.FALSE_POSITIVES;
+import static org.tensorflow.keras.metrics.impl.SensitivitySpecificityBase.TRUE_NEGATIVES;
+import static org.tensorflow.keras.metrics.impl.SensitivitySpecificityBase.TRUE_POSITIVES;
 import org.tensorflow.keras.utils.SymbolicShape;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
@@ -61,6 +65,10 @@ public class AUC extends Metric {
     private Variable<TFloat32> falsePositives;
     private Variable<TFloat32> trueNegatives;
     private Variable<TFloat32> falseNegatives;
+    private final String truePositivesName;
+    private final String falsePositivesName;
+    private final String trueNegativesName;
+    private final String falseNegativesName;
 
     private boolean initialized = false;
     private Shape buildInputShape;
@@ -281,7 +289,10 @@ public class AUC extends Metric {
     public AUC(Ops tf, String name, Integer numThresholds, AUCCurve curve, AUCSummationMethod summationMethod,
             float[] thresholds, boolean multiLabel, Operand labelWeights, DataType dType) {
         super(tf, name == null ? "auc" : name, dType);
-
+        this.truePositivesName = this.getClass().getSimpleName() + "_" + TRUE_POSITIVES;
+        this.falsePositivesName = this.getClass().getSimpleName() + "_" + FALSE_POSITIVES;
+        this.trueNegativesName = this.getClass().getSimpleName() + "_" + TRUE_NEGATIVES;
+        this.falseNegativesName = this.getClass().getSimpleName() + "_" + FALSE_NEGATIVES;
         this.curve = curve;
         this.summationMethod = summationMethod;
 
@@ -351,36 +362,36 @@ public class AUC extends Metric {
         
         Zeros zeros = new Zeros(tf);
         
-        truePositives = getVariable(TRUE_POSITIVES);
+        truePositives = getVariable(getTruePositivesName());
         if (truePositives == null) {
-            truePositives = tf.withName(TRUE_POSITIVES).variable(
+            truePositives = tf.withName(getTruePositivesName()).variable(
                     zeros.call(tf.constant(variableShape), TFloat32.DTYPE));
-            this.addVariable(TRUE_POSITIVES, truePositives, zeros);
+            this.addVariable(getTruePositivesName(), truePositives, zeros);
             initializers.put(ConfusionMatrixEnum.TRUE_POSITIVES,
                 tf.assign(truePositives, zeros.call(tf.constant(variableShape), TFloat32.DTYPE)));
             
         }
-        falsePositives = getVariable(FALSE_POSITIVES);
+        falsePositives = getVariable(getFalsePositivesName());
         if (falsePositives == null) {
-            falsePositives = tf.withName(FALSE_POSITIVES).variable(
+            falsePositives = tf.withName(getFalsePositivesName()).variable(
                     zeros.call(tf.constant(variableShape), TFloat32.DTYPE));
-            this.addVariable(FALSE_POSITIVES, falsePositives, zeros);
+            this.addVariable(getFalsePositivesName(), falsePositives, zeros);
             initializers.put(ConfusionMatrixEnum.FALSE_POSITIVES,
                 tf.assign(falsePositives, zeros.call(tf.constant(variableShape), TFloat32.DTYPE)));
         }
-        trueNegatives = getVariable(TRUE_NEGATIVES);
+        trueNegatives = getVariable(getTrueNegativesName());
         if (trueNegatives == null) {
-            trueNegatives = tf.withName(TRUE_NEGATIVES).variable(
+            trueNegatives = tf.withName(getTrueNegativesName()).variable(
                     zeros.call(tf.constant(variableShape), TFloat32.DTYPE));
-            this.addVariable(TRUE_NEGATIVES, trueNegatives, zeros);
+            this.addVariable(getTrueNegativesName(), trueNegatives, zeros);
             initializers.put(ConfusionMatrixEnum.TRUE_NEGATIVES,
                 tf.assign(trueNegatives, zeros.call(tf.constant(variableShape), TFloat32.DTYPE)));
         }
-        falseNegatives = getVariable(FALSE_NEGATIVES);
+        falseNegatives = getVariable(getFalseNegativesName());
         if (falseNegatives == null) {
-            falseNegatives = tf.withName(FALSE_NEGATIVES).variable(
+            falseNegatives = tf.withName(getFalseNegativesName()).variable(
                     zeros.call(tf.constant(variableShape), TFloat32.DTYPE));
-            this.addVariable(FALSE_NEGATIVES, falseNegatives, zeros);
+            this.addVariable(getFalseNegativesName(), falseNegatives, zeros);
             initializers.put(ConfusionMatrixEnum.FALSE_NEGATIVES,
                 tf.assign(falseNegatives, zeros.call(tf.constant(variableShape), TFloat32.DTYPE)));
         }
@@ -397,7 +408,7 @@ public class AUC extends Metric {
      * {@inheritDoc}
      */
     @Override
-    public Op updateState(Operand... args) {
+    public List<Op> updateStateList(Operand... args) {
         Operand yTrue = args[0];
         Operand yPred = args[1];
         Operand sampleWeights = args.length > 2 ? args[2] : null;
@@ -439,8 +450,7 @@ public class AUC extends Metric {
                 null,
                 null,
                 sampleWeights, this.isMultiLabel(), this.getLabelWeights()));
-        return ControlDependencies.addControlDependencies(tf,
-                "updateState", updateOperations);
+        return updateOperations;
     }
 
     /**
@@ -534,89 +544,74 @@ public class AUC extends Metric {
      * {@inheritDoc}
      */
     @Override
-    public Operand result() {
+    public Operand result(Ops rtf) {
                 
-        //TODO remove MetricsImpl.debug("result()/TRUE_POSITIVES", truePositives);
-        //TODO remove MetricsImpl.debug("result()/FALSE_POSITIVES", falsePositives);
-        //TODO remove MetricsImpl.debug("result()/TRUE_NEGATIVES", trueNegatives);
-        //TODO remove MetricsImpl.debug("result()/FALSE_NEGATIVES", falseNegatives);
          
         if (this.getCurve() == AUCCurve.PR && this.getSummationMethod() == AUCSummationMethod.INTERPOLATION) {
             return this.interpolatePRAuc();
         }
         Operand x;
         Operand y;
-        Operand recall = tf.math.divNoNan(truePositives, tf.math.add(truePositives, falseNegatives));
+        Operand recall = rtf.math.divNoNan(truePositives, rtf.math.add(truePositives, falseNegatives));
 
 
         if (this.getCurve() == AUCCurve.ROC) {
-            Operand fpRate = tf.math.divNoNan(falsePositives, tf.math.add(falsePositives, trueNegatives));
+            Operand fpRate = rtf.math.divNoNan(falsePositives, rtf.math.add(falsePositives, trueNegatives));
             x = fpRate;
             y = recall;
-             //TODO remove MetricsImpl.debug("result()//x(fpRate)", x);
         } else { //AUCCurve.PR
-            Operand precision = tf.math.divNoNan(truePositives, tf.math.add(truePositives, falsePositives));
+            Operand precision = rtf.math.divNoNan(truePositives, rtf.math.add(truePositives, falsePositives));
             y = precision;
             x = recall;
-             //TODO remove MetricsImpl.debug("result()//x(precision)", x);
         }
         
        
-        //TODO remove MetricsImpl.debug("result()//y(recall)", y);
-        
 
         // Find the rectangle heights based on `summation_method`.
         //y[:self.num_thresholds - 1]
-        Operand ySlice1 = tf.slice(y, tf.constant(new int[]{0}),
-                tf.constant(new int[]{this.getNumThresholds() - 1}));
+        Operand ySlice1 = rtf.slice(y, rtf.constant(new int[]{0}),
+                rtf.constant(new int[]{this.getNumThresholds() - 1}));
         //y[1:]
-        Operand ySlice2 = tf.slice(y, tf.constant(new int[]{1}), 
-                tf.constant(new int[]{-1}));
+        Operand ySlice2 = rtf.slice(y, rtf.constant(new int[]{1}), 
+                rtf.constant(new int[]{-1}));
         
-        //TODO remove MetricsImpl.debug("result()/ySlice1", ySlice1);
-        //TODO remove MetricsImpl.debug("result()/ySlice2", ySlice2);
         Operand heights = null;
         switch (this.getSummationMethod()) {
             case INTERPOLATION:
-                heights = tf.math.div(
-                        tf.math.add(ySlice1, ySlice2),
-                        tf.dtypes.cast(tf.constant(2), y.asOutput().dataType())
+                heights = rtf.math.div(
+                        rtf.math.add(ySlice1, ySlice2),
+                        rtf.dtypes.cast(rtf.constant(2), y.asOutput().dataType())
                 );
                 break;
             case MINORING:
-                heights = tf.math.minimum(ySlice1, ySlice2);
+                heights = rtf.math.minimum(ySlice1, ySlice2);
                 break;
             case MAJORING:
-                heights = tf.math.maximum(ySlice1, ySlice2);
+                heights = rtf.math.maximum(ySlice1, ySlice2);
                 break;
         }
         //TODO remove MetricsImpl.debug("AUC/heights", heights);
 
         if (this.isMultiLabel()) {
-            Operand riemann_terms = tf.math.mul(tf.math.sub(tf.slice(x, tf.constant(new int[]{0}), tf.constant(new int[]{this.getNumThresholds() - 1})),
-                    tf.slice(x, tf.constant(new int[]{1}), tf.constant(new int[]{-1})) ),
+            Operand riemann_terms = rtf.math.mul(rtf.math.sub(rtf.slice(x, rtf.constant(new int[]{0}), rtf.constant(new int[]{this.getNumThresholds() - 1})),
+                    rtf.slice(x, rtf.constant(new int[]{1}), rtf.constant(new int[]{-1})) ),
                     heights );
-            Operand by_label_auc = tf.reduceSum(riemann_terms, tf.constant(0));
+            Operand by_label_auc = rtf.reduceSum(riemann_terms, rtf.constant(0));
             
             if (this.getLabelWeights() == null) {
-                return K.mean(tf, by_label_auc);
+                return K.mean(rtf, by_label_auc);
             } else {
-                return tf.math.divNoNan(tf.reduceSum(tf.math.mul(by_label_auc, getLabelWeights()), K.allAxis(tf, getLabelWeights())),
-                        tf.reduceSum(getLabelWeights(), K.allAxis(tf, getLabelWeights()))
+                return rtf.math.divNoNan(rtf.reduceSum(rtf.math.mul(by_label_auc, getLabelWeights()), K.allAxis(rtf, getLabelWeights())),
+                        rtf.reduceSum(getLabelWeights(), K.allAxis(rtf, getLabelWeights()))
                 );
             }
 
         } else {
-            Operand slice1 = tf.slice(x, tf.constant(new int[]{0}), tf.constant(new int[]{this.getNumThresholds() - 1}));
-            //TODO remove MetricsImpl.debug("AUC/slice1", slice1);
-            Operand slice2 = tf.slice(x, tf.constant(new int[]{1}), tf.constant(new int[]{-1}));
-            //TODO remove MetricsImpl.debug("AUC/slice2", slice2);
-            Operand sub = tf.math.sub(slice1, slice2);
-            //TODO remove MetricsImpl.debug("AUC/sub", sub);
-            Operand operand =  tf.math.mul( sub, heights);
-            //TODO remove MetricsImpl.debug("result()//operand", operand);
-            Operand sum =  tf.reduceSum(operand,  K.allAxis(tf, operand) );
-            //TODO remove MetricsImpl.debug("result()//reducesum", sum);
+            Operand slice1 = rtf.slice(x, rtf.constant(new int[]{0}), rtf.constant(new int[]{this.getNumThresholds() - 1}));
+            Operand slice2 = rtf.slice(x, rtf.constant(new int[]{1}), rtf.constant(new int[]{-1}));
+            Operand sub = rtf.math.sub(slice1, slice2);
+            Operand operand =  rtf.math.mul( sub, heights);
+            Operand sum =  rtf.reduceSum(operand,  K.allAxis(rtf, operand) );
             return sum;
         }
     }
@@ -725,6 +720,34 @@ public class AUC extends Metric {
      */
     public Variable<TFloat32> getFalseNegatives() {
         return falseNegatives;
+    }
+
+    /**
+     * @return the truePositivesName
+     */
+    public String getTruePositivesName() {
+        return truePositivesName;
+    }
+
+    /**
+     * @return the falsePositivesName
+     */
+    public String getFalsePositivesName() {
+        return falsePositivesName;
+    }
+
+    /**
+     * @return the trueNegativesName
+     */
+    public String getTrueNegativesName() {
+        return trueNegativesName;
+    }
+
+    /**
+     * @return the falseNegativesName
+     */
+    public String getFalseNegativesName() {
+        return falseNegativesName;
     }
 
 }

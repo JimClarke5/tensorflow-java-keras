@@ -21,8 +21,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.Operand;
-import static org.tensorflow.keras.metrics.impl.Reduce.COUNT;
-import static org.tensorflow.keras.metrics.impl.Reduce.TOTAL;
 import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.keras.utils.TestSession.Mode;
 import org.tensorflow.op.Op;
@@ -85,8 +83,8 @@ public class BinaryCrossentropyTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 2)));
             Op op = instance.updateState(y_true, y_pred);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             session.evaluate(7.666619F, total);
             session.evaluate(2, count);
@@ -107,8 +105,8 @@ public class BinaryCrossentropyTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
             Op op = instance.updateState(y_true, y_pred);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             session.evaluate(66.66667F, total);
             session.evaluate(2, count);
@@ -131,8 +129,8 @@ public class BinaryCrossentropyTest {
             Operand sampleWeight = tf.constant(new float[] {1.5F, 2.F});
             Op op = instance.updateState(y_true, y_pred, sampleWeight);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             Operand loss = instance.call(y_true, y_pred, sampleWeight);
             
@@ -157,8 +155,8 @@ public class BinaryCrossentropyTest {
             Operand sampleWeight = tf.constant(new float[] {2F, 2.5F});
             Op op = instance.updateState(y_true, y_pred, sampleWeight);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             session.evaluate(166.66666F, total);
             session.evaluate(4.5, count);
@@ -182,8 +180,8 @@ public class BinaryCrossentropyTest {
             
             Op op = instance.updateState(y_true, y_pred);
             session.run(op);
-            Variable<TFloat32> total = instance.getVariable(TOTAL);
-            Variable<TInt32> count = instance.getVariable(COUNT);
+            Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
+            Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
             float expected = 100.0F + 50.0F * label_smoothing;
             session.evaluate(35f, total);

@@ -18,7 +18,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 import org.tensorflow.DataType;
+import org.tensorflow.ExecutionEnvironment;
 import org.tensorflow.Graph;
 import org.tensorflow.Operand;
 import org.tensorflow.Session;
@@ -26,8 +28,10 @@ import org.tensorflow.keras.backend.tf.ControlDependencies;
 import org.tensorflow.keras.initializers.Initializer;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
+import org.tensorflow.op.Scope;
 import org.tensorflow.op.core.Variable;
 import org.tensorflow.types.TFloat32;
+import org.tensorflow.types.family.TType;
 
 /**
  *
@@ -42,10 +46,10 @@ public abstract class Metric implements MetricInterface {
     protected final String name;
     protected final DataType dType;
 
-    // for graph mode
-    protected static Graph graph;
-    
-    protected static Map<String, Map<String, MetricVariable>> variables = new HashMap<>();
+    /**
+     * variables are stored by Scope, and then by an identifier name
+     */
+    protected static Map<ExecutionEnvironment, Map<String, MetricVariable>> variables = new WeakHashMap<>();
 
 
     protected boolean stateful = true;
@@ -91,20 +95,25 @@ public abstract class Metric implements MetricInterface {
      * @param dType the DataType
      */
     protected Metric(Ops tf, String name, DataType dType) {
-        assert tf.scope().env().isGraph() : "Metric class have to be executed in Graph Mode";
+        assert tf.scope().env().isGraph() : "Metric class has to be executed in Graph Mode";
         this.dType = dType == null ? TFloat32.DTYPE : dType;
         this.name = name == null ? this.getClass().getSimpleName() : name;
         this.tf = tf.withSubScope(this.name);
-        if (this.tf != null && this.tf.scope().env() instanceof Graph) {
-            if (graph != null && !graph.equals((Graph) this.tf.scope().env())) {
-                graph = (Graph) tf.scope().env();
-                variables.clear();
-            } else if (graph == null) {
-                graph = (Graph) tf.scope().env();
-            }
-        } else {
-            graph = null;
-        }
+    }
+    
+    /**
+     * {@inheritDoc}
+    */
+    public Op updateState(Operand... args) {
+        List<Op> conrolOps = updateStateList(args);
+        return ControlDependencies.addControlDependencies(tf, name + "_updateState", conrolOps);
+    }
+    
+    /**
+     * {@inheritDoc}
+    */
+    public Operand result() {
+        return this.result(this.tf);
     }
 
     /**
@@ -114,20 +123,24 @@ public abstract class Metric implements MetricInterface {
      * @return the result with a control dependency on update state
      */
     public Operand call(Operand... args) {
-        Op op = updateState(args);
-        return ControlDependencies.addControlDependencies(tf, (tf) -> result(), name + "/call", op);
+        List<Op> conrolOps = new ArrayList<>();
+        conrolOps.addAll(updateStateList(args));
+        return ControlDependencies.addControlDependencies(tf, (tf) -> result(tf), name + "_call", conrolOps);
     }
+    
+    
 
     /**
      * add a variable to be collect metric values
      *
-     * @param name the name of the variable
+     * @param name a name that identifies the variable
      * @param variable the variable
      */
     protected void addVariable(String name, Variable variable) {
-        Map<String, MetricVariable> thisMap = this.variables.get(this.name);
+        Map<String, MetricVariable> thisMap = this.variables.get(tf.scope().env());
         if(thisMap == null) {
             thisMap = new HashMap<>();
+            variables.put(tf.scope().env(), thisMap);
         }
         thisMap.put(name, new MetricVariable(tf, name, variable));
     }
@@ -135,42 +148,84 @@ public abstract class Metric implements MetricInterface {
     /**
      * add a variable to be collect metric values
      *
-     * @param name the name of the variable
+     * @param name a name that identifies the variable.
      * @param variable the variable
      * @param initializer the variable initializer
      */
     protected void addVariable(String name, Variable variable, Initializer initializer) {
-        Map<String, MetricVariable> thisMap = variables.get(this.name);
+        Map<String, MetricVariable> thisMap = variables.get(tf.scope().env());
         if(thisMap == null) {
             thisMap = new HashMap<>();
-            variables.put(this.name, thisMap);
+            variables.put(tf.scope().env(), thisMap);
         }
         thisMap.put(name, new MetricVariable(tf, name, variable, initializer));
     }
 
     public List<Variable> getVariables() {
-        Map<String, MetricVariable> thisMap = this.variables.get(this.name);
+        Map<String, MetricVariable> thisMap = this.variables.get(tf.scope().env());
         List<Variable> result = new ArrayList<>();
         if(thisMap != null) {
             thisMap.values().forEach(mv -> result.add(mv.getVariable()));
         }
         return result;
     }
+    
     public Op initializeVars() {
         return initializeVars("initializeVars");
     }
     
-    public Op initializeVars(String subScopeName) {
-        Map<String, MetricVariable> thisMap = this.variables.get(this.name);
-        
+    
+    private List<Op> initializeVarsList(String subScopeName) {
+        Map<String, MetricVariable> thisMap = this.variables.get(tf.scope().env());
         List<Op> updateOperations = new ArrayList<>();
         if(thisMap != null) {
             thisMap.values().forEach((v) -> 
                 updateOperations.add(tf.assign(v.getVariable(), v.initialize()))
             );
         }
+        return updateOperations;
+    }
+    
+    public Op initializeVars(String subScopeName) {
+        Map<String, MetricVariable> thisMap = this.variables.get(tf.scope().env());
+        
+        List<Op> updateOperations = initializeVarsList(subScopeName);
         return ControlDependencies.addControlDependencies(tf, subScopeName, updateOperations);
     }
+    
+    /**
+     * Adds a value to a Variable, making sure it has been initialized first.
+     * 
+     * @param name a name that identifies the variable.
+     * @param variable the variable
+     * @param val the value to assign to the variable
+     * @return the variable add operation with necessary control dependencies
+     * @param <T> the type of Operand
+     */
+    public <T extends TType> Operand<T> variableAssignAdd(String name, Variable variable,  Operand<T> val) {
+         Map<String, MetricVariable> thisMap = Metric.variables.get(tf.scope().env());
+         if(thisMap == null) {
+             tf.assignAdd(variable, val);
+         }
+         
+         MetricVariable v = thisMap.get(name);
+         if(v != null) {
+             if(v.isInitialized()) {
+                 return tf.assignAdd(variable, val);
+             }else {
+                Operand<T> assign = tf.assign(variable, v.initialize());
+                Operand<T> assignAdd =  ControlDependencies.addControlDependencies(
+                        tf, (tf1)->tf1.assignAdd(variable, val),
+                        "var_init", assign);
+                v.setInitialized(true);
+                return assignAdd;
+             }
+         }else {
+             return tf.assignAdd(variable, val);
+         }
+         
+    }
+        
 
     /**
      * {@inheritDoc}
@@ -182,7 +237,7 @@ public abstract class Metric implements MetricInterface {
     }
 
     public Variable getVariable(String name) {
-        Map<String, MetricVariable> thisMap = this.variables.get(this.name);
+        Map<String, MetricVariable> thisMap = this.variables.get(tf.scope().env());
         if(thisMap == null) return null;
         MetricVariable mv = thisMap.get(name);
         return mv != null ? mv.getVariable() : null;

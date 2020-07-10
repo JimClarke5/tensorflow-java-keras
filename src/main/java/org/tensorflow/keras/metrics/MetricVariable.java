@@ -39,6 +39,7 @@ public class MetricVariable {
     private final VariableAggregation aggregation;
     private final VariableSynchronization synchronization;
     private final Initializer initializer;
+    private boolean initialized;
     private final Ops tf;
 
     public MetricVariable(Ops tf, String name, Variable variable) {
@@ -124,5 +125,13 @@ public class MetricVariable {
      */
     public Initializer getInitializer() {
         return initializer;
+    }
+    
+    
+    public void setInitialized(boolean value) {
+        this.initialized = true;
+    }
+    public boolean isInitialized() {
+        return initialized;
     }
 }

@@ -21,15 +21,10 @@ import java.util.List;
 import java.util.Map;
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
-import org.tensorflow.keras.backend.tf.ControlDependencies;
 import org.tensorflow.keras.initializers.Zeros;
-import static org.tensorflow.keras.metrics.AUC.FALSE_POSITIVES;
-import static org.tensorflow.keras.metrics.AUC.TRUE_POSITIVES;
 import org.tensorflow.keras.metrics.impl.ConfusionMatrixEnum;
-import org.tensorflow.keras.metrics.impl.MetricsImpl;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
-import org.tensorflow.op.core.Assign;
 import org.tensorflow.op.core.Variable;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat32;
@@ -49,6 +44,9 @@ public class Precision extends Metric {
     
     private Variable<TFloat32> truePositives;
     private Variable<TFloat32> falsePositives;
+    private final String truePositivesName;
+    private final String falsePositivesName;
+    
     
     
     /**
@@ -224,6 +222,8 @@ public class Precision extends Metric {
     public <U extends TNumber> Precision(Ops tf, String name,
             float[] thresholds, Integer topK, Integer classId,  DataType<U> dType) {
         super(tf, name, dType);
+        this.truePositivesName = this.getClass().getSimpleName() + "_" + TRUE_POSITIVES;
+        this.falsePositivesName = this.getClass().getSimpleName() + "_" + FALSE_POSITIVES;
         float defaultThreshold = topK == null ? 0.5f : Metrics.NEG_INF;
         this.thresholds =  thresholds == null ? new float[]{defaultThreshold} : thresholds ;
         this.topK = topK;
@@ -235,23 +235,23 @@ public class Precision extends Metric {
     private void init() {
         Zeros zeros = new Zeros(tf);
         
-        this.truePositives =  getVariable(TRUE_POSITIVES);
+        this.truePositives =  getVariable(truePositivesName);
         if (this.truePositives == null) {
-            this.truePositives =  tf.withName(TRUE_POSITIVES).variable(zeros.call(tf.constant(Shape.of(this.getThresholds().length)), TFloat32.DTYPE));
-            this.addVariable(TRUE_POSITIVES, this.truePositives, zeros);
+            this.truePositives =  tf.withName(truePositivesName).variable(zeros.call(tf.constant(Shape.of(this.getThresholds().length)), TFloat32.DTYPE));
+            this.addVariable(truePositivesName, this.truePositives, zeros);
             
         }
-        this.falsePositives =  getVariable(FALSE_POSITIVES);
+        this.falsePositives =  getVariable(falsePositivesName);
         if (this.falsePositives == null) {
-            this.falsePositives =  tf.withName(FALSE_POSITIVES).variable(zeros.call(tf.constant(Shape.of(this.getThresholds().length)), TFloat32.DTYPE));
-            this.addVariable(FALSE_POSITIVES, this.falsePositives, zeros);
+            this.falsePositives =  tf.withName(falsePositivesName).variable(zeros.call(tf.constant(Shape.of(this.getThresholds().length)), TFloat32.DTYPE));
+            this.addVariable(falsePositivesName, this.falsePositives, zeros);
         }
     }
     
     
 
     @Override
-    public Op updateState(Operand... args) {
+    public List<Op> updateStateList(Operand... args) {
         Operand yTrue = args[0];
         Operand yPred = args[1];
         Operand sampleWeight = args.length > 2? args[2]: null;
@@ -267,21 +267,17 @@ public class Precision extends Metric {
                 yTrue,
                 yPred, this.getThresholds(), this.getTopK(), this.getClassId(),
                 sampleWeight, false, null));
-        return ControlDependencies.addControlDependencies(tf,
-                "updateState", updateOperations);
+        return updateOperations;
     }
 
     @Override
-    public Operand result() {
-        MetricsImpl.debug("TruePositives", this.getTruePositives());
-        MetricsImpl.debug("FalsePositives", this.getFalsePositives());
+    public Operand result(Ops rtf) {
         
-        Operand result = tf.math.divNoNan(
-                this.getTruePositives(), tf.math.add(this.truePositives, this.falsePositives));
-        MetricsImpl.debug("result/divNoNan", result);
+        Operand result = rtf.math.divNoNan(
+                this.getTruePositives(), rtf.math.add(this.truePositives, this.falsePositives));
         return this.getThresholds().length == 1 ?
-                tf.slice(result, tf.expandDims(tf.constant(0), tf.constant(0)), 
-                        tf.expandDims(tf.constant(1), tf.constant(0))) :
+                rtf.slice(result, rtf.expandDims(rtf.constant(0), rtf.constant(0)), 
+                        rtf.expandDims(rtf.constant(1), rtf.constant(0))) :
                 result;
         
     }
@@ -333,6 +329,20 @@ public class Precision extends Metric {
      */
     public void setFalsePositives(Variable<TFloat32> falsePositives) {
         this.falsePositives = falsePositives;
+    }
+
+    /**
+     * @return the truePositivesName
+     */
+    public String getTruePositivesName() {
+        return truePositivesName;
+    }
+
+    /**
+     * @return the falsePositivesName
+     */
+    public String getFalsePositivesName() {
+        return falsePositivesName;
     }
     
 }

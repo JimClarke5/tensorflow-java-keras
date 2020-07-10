@@ -14,6 +14,7 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.metrics;
 
+import java.util.List;
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.keras.backend.tf.ConfusionMatrix;
@@ -141,7 +142,7 @@ public class MeanRelativeError extends Mean{
 
 
     @Override
-    public Op updateState(Operand... args) {
+    public List<Op> updateStateList(Operand... args) {
         Operand yTrue = args[0];
         Operand yPred = args[1];
         Operand sampleWeight = args.length > 2 ? args[2] : null;
@@ -172,7 +173,7 @@ public class MeanRelativeError extends Mean{
         
         Operand relativeErrors = tf.math.divNoNan(tf.math.abs(tf.math.sub(yTrue, yPred)), this.getNormalizer());
         
-        return super.updateState(relativeErrors, sampleWeight);
+        return super.updateStateList(relativeErrors, sampleWeight);
         
     }
 
