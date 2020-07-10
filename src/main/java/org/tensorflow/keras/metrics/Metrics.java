@@ -598,6 +598,10 @@ public class Metrics {
     public static void setDebug(Session session) {
         MetricsImpl.setDebug(session);
     }
+    
+    public static void resetDebug() {
+        MetricsImpl.setDebug(null);
+    }
 
     
 
