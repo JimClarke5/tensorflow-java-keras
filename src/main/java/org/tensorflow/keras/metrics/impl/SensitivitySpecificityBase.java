@@ -33,7 +33,7 @@ import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TFloat64;
 
 /**
- *
+ * Abstract base class for computing sensitivity and specificity.
  * @author jbclarke
  */
 public abstract class SensitivitySpecificityBase extends Metric {
@@ -54,12 +54,13 @@ public abstract class SensitivitySpecificityBase extends Metric {
     protected final float[] thresholds;
     
     /**
-     * 
-     * @param tf
-     * @param name
-     * @param value
-     * @param numThresholds
-     * @param dType 
+     * Creates a SensitivitySpecificityBase 
+     * @param tf the TensorFlow Ops
+     * @param name the name of the metric instance 
+     * @param value A scalar value in range `[0, 1]`
+     * @param numThresholds The number of thresholds to
+     *  use for matching the given recall.
+     * @param dType the data type of the metric result
      */
     
     protected SensitivitySpecificityBase(Ops tf, String name, float value, int numThresholds, DataType dType) {
@@ -80,6 +81,9 @@ public abstract class SensitivitySpecificityBase extends Metric {
         init();
     }
     
+    /**
+     * Initialize the Variables
+     */
     private void init() {
         Zeros zeros = new Zeros(tf);
         
