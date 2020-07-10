@@ -22,7 +22,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.Operand;
-import org.tensorflow.keras.metrics.impl.MetricsImpl;
 import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
@@ -171,6 +170,7 @@ public class SensitivityAtSpecificityTest {
         }
     }
     
+    @Test
     public void   test_weighted() {
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
@@ -190,6 +190,7 @@ public class SensitivityAtSpecificityTest {
         }
     }
     
+    @Test
     public void  test_invalid_sensitivity() {
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
@@ -200,6 +201,7 @@ public class SensitivityAtSpecificityTest {
         }
     }
     
+    @Test
     public void  test_invalid_num_thresholds() {
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();

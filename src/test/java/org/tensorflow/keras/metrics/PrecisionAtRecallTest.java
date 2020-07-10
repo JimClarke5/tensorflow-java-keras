@@ -68,7 +68,7 @@ public class PrecisionAtRecallTest {
         }
     }
     
-     @Test
+    @Test
     public void test_value_is_idempotent() {
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
@@ -169,6 +169,7 @@ public class PrecisionAtRecallTest {
         }
     }
     
+    @Test
     public void   test_weighted() {
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
@@ -188,6 +189,7 @@ public class PrecisionAtRecallTest {
         }
     }
     
+    @Test
     public void  test_invalid_sensitivity() {
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
@@ -198,6 +200,7 @@ public class PrecisionAtRecallTest {
         }
     }
     
+    @Test
     public void  test_invalid_num_thresholds() {
         try(TestSession session = TestSession.createTestSession(tf_mode)) {
             Ops tf = session.getTF();
