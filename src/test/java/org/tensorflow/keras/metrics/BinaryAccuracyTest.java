@@ -114,21 +114,21 @@ public class BinaryAccuracyTest {
             Ops tf = session.getTF();
             BinaryAccuracy instance = new BinaryAccuracy(tf);
             session.run(instance.resetStates());
-            int[] true_np = {2,1};
-            int[] pred_np = {2,0};
+            int[] true_np = {1,1};
+            int[] pred_np = {1,0};
             
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 1)));
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 1)));
             
             Operand sampleWeight = tf.reshape(tf.constant(new float[] {.5F, .2F}), tf.constant(Shape.of(2, 1)));
-            Op op = instance.updateState(y_true, y_true, sampleWeight);
+            Op op = instance.updateState(y_true, y_pred, sampleWeight);
             session.run(op);
             Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
             Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
-            session.evaluate(0.2F, total);
+            session.evaluate(0.5F, total);
             session.evaluate(.7, count);
-            session.evaluate(0.2857143F, result);
+            session.evaluate(0.71428573f, result);
             
         }
     }

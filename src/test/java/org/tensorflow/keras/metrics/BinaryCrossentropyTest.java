@@ -100,10 +100,10 @@ public class BinaryCrossentropyTest {
             BinaryCrossentropy instance = new BinaryCrossentropy(tf, true);
             session.run(instance.resetStates());
             int[] true_np = {1, 0, 1, 0, 1, 1};
-            float[] pred_np = {100.0F, -100.0F, 100.0F, 100.0F, 100.0F, -100.0F};
+            float[] logits_np = {100.0F, -100.0F, 100.0F, 100.0F, 100.0F, -100.0F};
             Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 3)));
-            Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
-            Op op = instance.updateState(y_true, y_pred);
+            Operand logits = tf.reshape(tf.constant(logits_np), tf.constant(Shape.of(2, 3)));
+            Op op = instance.updateState(y_true, logits);
             session.run(op);
             Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
             Variable<TInt32> count = instance.getVariable(instance.getCountName());

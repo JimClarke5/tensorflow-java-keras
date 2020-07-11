@@ -16,9 +16,12 @@ package org.tensorflow.keras.metrics;
 
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
+import org.tensorflow.keras.backend.K;
 import org.tensorflow.keras.losses.LossFunction;
 import org.tensorflow.keras.metrics.impl.MeanMetricWrapper;
 import org.tensorflow.op.Ops;
+import org.tensorflow.op.math.Equal;
+import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.family.TNumber;
 
 /**
@@ -47,8 +50,10 @@ public class CategoricalAccuracy extends MeanMetricWrapper  implements LossFunct
 
     @Override
     public <T extends TNumber> Operand<T> call(Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
-        Operand losses = Metrics.categorical_accuracy(tf, labels, predictions);
-        return losses;
+        Operand trueMax = tf.math.argMax(labels, K.minusOne(tf));
+        Operand predMax = tf.math.argMax(predictions, K.minusOne(tf));
+        Equal equals = tf.math.equal(trueMax, predMax);
+        return tf.dtypes.cast(equals, labels.asOutput().dataType());
     }
     
 }

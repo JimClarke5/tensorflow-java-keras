@@ -23,7 +23,7 @@ import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TNumber;
 
 /**
- *
+ * Computes the logarithm of the hyperbolic cosine of the prediction error.
  * @author jbclarke
  */
 public class LogCoshError extends MeanMetricWrapper implements LossFunction {

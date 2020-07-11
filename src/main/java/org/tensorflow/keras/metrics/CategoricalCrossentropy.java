@@ -104,6 +104,14 @@ public class CategoricalCrossentropy extends MeanMetricWrapper implements LossFu
     public CategoricalCrossentropy(Ops tf, boolean fromLogits, float labelSmoothing, int axis) {
         this(tf, DEFAULT_NAME, fromLogits, labelSmoothing, axis, null);
     }
+    
+    public CategoricalCrossentropy(Ops tf, String name, boolean fromLogits, float labelSmoothing) {
+        this(tf, name, fromLogits, labelSmoothing, -1, null);
+    }
+
+    public CategoricalCrossentropy(Ops tf, String name, boolean fromLogits, float labelSmoothing, int axis) {
+        this(tf, name, fromLogits, labelSmoothing, axis, null);
+    }
 
     public CategoricalCrossentropy(Ops tf, boolean fromLogits, float labelSmoothing, int axis, DataType dType) {
         this(tf, DEFAULT_NAME, fromLogits, labelSmoothing, axis, null);

@@ -84,8 +84,8 @@ public class MeanTensor extends Metric {
      */
     public MeanTensor(Ops tf, String name, DataType dType) {
         super(tf, name, dType);
-        this.totalName = this.getClass().getSimpleName() + "_" + TOTAL;
-        this.countName = this.getClass().getSimpleName() + "_" + COUNT;
+        this.totalName = this.getVariableName(TOTAL);
+        this.countName = this.getVariableName(COUNT);
     }
     
     private Op[] init(Shape shape) {

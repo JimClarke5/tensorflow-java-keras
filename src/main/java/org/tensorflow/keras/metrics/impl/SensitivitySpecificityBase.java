@@ -71,10 +71,10 @@ public abstract class SensitivitySpecificityBase extends Metric {
     protected SensitivitySpecificityBase(Ops tf, String name, float value, int numThresholds, DataType dType) {
         super(tf, name, dType);
         assert numThresholds > 0 : "`num_thresholds` must be > 0.";
-        this.truePositivesName = this.getClass().getSimpleName() + "_" + TRUE_POSITIVES;
-        this.falsePositivesName = this.getClass().getSimpleName() + "_" + FALSE_POSITIVES;
-        this.trueNegativesName = this.getClass().getSimpleName() + "_" + TRUE_NEGATIVES;
-        this.falseNegativesName = this.getClass().getSimpleName() + "_" + FALSE_NEGATIVES;
+        this.truePositivesName = this.getVariableName(TRUE_POSITIVES);
+        this.falsePositivesName = this.getVariableName(FALSE_POSITIVES);
+        this.trueNegativesName = this.getVariableName(TRUE_NEGATIVES);
+        this.falseNegativesName = this.getVariableName(FALSE_NEGATIVES);
         
         this.value = value;
         this.numThresholds = numThresholds;

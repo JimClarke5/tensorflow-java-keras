@@ -21,14 +21,12 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import org.tensorflow.DataType;
 import org.tensorflow.ExecutionEnvironment;
-import org.tensorflow.Graph;
 import org.tensorflow.Operand;
 import org.tensorflow.Session;
 import org.tensorflow.keras.backend.tf.ControlDependencies;
 import org.tensorflow.keras.initializers.Initializer;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
-import org.tensorflow.op.Scope;
 import org.tensorflow.op.core.Variable;
 import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.family.TType;
@@ -122,13 +120,16 @@ public abstract class Metric implements MetricInterface {
      * @param args the args to be passed to update state
      * @return the result with a control dependency on update state
      */
-    public Operand call(Operand... args) {
+    public Operand callOnce(Operand... args) {
         List<Op> conrolOps = new ArrayList<>();
         conrolOps.addAll(updateStateList(args));
         return ControlDependencies.addControlDependencies(tf, (tf) -> result(tf), name + "_call", conrolOps);
     }
     
-    
+    protected String getVariableName(String id) {
+        return String.format("%s_%s_%s", this.getClass().getSimpleName(),
+                this.name, id);
+    }
 
     /**
      * add a variable to be collect metric values

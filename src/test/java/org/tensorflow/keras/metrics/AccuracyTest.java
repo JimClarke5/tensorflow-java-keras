@@ -100,14 +100,14 @@ public class AccuracyTest {
             Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 1)));
             
             Operand sampleWeight = tf.reshape(tf.constant(new float[] {.5F, .2F}), tf.constant(Shape.of(2, 1)));
-            Op op = instance.updateState(y_true, y_true, sampleWeight);
+            Op op = instance.updateState(y_true, y_pred, sampleWeight);
             session.run(op);
             Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
             Variable<TInt32> count = instance.getVariable(instance.getCountName());
             Operand result  = instance.result();
-            session.evaluate(0.7F, total);
+            session.evaluate(.5F, total);
             session.evaluate(.7, count);
-            session.evaluate(1.0F, result);
+            session.evaluate(0.71428573f, result);
             
         }
     }

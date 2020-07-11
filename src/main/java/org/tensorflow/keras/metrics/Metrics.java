@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.tensorflow.Operand;
 import org.tensorflow.Session;
+import org.tensorflow.keras.backend.tf.Tuple;
 import org.tensorflow.keras.metrics.impl.ConfusionMatrixEnum;
 import org.tensorflow.keras.metrics.impl.MetricsImpl;
 import org.tensorflow.keras.utils.SymbolicShape;
@@ -48,6 +49,7 @@ public class Metrics {
             put("kld", tf -> new KLDivergence(tf));
             put("kullback_leibler_divergence", tf -> new KLDivergence(tf));
             put("kldivergence", tf -> new KLDivergence(tf));
+            put("log_cosh_error", tf -> new LogCoshError(tf)); 
             put("mae", tf -> new MeanAbsoluteError(tf));
             put("mean_absolute_error", tf -> new MeanAbsoluteError(tf));
             put("mape", tf -> new MeanAbsolutePercentageError(tf));
@@ -73,7 +75,7 @@ public class Metrics {
      * @param tf The TensorFlow Ops
      * @param lossFunction either a String that identifies the Metric, an Metric
      * class, or an Metric object.
-     * @return the loss object or null if not found.
+     * @return the metric object or null if not found.
      */
     public static Metric get(Ops tf, Object lossFunction) {
         return get(tf, lossFunction, null);
@@ -106,7 +108,7 @@ public class Metrics {
      * @param tf The TensorFlow Ops
      * @param lossFunction
      * @param custom_functions a map of Metric lambdas that will be queried if
-     * the loss is not found in the standard keys
+     * the metric is not found in the standard keys
      * @return the Metric object
      */
     public static Metric get(Ops tf, Object lossFunction, Map<String, Function<Ops, Metric>> custom_functions) {
@@ -138,37 +140,37 @@ public class Metrics {
     }
 
     /**
-     * Computes Kullback-Leibler divergence loss between y_true and y_pred.
+     * Computes Kullback-Leibler divergence metric between y_true and y_pred.
      *
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
      *
-     * @return the loss
+     * @return the metric
      */
     public static Operand KLD(Ops tf, Operand yTrue, Operand yPred) {
         return kullback_leibler_divergence(tf, yTrue, yPred);
     }
 
     /**
-     * Computes Kullback-Leibler divergence loss between y_true and y_pred.
+     * Computes Kullback-Leibler divergence metric between y_true and y_pred.
      *
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand kld(Ops tf, Operand yTrue, Operand yPred) {
         return kullback_leibler_divergence(tf, yTrue, yPred);
     }
 
     /**
-     * Computes Kullback-Leibler divergence loss between y_true and y_pred.
+     * Computes Kullback-Leibler divergence metric between y_true and y_pred.
      *
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand kullback_leibler_divergence(Ops tf, Operand yTrue, Operand yPred) {
         return MetricsImpl.kullback_leibler_divergence(tf, yTrue, yPred);
@@ -180,7 +182,7 @@ public class Metrics {
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand MAE(Ops tf, Operand yTrue, Operand yPred) {
         return mean_absolute_error(tf, yTrue, yPred);
@@ -192,7 +194,7 @@ public class Metrics {
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand mae(Ops tf, Operand yTrue, Operand yPred) {
         return mean_absolute_error(tf, yTrue, yPred);
@@ -204,7 +206,7 @@ public class Metrics {
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand mean_absolute_error(Ops tf, Operand yTrue, Operand yPred) {
         return MetricsImpl.mean_absolute_error(tf, yTrue, yPred);
@@ -216,7 +218,7 @@ public class Metrics {
      * @param tf the TensorFlow Ops
      * @param yTrue
      * @param yPred
-     * @return the loss
+     * @return the metric
      */
     public static Operand MAPE(Ops tf, Operand yTrue, Operand yPred) {
         return mean_absolute_percentage_error(tf, yTrue, yPred);
@@ -228,7 +230,7 @@ public class Metrics {
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand mape(Ops tf, Operand yTrue, Operand yPred) {
         return mean_absolute_percentage_error(tf, yTrue, yPred);
@@ -240,7 +242,7 @@ public class Metrics {
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand mean_absolute_percentage_error(Ops tf, Operand yTrue, Operand yPred) {
         return MetricsImpl.mean_absolute_percentage_error(tf, yTrue, yPred);
@@ -252,7 +254,7 @@ public class Metrics {
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand MSE(Ops tf, Operand yTrue, Operand yPred) {
         return mean_squared_error(tf, yTrue, yPred);
@@ -264,7 +266,7 @@ public class Metrics {
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand mse(Ops tf, Operand yTrue, Operand yPred) {
         return mean_squared_error(tf, yTrue, yPred);
@@ -276,7 +278,7 @@ public class Metrics {
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand mean_squared_error(Ops tf, Operand yTrue, Operand yPred) {
         return MetricsImpl.mean_squared_error(tf, yTrue, yPred);
@@ -288,7 +290,7 @@ public class Metrics {
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand MSLE(Ops tf, Operand yTrue, Operand yPred) {
         return mean_squared_logarithmic_error(tf, yTrue, yPred);
@@ -300,7 +302,7 @@ public class Metrics {
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand msle(Ops tf, Operand yTrue, Operand yPred) {
         return mean_squared_logarithmic_error(tf, yTrue, yPred);
@@ -312,19 +314,19 @@ public class Metrics {
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand mean_squared_logarithmic_error(Ops tf, Operand yTrue, Operand yPred) {
         return MetricsImpl.mean_squared_logarithmic_error(tf, yTrue, yPred);
     }
 
     /**
-     * Computes the binary crossentropy loss.
+     * Computes the binary crossentropy metric.
      *
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred the predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand binary_crossentropy(Ops tf, Operand yTrue, Operand yPred) {
         return binary_crossentropy(tf, yTrue, yPred, false, 0.0F);
@@ -332,120 +334,120 @@ public class Metrics {
     }
 
     /**
-     * Computes the binary crossentropy loss.
+     * Computes the binary crossentropy metric.
      *
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred the predictions
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
-     * @return the loss
+     * @return the metric
      */
     public static Operand binary_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits) {
         return binary_crossentropy(tf, yTrue, yPred, fromLogits, 0.0F);
     }
 
     /**
-     * Computes the binary crossentropy loss.
+     * Computes the binary crossentropy metric.
      *
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred the predictions
      * @param labelSmoothing Float in [0, 1]. When 0, no smoothing occurs. When
-     * > 0, we compute the loss between the predicted labels and a smoothed
+     * > 0, we compute the metric between the predicted labels and a smoothed
      * version of the true labels, where the smoothing squeezes the labels
      * towards 0.5. Larger values of label_smoothing correspond to heavier
      * smoothing.
-     * @return the loss
+     * @return the metric
      */
     public static Operand binary_crossentropy(Ops tf, Operand yTrue, Operand yPred, float labelSmoothing) {
         return binary_crossentropy(tf, yTrue, yPred, false, labelSmoothing);
     }
 
     /**
-     * Computes the binary crossentropy loss.
+     * Computes the binary crossentropy metric.
      *
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred the predictions
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
      * @param labelSmoothing Float in [0, 1]. When 0, no smoothing occurs. When
-     * > 0, we compute the loss between the predicted labels and a smoothed
+     * > 0, we compute the metric between the predicted labels and a smoothed
      * version of the true labels, where the smoothing squeezes the labels
      * towards 0.5. Larger values of label_smoothing correspond to heavier
      * smoothing.
-     * @return the loss
+     * @return the metric
      */
     public static Operand binary_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, float labelSmoothing) {
         return MetricsImpl.binary_crossentropy(tf, yTrue, yPred, fromLogits, labelSmoothing);
     }
 
     /**
-     * Computes the categorical crossentropy loss.
+     * Computes the categorical crossentropy metric.
      *
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred) {
         return categorical_crossentropy(tf, yTrue, yPred, false, 0.0F);
     }
 
     /**
-     * Computes the categorical crossentropy loss.
+     * Computes the categorical crossentropy metric.
      *
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
-     * @return the loss
+     * @return the metric
      */
     public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits) {
         return categorical_crossentropy(tf, yTrue, yPred, fromLogits, 0.0F);
     }
 
     /**
-     * Computes the categorical crossentropy loss.
+     * Computes the categorical crossentropy metric.
      *
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
      * @param labelSmoothing Float in [0, 1]. When 0, no smoothing occurs. When
-     * > 0, we compute the loss between the predicted labels and a smoothed
+     * > 0, we compute the metric between the predicted labels and a smoothed
      * version of the true labels, where the smoothing squeezes the labels
      * towards 0.5. Larger values of label_smoothing correspond to heavier
      * smoothing.
-     * @return the loss
+     * @return the metric
      */
     public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, float labelSmoothing) {
         return categorical_crossentropy(tf, yTrue, yPred, false, labelSmoothing);
     }
 
     /**
-     * Computes the categorical crossentropy loss.
+     * Computes the categorical crossentropy metric.
      *
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
      * @param labelSmoothing Float in [0, 1]. When 0, no smoothing occurs. When
-     * > 0, we compute the loss between the predicted labels and a smoothed
+     * > 0, we compute the metric between the predicted labels and a smoothed
      * version of the true labels, where the smoothing squeezes the labels
      * towards 0.5. Larger values of label_smoothing correspond to heavier
      * smoothing.
-     * @return the loss
+     * @return the metric
      */
     public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, float labelSmoothing) {
         return MetricsImpl.categorical_crossentropy(tf, yTrue, yPred, fromLogits, labelSmoothing);
     }
 
     /**
-     * Computes the categorical hinge loss between y_true and y_pred.
+     * Computes the categorical hinge metric between y_true and y_pred.
      *
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand categorical_hinge(Ops tf, Operand yTrue, Operand yPred) {
         return MetricsImpl.categorical_hinge(tf, yTrue, yPred);
@@ -457,96 +459,99 @@ public class Metrics {
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand cosine_similarity(Ops tf, Operand yTrue, Operand yPred) {
         return MetricsImpl.cosine_similarity(tf, yTrue, yPred);
     }
 
+   
     /**
-     * Computes the cosine similarity between labels and predictions.
+     * Computes the hinge metric between y_true and y_pred.
      *
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
-     */
-    public static Operand cosine_proximity(Ops tf, Operand yTrue, Operand yPred) {
-        return MetricsImpl.cosine_proximity(tf, yTrue, yPred);
-    }
-
-    /**
-     * Computes the cosine similarity between labels and predictions.
-     *
-     * @param tf the TensorFlow Ops
-     * @param yTrue true targets
-     * @param yPred predictions
-     * @param axis The dimension along which the cosine similarity is computed.
-     * @return the loss
-     */
-    public static Operand cosine_proximity(Ops tf, Operand yTrue, Operand yPred, int axis) {
-        return MetricsImpl.cosine_proximity(tf, yTrue, yPred, axis);
-    }
-
-    /**
-     * Computes the hinge loss between y_true and y_pred.
-     *
-     * @param tf the TensorFlow Ops
-     * @param yTrue true targets
-     * @param yPred predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand hinge(Ops tf, Operand yTrue, Operand yPred) {
         return MetricsImpl.hinge(tf, yTrue, yPred);
     }
 
     /**
-     * Computes the Poisson loss between y_true and y_pred.
+     * Computes the logCoshError metric between y_true and y_pred.
      *
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
+     * @return the metric
+     */
+    public static Operand logCoshError(Ops tf, Operand yTrue, Operand yPred) {
+        return MetricsImpl.logCoshError(tf, yTrue, yPred);
+    }
+    
+    /**
+     * Computes the Poisson metric between y_true and y_pred.
+     *
+     * @param tf the TensorFlow Ops
+     * @param yTrue true targets
+     * @param yPred predictions
+     * @return the metric
      */
     public static Operand poisson(Ops tf, Operand yTrue, Operand yPred) {
         return MetricsImpl.poisson(tf, yTrue, yPred);
     }
+    
+    
+    
+    
+    /**
+     * Calculates how often predictions matches integer labels.
+     * 
+     * @param tf the TensorFlow Ops
+     * @param yTrue true targets
+     * @param yPred predictions
+     * @return Sparse categorical accuracy values.
+     */
+    public static Operand sparse_categorical_accuracy(Ops tf, Operand yTrue, Operand yPred) {
+        return MetricsImpl.sparse_categorical_accuracy(tf, yTrue, yPred);
+    }
 
     /**
-     * Computes the sparse categorical crossentropy loss.
+     * Computes the sparse categorical crossentropy metric.
      *
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
      * @param axis The dimension along which the entropy is computed.
-     * @return the loss
+     * @return the metric
      */
     public static Operand sparse_categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits) {
         return sparse_categorical_crossentropy(tf, yTrue, yPred, fromLogits, -1);
     }
 
     /**
-     * Computes the sparse categorical crossentropy loss.
+     * Computes the sparse categorical crossentropy metric.
      *
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
      * @param fromLogits Whether to interpret yPred as a tensor of logit values
      * @param axis The dimension along which the entropy is computed.
-     * @return the loss
+     * @return the metric
      */
     public static Operand sparse_categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, int axis) {
         return MetricsImpl.sparse_categorical_crossentropy(tf, yTrue, yPred, fromLogits, axis);
     }
 
     /**
-     * Computes the squared hinge loss between y_true and y_pred.
+     * Computes the squared hinge metric between y_true and y_pred.
      *
      * @param tf the TensorFlow Ops
      * @param yTrue true targets
      * @param yPred predictions
-     * @return the loss
+     * @return the metric
      */
     public static Operand squared_hinge(Ops tf, Operand yTrue, Operand yPred) {
         return MetricsImpl.squared_hinge(tf, yTrue, yPred);
@@ -555,10 +560,31 @@ public class Metrics {
     public static Operand accuracy(Ops tf, Operand yTrue, Operand yPred) {
         return MetricsImpl.accuracy(tf, yTrue, yPred);
     }
+    
+    public static Operand accuracy(Ops tf, Operand yTrue, Operand yPred, Operand sampleWeight) {
+        return MetricsImpl.accuracy(tf, yTrue, yPred, sampleWeight);
+    }
 
-    public static Operand binary_accuracy(Ops tf, Operand yTrue, Operand yPred, float threshold) {
+    public static Operand binary_accuracy(Ops tf, Operand yTrue, Operand yPred) {
+        return MetricsImpl.binary_accuracy(tf, yTrue, yPred);
+    }
+    
+    
+    public static Operand binary_accuracy(Ops tf, Operand yTrue, Operand yPred,
+            Operand sampleWeight) {
+        return MetricsImpl.binary_accuracy(tf, yTrue, yPred, sampleWeight);
+    }
+    
+     public static Operand binary_accuracy(Ops tf, Operand yTrue, Operand yPred, float threshold) {
         return MetricsImpl.binary_accuracy(tf, yTrue, yPred, threshold);
     }
+    
+    
+    public static Operand binary_accuracy(Ops tf, Operand yTrue, Operand yPred,
+            Operand sampleWeight, float threshold) {
+        return MetricsImpl.binary_accuracy(tf, yTrue, yPred, sampleWeight, threshold);
+    }
+    
 
     public static Operand categorical_accuracy(Ops tf, Operand yTrue, Operand yPred) {
         return MetricsImpl.categorical_accuracy(tf, yTrue, yPred);
@@ -579,10 +605,15 @@ public class Metrics {
     public static <T extends Object & TNumber> Operand sparse_top_k_categorical_accuracy(Ops tf, Operand<T> labels, Operand<T> predictions, int k) {
         return MetricsImpl.sparse_top_k_categorical_accuracy(tf, labels, predictions, k);
     }
+    
+     public static Operand cosine_proximity(Ops tf, Operand yTrue, Operand yPred, int axis) {
+        return MetricsImpl.cosine_proximity(tf, yTrue, yPred, axis);
+    }
 
     public static List<Op> assert_shapes(Ops tf, List<SymbolicShape> symbols, String message) {
         return MetricsImpl.assert_shapes(tf, symbols, message);
     }
+    
 
     public static List<Op> update_confusion_matrix_variables(Ops tf, Map<ConfusionMatrixEnum, Variable> confusionMatrix,
             Map<ConfusionMatrixEnum, Assign> initializers,
@@ -603,6 +634,7 @@ public class Metrics {
         MetricsImpl.setDebug(null);
     }
 
+    
     
 
     

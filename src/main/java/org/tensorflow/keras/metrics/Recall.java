@@ -241,8 +241,8 @@ public class Recall extends Metric {
     public Recall(Ops tf, String name, float[] thresholds, int topK,
             int classID, DataType dType) {
         super(tf, name, dType);
-        this.truePositivesName = this.getClass().getSimpleName() + "_" + TRUE_POSITIVES;
-        this.falseNegativesName = this.getClass().getSimpleName() + "_" + FALSE_NEGATIVES;
+        this.truePositivesName = this.getVariableName(TRUE_POSITIVES);
+        this.falseNegativesName = this.getVariableName(FALSE_NEGATIVES);
         float defaultThreshold = topK == NO_TOPK ? 0.5f : Metrics.NEG_INF;
         
         this.thresholds =  thresholds == null ? new float[]{defaultThreshold} : thresholds ;

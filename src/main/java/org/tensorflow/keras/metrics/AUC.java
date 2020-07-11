@@ -289,10 +289,10 @@ public class AUC extends Metric {
     public AUC(Ops tf, String name, Integer numThresholds, AUCCurve curve, AUCSummationMethod summationMethod,
             float[] thresholds, boolean multiLabel, Operand labelWeights, DataType dType) {
         super(tf, name == null ? "auc" : name, dType);
-        this.truePositivesName = this.getClass().getSimpleName() + "_" + TRUE_POSITIVES;
-        this.falsePositivesName = this.getClass().getSimpleName() + "_" + FALSE_POSITIVES;
-        this.trueNegativesName = this.getClass().getSimpleName() + "_" + TRUE_NEGATIVES;
-        this.falseNegativesName = this.getClass().getSimpleName() + "_" + FALSE_NEGATIVES;
+        this.truePositivesName = this.getVariableName(TRUE_POSITIVES);
+        this.falsePositivesName = this.getVariableName(FALSE_POSITIVES);
+        this.trueNegativesName = this.getVariableName(TRUE_NEGATIVES);
+        this.falseNegativesName = this.getVariableName(FALSE_NEGATIVES);
         this.curve = curve;
         this.summationMethod = summationMethod;
 

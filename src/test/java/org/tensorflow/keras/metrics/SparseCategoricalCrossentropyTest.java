@@ -100,10 +100,10 @@ public class SparseCategoricalCrossentropyTest {
             SparseCategoricalCrossentropy instance = new SparseCategoricalCrossentropy(tf, true);
             session.run(instance.resetStates());
             int[] true_np = {1, 2};
-            float[] pred_np = {1, 9, 0, 1, 8, 1};
-            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2)));
-            Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 3)));
-            Op op = instance.updateState(y_true, y_pred);
+            float[] logits_np = {1, 9, 0, 1, 8, 1};
+            Operand yTrue = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2)));
+            Operand logits = tf.reshape(tf.constant(logits_np), tf.constant(Shape.of(2, 3)));
+            Op op = instance.updateState(yTrue, logits);
             session.run(op);
             Variable<TFloat32> total = instance.getVariable(instance.getTotalName());
             Variable<TInt32> count = instance.getVariable(instance.getCountName());

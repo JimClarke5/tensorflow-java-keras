@@ -18,6 +18,7 @@ import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.keras.losses.LossFunction;
 import org.tensorflow.keras.metrics.impl.MeanMetricWrapper;
+import org.tensorflow.keras.metrics.impl.MetricsImpl;
 import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TNumber;
 
@@ -29,7 +30,7 @@ import org.tensorflow.types.family.TNumber;
 public class BinaryAccuracy extends MeanMetricWrapper implements LossFunction {
 
     public static final String DEFAULT_NAME = "binary_accuracy";
-    private static final float DEFAULT_THRESHOLD = 0.5f;
+    public static final float DEFAULT_THRESHOLD = 0.5f;
 
     private final float threshold;
 
@@ -114,8 +115,16 @@ public class BinaryAccuracy extends MeanMetricWrapper implements LossFunction {
      */
     @Override
     public <T extends TNumber> Operand<T> call(Operand<T> labels, Operand<T> predictions, Operand<T> sampleWeights) {
-        Operand losses = Metrics.binary_accuracy(tf, labels, predictions, threshold);
-        return losses;
+        MetricsImpl.debug("labels", labels);
+        MetricsImpl.debug("predictions", predictions);
+        DataType dType = predictions.asOutput().dataType();
+        Operand thresholdCast = tf.dtypes.cast(tf.constant(threshold), dType);
+        predictions = tf.dtypes.cast(tf.math.greater(predictions, thresholdCast), dType);
+        MetricsImpl.debug("predictions2", predictions);
+        labels = tf.dtypes.cast(labels, dType);
+        Operand result = tf.dtypes.cast(tf.math.equal(labels, predictions), predictions.asOutput().dataType());
+        MetricsImpl.debug("result", result);
+        return result;
     }
 
     /**

@@ -58,7 +58,7 @@ public abstract class ConfusionMatrixConditionCount extends Metric {
     }
     public ConfusionMatrixConditionCount(Ops tf, String name, ConfusionMatrixEnum confusion_matrix_cond, float[] thresholds, DataType dType) {
         super(tf, name, dType);
-        accumulatorName = this.getClass().getSimpleName() + "_" + ACCUMULATOR;
+        accumulatorName = this.getVariableName(ACCUMULATOR);
         this.confusion_matrix_cond = confusion_matrix_cond;
         this.thresholds = thresholds;
         init();

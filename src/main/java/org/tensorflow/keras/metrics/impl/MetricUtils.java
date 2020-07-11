@@ -14,13 +14,18 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.metrics.impl;
 
+import org.tensorflow.Operand;
+import org.tensorflow.keras.backend.tf.Tuple;
+import org.tensorflow.op.Ops;
+
 /**
  *
  * @author Jim Clarke
  */
 public class MetricUtils {
-    // TODO are there RaggedTensors ??
-    //List<Operand> raggedAssertCompatibleAndGetFlatValues(List<Operand> values) {
-    //    List<Operand> result = new ArrayList<>();
-   // }
+    public static Tuple raggedAssertCompatibleAndGetFlatValues(Ops tf, Operand labels, Operand predictions) {
+        //TODO handle ragged Tensors
+        return new Tuple(labels, predictions);
+        
+    }
 }

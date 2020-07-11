@@ -222,8 +222,8 @@ public class Precision extends Metric {
     public <U extends TNumber> Precision(Ops tf, String name,
             float[] thresholds, Integer topK, Integer classId,  DataType<U> dType) {
         super(tf, name, dType);
-        this.truePositivesName = this.getClass().getSimpleName() + "_" + TRUE_POSITIVES;
-        this.falsePositivesName = this.getClass().getSimpleName() + "_" + FALSE_POSITIVES;
+        this.truePositivesName = this.getVariableName(TRUE_POSITIVES);
+        this.falsePositivesName = this.getVariableName(FALSE_POSITIVES);
         float defaultThreshold = topK == null ? 0.5f : Metrics.NEG_INF;
         this.thresholds =  thresholds == null ? new float[]{defaultThreshold} : thresholds ;
         this.topK = topK;

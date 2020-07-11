@@ -125,8 +125,8 @@ public abstract class Reduce extends Metric {
     public Reduce(Ops tf, String name, Reduction reduction, DataType dType) {
         super(tf, name, dType);
         this.reduction = reduction;
-        this.totalName = this.getClass().getSimpleName() + "_" + TOTAL;
-        this.countName = this.getClass().getSimpleName() + "_" + COUNT;
+        this.totalName = this.getVariableName(TOTAL);
+        this.countName = this.getVariableName(COUNT);
         init();
     }
 
@@ -177,7 +177,7 @@ public abstract class Reduce extends Metric {
         }
 
         Operand<TFloat32> valueSum = tf.dtypes.cast(tf.reduceSum(values, K.allAxis(tf, values)), TFloat32.DTYPE);
-
+        
         Operand<TFloat32> totalUpdate = this.variableAssignAdd(this.getTotalName(), this.total, valueSum);
         updateOperations.add(totalUpdate);
         Operand<TFloat32> numValues;
@@ -220,7 +220,7 @@ public abstract class Reduce extends Metric {
                 return dType == null ? rtf.identity(this.getTotal()) : rtf.dtypes.cast(rtf.identity(this.getTotal()), dType);
             case WEIGHTED_MEAN:
             case SUM_OVER_BATCH_SIZE:
-                Operand result = rtf.math.divNoNan(getTotal().asOutput(), rtf.dtypes.cast(getCount().asOutput(), getTotal().asOutput().dataType()));
+                Operand result = rtf.math.divNoNan(getTotal(), rtf.dtypes.cast(getCount(), getTotal().asOutput().dataType()));
                 return dType == null ? result : rtf.dtypes.cast(result, dType);
             default:
                 throw new UnsupportedOperationException(

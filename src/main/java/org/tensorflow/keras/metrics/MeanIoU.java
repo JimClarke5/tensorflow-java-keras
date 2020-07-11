@@ -90,7 +90,7 @@ public class MeanIoU extends Metric {
      */
     protected MeanIoU(Ops tf, String name, long numClasses, DataType dType) {
         super(tf, name, dType);
-        this.totalCMName = this.getClass().getSimpleName() + "_" + TOTAL_CONFUSION_MATRIX;
+        this.totalCMName = this.getVariableName(TOTAL_CONFUSION_MATRIX);
         this.numClasses = numClasses;
         init();
     }

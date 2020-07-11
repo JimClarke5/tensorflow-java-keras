@@ -63,15 +63,27 @@ public class MetricsImpl {
 
     public static final float NEG_INF = -1e10f;
     public static final int DEFAULT_K = 5;
+    
+    
+    private static final String DEFAULT_NAME = "MetricsImpl%d";
+    private static final AtomicInteger counter = new AtomicInteger();
+    
+    // used for generating unique metric names
+    private static final String genUniqueName() {
+        return String.format(DEFAULT_NAME, counter.getAndIncrement());
+    }
 
     public static Operand accuracy(Ops tf, Operand yTrue, Operand yPred) {
-        Shape yTrueShape = yTrue.asOutput().shape();
-        Shape yPredShape = yTrue.asOutput().shape();
-        assert yTrueShape.equals(yPredShape) : String.format("Shapes %s and %s are incompatible", yTrueShape, yPredShape);
-        if (yTrue.asOutput().dataType() != yPred.asOutput().dataType()) {
-            yPred = tf.dtypes.cast(yPred, yTrue.asOutput().dataType());
-        }
-        return tf.dtypes.cast(tf.math.equal(yTrue, yPred), TFloat32.DTYPE);
+        Accuracy instance = new Accuracy(tf, genUniqueName());
+        Operand result = instance.callOnce( yTrue, yPred);
+        return result;
+
+    }
+    
+    public static Operand accuracy(Ops tf, Operand yTrue, Operand yPred, Operand sampleWeight) {
+        Accuracy instance = new Accuracy(tf, genUniqueName());
+        Operand result = instance.callOnce( yTrue, yPred, sampleWeight);
+        return result;
 
     }
 
@@ -85,21 +97,46 @@ public class MetricsImpl {
      * 1 or 0
      * @return Binary accuracy values
      */
+    public static Operand binary_accuracy(Ops tf, Operand yTrue, Operand yPred) {
+        BinaryAccuracy instance = new BinaryAccuracy(tf, genUniqueName());
+        return instance.callOnce( yTrue, yPred);
+    }
+    
     public static Operand binary_accuracy(Ops tf, Operand yTrue, Operand yPred, float threshold) {
-        DataType dType = yPred.asOutput().dataType();
-        Operand thresholdCast = tf.dtypes.cast(tf.constant(threshold), dType);
-        yPred = tf.dtypes.cast(tf.math.greater(yPred, thresholdCast), dType);
-        yTrue = tf.dtypes.cast(yTrue, dType);
-        Equal equal = tf.math.equal(yTrue, yPred);
-        Operand result = K.mean(tf, equal, K.minusOne(tf));
-        return result;
+        BinaryAccuracy instance = new BinaryAccuracy(tf, genUniqueName(), threshold);
+        return instance.callOnce( yTrue, yPred);
+    }
+    
+    /**
+     * Calculates how often predictions matches binary labels.
+     *
+     * @param tf The TensorFlowOps
+     * @param yTrue Ground truth values.
+     * @param yPred The predicted values
+     * @param threshold he threshold for deciding whether prediction values are
+     * 1 or 0
+     * @return Binary accuracy values
+     */
+    public static Operand binary_accuracy(Ops tf, Operand yTrue, Operand yPred, Operand sampleWeight) {
+        BinaryAccuracy instance = new BinaryAccuracy(tf, genUniqueName());
+        System.out.println("binary_accuracy: " + instance.getThreshold());
+        return instance.callOnce( yTrue, yPred, sampleWeight);
+    }
+    
+    public static Operand binary_accuracy(Ops tf, Operand yTrue, Operand yPred, Operand sampleWeight, float threshold) {
+        BinaryAccuracy instance = new BinaryAccuracy(tf, genUniqueName(), threshold);
+        System.out.println("binary_accuracy: " + instance.getThreshold());
+        return instance.callOnce( yTrue, yPred, sampleWeight);
     }
 
     public static Operand categorical_accuracy(Ops tf, Operand yTrue, Operand yPred) {
-        Operand trueMax = tf.math.argMax(yTrue, K.minusOne(tf));
-        Operand predMax = tf.math.argMax(yPred, K.minusOne(tf));
-        Equal equals = tf.math.equal(trueMax, predMax);
-        return tf.dtypes.cast(equals, TFloat32.DTYPE);
+       CategoricalAccuracy instance = new CategoricalAccuracy(tf, genUniqueName());
+        return instance.callOnce( yTrue, yPred);
+    }
+    
+    public static Operand categorical_accuracy(Ops tf, Operand yTrue, Operand yPred, Operand sampleWeight) {
+       CategoricalAccuracy instance = new CategoricalAccuracy(tf, genUniqueName());
+        return instance.callOnce( yTrue, yPred, sampleWeight);
     }
 
     /**
@@ -504,8 +541,21 @@ public class MetricsImpl {
      * @return the loss
      */
     public static Operand kullback_leibler_divergence(Ops tf, Operand yTrue, Operand yPred) {
-        KLDivergence instance = new KLDivergence(tf);
-        return instance.call(yTrue, yPred);
+        KLDivergence instance = new KLDivergence(tf, genUniqueName());
+        return instance.callOnce(yTrue, yPred);
+    }
+    
+     /**
+     * Computes Kullback-Leibler divergence loss between y_true and y_pred.
+     *
+     * @param tf the TensorFlow Ops
+     * @param yTrue true targets
+     * @param yPred predictions
+     * @return the loss
+     */
+    public static Operand logCoshError(Ops tf, Operand yTrue, Operand yPred) {
+        LogCoshError instance = new LogCoshError(tf, genUniqueName());
+        return instance.callOnce(yTrue, yPred);
     }
 
     /**
@@ -541,8 +591,8 @@ public class MetricsImpl {
      * @return the loss
      */
     public static Operand mean_absolute_error(Ops tf, Operand yTrue, Operand yPred) {
-        MeanAbsoluteError instance = new MeanAbsoluteError(tf);
-        return instance.call(yTrue, yPred);
+        MeanAbsoluteError instance = new MeanAbsoluteError(tf, genUniqueName());
+        return instance.callOnce(yTrue, yPred);
     }
 
     /**
@@ -578,8 +628,8 @@ public class MetricsImpl {
      * @return the loss
      */
     public static Operand mean_absolute_percentage_error(Ops tf, Operand yTrue, Operand yPred) {
-        MeanAbsolutePercentageError instance = new MeanAbsolutePercentageError(tf);
-        return instance.call(yTrue, yPred);
+        MeanAbsolutePercentageError instance = new MeanAbsolutePercentageError(tf, genUniqueName());
+        return instance.callOnce(yTrue, yPred);
     }
 
     /**
@@ -615,8 +665,8 @@ public class MetricsImpl {
      * @return the loss
      */
     public static Operand mean_squared_error(Ops tf, Operand yTrue, Operand yPred) {
-        MeanSquaredError instance = new MeanSquaredError(tf);
-        return instance.call(yTrue, yPred);
+        MeanSquaredError instance = new MeanSquaredError(tf, genUniqueName());
+        return instance.callOnce(yTrue, yPred);
     }
 
     /**
@@ -652,8 +702,8 @@ public class MetricsImpl {
      * @return the loss
      */
     public static Operand mean_squared_logarithmic_error(Ops tf, Operand yTrue, Operand yPred) {
-        MeanSquaredLogarithmicError instance = new MeanSquaredLogarithmicError(tf);
-        return instance.call(yTrue, yPred);
+        MeanSquaredLogarithmicError instance = new MeanSquaredLogarithmicError(tf, genUniqueName());
+        return instance.callOnce(yTrue, yPred);
     }
 
     /**
@@ -714,8 +764,8 @@ public class MetricsImpl {
      * @return the loss
      */
     public static Operand binary_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, float labelSmoothing) {
-        BinaryCrossentropy instance = new BinaryCrossentropy(tf, fromLogits, labelSmoothing);
-        return instance.call(yTrue, yPred);
+        BinaryCrossentropy instance = new BinaryCrossentropy(tf, genUniqueName(), fromLogits, labelSmoothing);
+        return instance.callOnce(yTrue, yPred);
     }
 
     /**
@@ -775,8 +825,8 @@ public class MetricsImpl {
      * @return the loss
      */
     public static Operand categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, float labelSmoothing) {
-        CategoricalCrossentropy instance = new CategoricalCrossentropy(tf, fromLogits, labelSmoothing);
-        return instance.call(yTrue, yPred);
+        CategoricalCrossentropy instance = new CategoricalCrossentropy(tf, genUniqueName(), fromLogits, labelSmoothing);
+        return instance.callOnce(yTrue, yPred);
     }
 
     /**
@@ -788,8 +838,8 @@ public class MetricsImpl {
      * @return the loss
      */
     public static Operand categorical_hinge(Ops tf, Operand yTrue, Operand yPred) {
-        CategoricalHinge instance = new CategoricalHinge(tf);
-        return instance.call(yTrue, yPred);
+        CategoricalHinge instance = new CategoricalHinge(tf, genUniqueName());
+        return instance.callOnce(yTrue, yPred);
     }
 
     /**
@@ -801,8 +851,8 @@ public class MetricsImpl {
      * @return the loss
      */
     public static Operand cosine_similarity(Ops tf, Operand yTrue, Operand yPred) {
-        CosineSimilarity instance = new CosineSimilarity(tf);
-        return instance.call(yTrue, yPred);
+        CosineSimilarity instance = new CosineSimilarity(tf, genUniqueName());
+        return instance.callOnce(yTrue, yPred);
     }
 
     /**
@@ -843,8 +893,8 @@ public class MetricsImpl {
      * @return the loss
      */
     public static Operand hinge(Ops tf, Operand yTrue, Operand yPred) {
-        Hinge instance = new Hinge(tf);
-        return instance.call(yTrue, yPred);
+        Hinge instance = new Hinge(tf, genUniqueName());
+        return instance.callOnce(yTrue, yPred);
     }
 
     /**
@@ -856,8 +906,8 @@ public class MetricsImpl {
      * @return the loss
      */
     public static Operand poisson(Ops tf, Operand yTrue, Operand yPred) {
-        Poisson instance = new Poisson(tf);
-        return instance.call(yTrue, yPred);
+        Poisson instance = new Poisson(tf, genUniqueName());
+        return instance.callOnce(yTrue, yPred);
     }
 
     /**
@@ -885,8 +935,8 @@ public class MetricsImpl {
      * @return the loss
      */
     public static Operand sparse_categorical_crossentropy(Ops tf, Operand yTrue, Operand yPred, boolean fromLogits, int axis) {
-        SparseCategoricalCrossentropy instance = new SparseCategoricalCrossentropy(tf, fromLogits, axis);
-        return instance.call(yTrue, yPred);
+        SparseCategoricalCrossentropy instance = new SparseCategoricalCrossentropy(tf, genUniqueName(), fromLogits, axis);
+        return instance.callOnce(yTrue, yPred);
     }
 
     /**
@@ -920,8 +970,8 @@ public class MetricsImpl {
      * @return the loss
      */
     public static Operand squared_hinge(Ops tf, Operand yTrue, Operand yPred) {
-        SquaredHinge instance = new SquaredHinge(tf);
-        return instance.call(yTrue, yPred);
+        SquaredHinge instance = new SquaredHinge(tf, genUniqueName());
+        return instance.callOnce(yTrue, yPred);
     }
 
     public static <T extends TNumber> Operand<TFloat32> top_k_categorical_accuracy(
@@ -950,7 +1000,8 @@ public class MetricsImpl {
                 tf.nn.inTopK(castPredictions, tf.dtypes.cast(labels, TInt32.DTYPE), tf.constant(k)),
                 TFloat32.DTYPE);
     }
-
+    
+    
     // helper functions
     private static void initialize(Graph graph) {
         if (graph != null) {
