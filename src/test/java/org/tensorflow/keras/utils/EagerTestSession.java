@@ -81,7 +81,7 @@ public class EagerTestSession extends TestSession {
     public <T extends TNumber> void evaluate(double expected, Operand<T> input) {
         DataType dtype = input.asOutput().dataType();
         if (dtype == TFloat32.DTYPE) {
-            Output<TFloat32> o = (Output<TFloat32>) input;
+            Operand<TFloat32> o = (Operand<TFloat32>) input;
             AtomicInteger index = new AtomicInteger();
             if (debug) {
                 o.data().scalars().forEach(f -> {
@@ -94,7 +94,7 @@ public class EagerTestSession extends TestSession {
 
             });
         } else if (dtype == TFloat64.DTYPE) {
-            Output<TFloat64> o = (Output<TFloat64>) input;
+            Operand<TFloat64> o = (Operand<TFloat64>) input;
             AtomicInteger index = new AtomicInteger();
             if (debug) {
                 o.data().scalars().forEach(f -> {
@@ -106,7 +106,7 @@ public class EagerTestSession extends TestSession {
                 assertEquals((double)expected, f.getDouble(), epsilon);
             });
         } else if (dtype == TInt32.DTYPE) {
-            Output<TInt32> o = (Output<TInt32>) input;
+            Operand<TInt32> o = (Operand<TInt32>) input;
             AtomicInteger index = new AtomicInteger();
             if (debug) {
                 o.data().scalars().forEach(f -> {
@@ -118,7 +118,7 @@ public class EagerTestSession extends TestSession {
                 assertEquals((int)expected, f.getInt());
             });
         } else if (dtype == TInt64.DTYPE) {
-            Output<TInt64> o = (Output<TInt64>) input;
+            Operand<TInt64> o = (Operand<TInt64>) input;
             AtomicInteger index = new AtomicInteger();
             if (debug) {
                 o.data().scalars().forEach(f -> {
