@@ -21,33 +21,35 @@ import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TType;
 
 /**
- * Hard sigmoid activation function.
- * @author Jim Clarke
+ * Hard sigmoid activation.
+ *
+ * @param <T> the data type of the result
  */
-public class HardSigmoid <U extends TType> extends Activation<U> {
-     
+public class HardSigmoid<T extends TType> extends Activation<T> {
+
     /**
-     * create Hard sigmoid activation function.
+     * Create Hard sigmoid activation.
+     *
+     * @param tf the TensorFlow Ops
      */
-     public HardSigmoid(Ops tf) {
-         super(tf);
-     }
-     
+    public HardSigmoid(Ops tf) {
+        super(tf);
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Operand<U> input) {
-        assert TypeUtils.isFloating(input.asTensor().dataType()): 
+    public Operand<T> call(Operand<T> input) {
+        assert TypeUtils.isFloating(input.asTensor().dataType()) :
                 "Must be a Floating Point DataType: " + input.asTensor().dataType();
         DataType dtype = input.asTensor().dataType();
-        Operand point2  = tf.dtypes.cast(tf.constant(0.2), dtype);
-        Operand point5  = tf.dtypes.cast(tf.constant(0.5), dtype);
+        Operand point2 = tf.dtypes.cast(tf.constant(0.2), dtype);
+        Operand point5 = tf.dtypes.cast(tf.constant(0.5), dtype);
         input = tf.math.mul(input, point2);
         input = tf.math.add(input, point5);
-        
+
         return input;
     }
-    
+
 }

@@ -21,25 +21,28 @@ import org.tensorflow.types.family.TType;
 
 /**
  * Hyperbolic tangent activation function.
- * @author Jim Clarke
+ *
+ * @param <T> the data type of the activation
  */
-public class Tanh <U extends TType> extends Activation<U> {
-     /**
-      * create Hyperbolic tangent activation function.
-      */
-     public Tanh(Ops tf) {
-         super(tf);
-     }
-     
+public class Tanh<T extends TType> extends Activation<T> {
+
+    /**
+     * Create a Hyperbolic tangent activation.
+     *
+     * @param tf the TensorFlow Ops
+     */
+    public Tanh(Ops tf) {
+        super(tf);
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call( Operand<U> input) {
-        assert TypeUtils.isFloating(input.asTensor().dataType()): 
+    public Operand<T> call(Operand<T> input) {
+        assert TypeUtils.isFloating(input.asTensor().dataType()) :
                 "Must be a Floating Point DataType: " + input.asTensor().dataType();
         return tf.math.tanh(input);
     }
-    
+
 }

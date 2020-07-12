@@ -24,47 +24,53 @@ import org.tensorflow.types.family.TType;
 
 /**
  * Softmax converts a real vector to a vector of categorical probabilities.
- * @author Jim Clarke
+ *
+ * @param <T> the data type of the activation
  */
-public class Softmax <U extends TType> extends Activation<U> {
-     private static final int AXIS_DEFAULT = -1;
-     
-     private final int axis;
-     
-     /**
-      * Create a softmax activation where  the default axis is -1
-      * which indicates the last dimension.
-      */
-     public Softmax(Ops tf) {
-         this(tf, AXIS_DEFAULT);
-     }
-     
-     /**
-      *  Create a Softmax activation
-      * @param axis  The dimension softmax would be performed on. 
-      */
-     public Softmax(Ops tf, int axis) {
-         super(tf);
-         this.axis = axis;
-     }
+public class Softmax<T extends TType> extends Activation<T> {
+
+    private static final int AXIS_DEFAULT = -1;
+
+    private final int axis;
+
+    /**
+     * Create a softmax activation where the default axis is -1 which indicates
+     * the last dimension.
+     *
+     * @param tf the TensorFlow Ops
+     */
+    public Softmax(Ops tf) {
+        this(tf, AXIS_DEFAULT);
+    }
+
+    /**
+     * Create a Softmax activation
+     *
+     * @param tf the TensorFlow Ops
+     * @param axis The dimension softmax would be performed on.
+     */
+    public Softmax(Ops tf, int axis) {
+        super(tf);
+        this.axis = axis;
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Operand<U> input) {
-        assert TypeUtils.isFloating(input.asTensor().dataType()): 
+    public Operand<T> call(Operand<T> input) {
+        assert TypeUtils.isFloating(input.asTensor().dataType()) :
                 "Must be a Floating Point DataType: " + input.asTensor().dataType();
         Shape shape = ShapeUtils.getShape(input.asTensor());
-        
-        if(shape.numDimensions() == 2) {
-            return tf.nn.softmax((Operand)input);
-        }else {
+
+        if (shape.numDimensions() == 2) {
+            return tf.nn.softmax((Operand) input);
+        } else {
             Operand e = tf.math.exp(input);
-             ReduceSum.Options option = ReduceSum.keepDims(Boolean.TRUE);
+            ReduceSum.Options option = ReduceSum.keepDims(Boolean.TRUE);
             Operand s = tf.reduceSum(input, tf.constant(0), option);
             return tf.math.div(e, s);
         }
     }
-    
+
 }

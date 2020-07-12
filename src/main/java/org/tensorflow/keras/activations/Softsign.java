@@ -21,23 +21,28 @@ import org.tensorflow.types.family.TType;
 
 /**
  * Softsign activation function.
- * @author Jim Clarke
+ *
+ * @param <T> the data type of the activation
  */
-public class Softsign <U extends TType> extends Activation<U> {
-     
-     public Softsign(Ops tf) {
-         super(tf);
-     }
-     
+public class Softsign<T extends TType> extends Activation<T> {
+
+    /**
+     * Create a Softsign activation.
+     *
+     * @param tf the TensorFlow Ops
+     */
+    public Softsign(Ops tf) {
+        super(tf);
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Operand<U> input) {
-        assert TypeUtils.isFloating(input.asTensor().dataType()): 
-               "Must be a Floating Point DataType: " + input.asTensor().dataType();
-        return tf.nn.softsign((Operand)input);
+    public Operand<T> call(Operand<T> input) {
+        assert TypeUtils.isFloating(input.asTensor().dataType()) :
+                "Must be a Floating Point DataType: " + input.asTensor().dataType();
+        return tf.nn.softsign((Operand) input);
     }
-    
+
 }

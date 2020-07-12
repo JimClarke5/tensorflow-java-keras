@@ -21,23 +21,28 @@ import org.tensorflow.types.family.TType;
 
 /**
  * Scaled Exponential Linear Unit (SELU).
- * @author Jim Clarke
+ *
+ * @param <T> the data type of the activation
  */
-public class SELU <U extends TType> extends Activation<U> {
-     
-     public SELU(Ops tf) {
-         super(tf);
-     }
-     
+public class SELU<T extends TType> extends Activation<T> {
+
+    /**
+     * Create a Scaled Exponential Linear Unit (SELU) activation.
+     *
+     * @param tf the TensorFlow Ops
+     */
+    public SELU(Ops tf) {
+        super(tf);
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Operand<U> input) {
-       assert TypeUtils.isFloating(input.asTensor().dataType()): 
+    public Operand<T> call(Operand<T> input) {
+        assert TypeUtils.isFloating(input.asTensor().dataType()) :
                 "Must be a Floating Point DataType: " + input.asTensor().dataType();
-        return (Operand<U>)tf.nn.selu((Operand)input);
+        return (Operand<T>) tf.nn.selu((Operand) input);
     }
-    
+
 }

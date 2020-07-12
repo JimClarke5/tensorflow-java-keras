@@ -21,48 +21,54 @@ import org.tensorflow.types.family.TType;
 
 /**
  * Exponential linear unit.
- * @author Jim Clarke
+ *
+ * @param <T> the data type of the activation
  */
-public class ELU <U extends TType> extends Activation<U> {
-     private static final double ALPHA_DEFAULT = 1.0;
-     
-     /**
-      * A scalar, slope of negative section.
-      */
-     private final double alpha;
-     
-     /** 
-      * creates a new ELU with alpha=1.0
-      */
-     public ELU(Ops tf) {
-         this(tf, ALPHA_DEFAULT);
-     }
-     
-     /**
-      * creates a new ELU 
-      * @param alpha A scalar, slope of negative section.
-      */
-     public ELU(Ops tf, double alpha) {
-         super(tf);
-         this.alpha = alpha;
-     }
+public class ELU<T extends TType> extends Activation<T> {
+
+    private static final double ALPHA_DEFAULT = 1.0;
+
+    /**
+     * A scalar, slope of negative section.
+     */
+    private final double alpha;
+
+    /**
+     * Creates a new ELU with alpha=1.0
+     *
+     * @param tf the TensorFlow Ops
+     */
+    public ELU(Ops tf) {
+        this(tf, ALPHA_DEFAULT);
+    }
+
+    /**
+     * Creates a new ELU
+     *
+     * @param tf the TensorFlow Ops
+     * @param alpha A scalar, slope of negative section.
+     */
+    public ELU(Ops tf, double alpha) {
+        super(tf);
+        this.alpha = alpha;
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Operand<U> input) {
-        Operand result = tf.nn.elu((Operand)input);
-        if(alpha == 1.0)
-          return result;
-        else {
+    public Operand<T> call(Operand<T> input) {
+        Operand result = tf.nn.elu((Operand) input);
+        if (alpha == 1.0) {
+            return result;
+        } else {
             DataType dtype = input.asTensor().dataType();
             // return array_ops.where_v2(x > 0, res, alpha * res)
             Operand y = tf.math.mul(result, tf.dtypes.cast(tf.constant(alpha), dtype));
-            Operand cond = tf.math.greater((Operand)result, tf.dtypes.cast(tf.constant(0), dtype));
+            Operand cond = tf.math.greater((Operand) result, tf.dtypes.cast(tf.constant(0), dtype));
             return tf.select(cond, result, y);
-          
+
         }
     }
-    
+
 }

@@ -21,24 +21,29 @@ import org.tensorflow.types.family.TType;
 
 /**
  * Swish activation function.
- * @author Jim Clarke
+ *
+ * @param <T> the data type of the activation
  */
-public class Swish <U extends TType> extends Activation<U> {
-     
-     public Swish(Ops tf) {
-         super(tf);
-     }
-     
+public class Swish<T extends TType> extends Activation<T> {
+
+    /**
+     * Create a Swish activation
+     *
+     * @param tf the TensorFlow Ops
+     */
+    public Swish(Ops tf) {
+        super(tf);
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Operand<U> input) {
-        assert TypeUtils.isFloating(input.asTensor().dataType()): 
+    public Operand<T> call(Operand<T> input) {
+        assert TypeUtils.isFloating(input.asTensor().dataType()) :
                 "Must be a Floating Point DataType: " + input.asTensor().dataType();
         // TODO What about the "grad" return from python tensorflow impl?
         return tf.math.mul(input, tf.math.sigmoid(input));
     }
-    
+
 }

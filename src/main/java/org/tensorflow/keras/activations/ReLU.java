@@ -20,43 +20,51 @@ import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TType;
 
 /**
- * the rectified linear unit activation function.
- * @author Jim Clarke
+ * Rectified Linear Unit(ReLU) activation.
+ *
+ * @param <T> the data type of the result
  */
-public class ReLU <U extends TType> extends Activation<U> {
-     private static final double ALPHA_DEFAULT = 0.0;
-     private static final Double MAX_VALUE_DEFAULT = null;
-     private static final double THRESHOLD_DEFAULT = 0.0;
-     
-     private final double alpha;
-     private final Double max_value;
-     private final double threshold;
-     
-     /**
-      * Creates a new ReLU with alpha=0.0, max_value=null, threshold=0.0
-      */
-     public ReLU(Ops tf) {
-         this(tf, ALPHA_DEFAULT, MAX_VALUE_DEFAULT, THRESHOLD_DEFAULT);
-     }
-     
-     /**
-      * Creates a new ReLU
-      * @param alpha governs the slope for values lower than the threshold.
-      * @param max_value sets the saturation threshold (the largest value the function will return).
-      * @param threshold the threshold value of the activation function below which values will be damped or set to zero.
-      */
-     public ReLU(Ops tf, double alpha, Double max_value, double threshold) {
-         super(tf);
-         this.alpha = alpha;
-         this.max_value = max_value;
-         this.threshold = threshold;
-     }
+public class ReLU<T extends TType> extends Activation<T> {
+
+    private static final double ALPHA_DEFAULT = 0.0;
+    private static final Double MAX_VALUE_DEFAULT = null;
+    private static final double THRESHOLD_DEFAULT = 0.0;
+
+    private final double alpha;
+    private final Double max_value;
+    private final double threshold;
+
+    /**
+     * Creates a new ReLU with alpha=0.0, max_value=null, threshold=0.0
+     *
+     * @param tf the TensorFlow Ops
+     */
+    public ReLU(Ops tf) {
+        this(tf, ALPHA_DEFAULT, MAX_VALUE_DEFAULT, THRESHOLD_DEFAULT);
+    }
+
+    /**
+     * Creates a new ReLU
+     *
+     * @param tf the TensorFlow Ops
+     * @param alpha governs the slope for values lower than the threshold.
+     * @param max_value sets the saturation threshold (the largest value the
+     * function will return).
+     * @param threshold the threshold value of the activation function below
+     * which values will be damped or set to zero.
+     */
+    public ReLU(Ops tf, double alpha, Double max_value, double threshold) {
+        super(tf);
+        this.alpha = alpha;
+        this.max_value = max_value;
+        this.threshold = threshold;
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Operand<U> input) {
+    public Operand<T> call(Operand<T> input) {
         Operand negative_part = null;
         if (alpha != 0) {
             if (max_value == null && threshold == 0) {
@@ -74,7 +82,7 @@ public class ReLU <U extends TType> extends Activation<U> {
             // computes input for input > threshold else 0
             // TODO
             //input = input * math_ops.cast(math_ops.greater(input, threshold), floatx())
-            Operand op = tf.math.greater((Operand)input, tf.dtypes.cast(tf.constant(threshold), (DataType)input.asTensor().dataType()));
+            Operand op = tf.math.greater((Operand) input, tf.dtypes.cast(tf.constant(threshold), (DataType) input.asTensor().dataType()));
             input = tf.math.mul(input, op);
         } else if (max_value != null && max_value == 6) {
             // if no threshold, then can use nn.relu6 native TF op for performance
@@ -95,5 +103,5 @@ public class ReLU <U extends TType> extends Activation<U> {
         }
         return input;
     }
-    
+
 }

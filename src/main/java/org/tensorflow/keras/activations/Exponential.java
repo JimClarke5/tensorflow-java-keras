@@ -21,23 +21,28 @@ import org.tensorflow.types.family.TType;
 
 /**
  * Exponential activation function.
- * @author Jim Clarke
+ *
+ * @param <T> the data type of the activation
  */
-public class Exponential <U extends TType> extends Activation<U> {
-     
-     public Exponential(Ops tf) {
-         super(tf);
-     }
-     
+public class Exponential<T extends TType> extends Activation<T> {
+
+    /**
+     * Create an Exponential activation.
+     *
+     * @param tf the TensorFlow Ops
+     */
+    public Exponential(Ops tf) {
+        super(tf);
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Operand<U> input) {
-        assert TypeUtils.isFloating(input.asTensor().dataType()): 
+    public Operand<T> call(Operand<T> input) {
+        assert TypeUtils.isFloating(input.asTensor().dataType()) :
                 "Must be a Floating Point DataType: " + input.asTensor().dataType();
         return tf.math.exp(input);
     }
-    
+
 }

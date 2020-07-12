@@ -25,12 +25,15 @@ import java.util.logging.Logger;
 import org.tensorflow.op.Ops;
 
 /**
- * Retrieve Activation functions based on symbolic name, lambda, or Class
- * @author Jim Clarke
+ * Retrieve Activation functions based on symbolic name, lambda, Class, or
+ * method
  */
 public class Activations {
 
-    static Map<String, Function<Ops, Activation >> map = new HashMap<String,Function<Ops, Activation >>() {
+    /**
+     * map of string names to instances of activations.
+     */
+    static Map<String, Function<Ops, Activation>> map = new HashMap<String, Function<Ops, Activation>>() {
         {
             put("relu", tf -> new ReLU(tf));
             put("elu", tf -> new ELU(tf));
@@ -50,48 +53,51 @@ public class Activations {
     /**
      * Get an Activation
      *
-     * @param activationFunction either a String that identifies the
-     * Activation, an Activation class, or an Activation object.
-     * @return the activation object or null if not found.
+     * @param tf the TensorFlow Ops
+     * @param activationFunction either a String that identifies the Activation,
+     * an Activation class, or an Activation object.
+     * @return the activation instance or null if not found.
      */
     public static Activation get(Ops tf, Object activationFunction) {
         return get(tf, activationFunction, null);
     }
 
     /**
-     * Get an Activation based on a lambda of the form: 
-     * (Ops ops) -> create(Ops ops) 
+     * Get an Activation based on a lambda of the form: (Ops ops) -> create(Ops
+     * ops)
      *
-     * @param tf
+     * @param tf the TensorFlow Ops
      * @param lambda a lambda function
-     * @return the Intializer object
+     * @return the Activation instance
      */
-    public static Activation get(Ops tf, Function<Ops, Activation > lambda) {
+    public static Activation get(Ops tf, Function<Ops, Activation> lambda) {
         return lambda.apply(tf);
     }
-    
-      /**
-      * Get an Activation  based on a lambda of the form:  () -> create() 
-      * @param lambda a lambda function
-      * @return the Intializer object
-      */
-    public static Activation get( Supplier<Activation > lambda) {
-         return lambda.get();
+
+    /**
+     * Get an Activation based on a lambda of the form: () -> create()
+     *
+     * @param lambda a lambda function
+     * @return the Activation instance
+     */
+    public static Activation get(Supplier<Activation> lambda) {
+        return lambda.get();
     }
 
     /**
      * Get an Activation
      *
+     * @param tf the TensorFlow Ops
      * @param activationFunction
      * @param custom_functions a map of Activation lambdas that will be queried
      * if the activation is not found in the standard keys
-     * @return the Activation object
+     * @return the Activation instance
      */
-    public static Activation get(Ops tf, Object activationFunction, Map<String, Function<Ops, Activation > > custom_functions) {
+    public static Activation get(Ops tf, Object activationFunction, Map<String, Function<Ops, Activation>> custom_functions) {
         if (activationFunction != null) {
             if (activationFunction instanceof String) {
                 String s = activationFunction.toString(); // do this for Java 8 rather than Pattern Matching for instanceof
-                Function<Ops, Activation > function = map.get(s);
+                Function<Ops, Activation> function = map.get(s);
                 if (function == null && custom_functions != null) {
                     function = custom_functions.get(s);
                 }
@@ -100,7 +106,7 @@ public class Activations {
                 Class c = (Class) activationFunction; // do this for Java 8 rather than Pattern Matching for instanceof
                 try {
                     Constructor ctor = c.getConstructor(Ops.class);
-                    return (Activation)ctor.newInstance(tf);
+                    return (Activation) ctor.newInstance(tf);
                 } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                     Logger.getLogger(Activations.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -115,10 +121,11 @@ public class Activations {
                 "activationFunction must be a symbolic name, Activation, Supplier<Activation> or a Class object");
     }
 
-    // Helper function calls to create the Activation
-    
+    // Helper function calls to create an Activation
     /**
-     * Applies the rectified linear unit activation function.
+     * Creates a rectified linear unit (ReLU) activation.
+     *
+     * @param tf the TensorFlow Ops
      * @return the ReLU activation
      */
     public static ReLU relu(Ops tf) {
@@ -126,10 +133,14 @@ public class Activations {
     }
 
     /**
-     * Applies the rectified linear unit activation function.
+     * Creates a rectified linear unit (ReLU) activation.
+     *
+     * @param tf the TensorFlow Ops
      * @param alpha governs the slope for values lower than the threshold.
-     * @param max_value sets the saturation threshold (the largest value the function will return).
-     * @param threshold the threshold value of the activation function below which values will be damped or set to zero.
+     * @param max_value sets the saturation threshold (the largest value the
+     * function will return).
+     * @param threshold the threshold value of the activation function below
+     * which values will be damped or set to zero.
      * @return the ReLU activation
      */
     public static ReLU relu(Ops tf, double alpha, Double max_value, double threshold) {
@@ -137,15 +148,19 @@ public class Activations {
     }
 
     /**
-     * Exponential linear unit.
+     * Creates an exponential linear unit(ELU) activation.
+     *
+     * @param tf the TensorFlow Ops
      * @return the ELU activation
      */
     public static ELU elu(Ops tf) {
         return new ELU(tf);
     }
-    
+
     /**
-     * Exponential linear unit.
+     * Creates an exponential linear unit(ELU) activation.
+     *
+     * @param tf the TensorFlow Ops
      * @param alpha A scalar, slope of negative section.
      * @return the ELU activation
      */
@@ -154,7 +169,9 @@ public class Activations {
     }
 
     /**
-     *  Exponential activation function.
+     * Creates an exponential activation.
+     *
+     * @param tf the TensorFlow Ops
      * @return the exponential activation
      */
     public static Exponential exponential(Ops tf) {
@@ -162,23 +179,29 @@ public class Activations {
     }
 
     /**
-     * Hard sigmoid activation function.
-     * @return the Hard sigmoid activation function.
+     * Creates a hard sigmoid activation.
+     *
+     * @param tf the TensorFlow Ops
+     * @return the Hard sigmoid activation instance.
      */
     public static HardSigmoid hard_sigmoid(Ops tf) {
         return new HardSigmoid(tf);
     }
 
     /**
-     * Linear activation function.
-     * @return the Linear activation function.
+     * Creates a linear activation.
+     *
+     * @param tf the TensorFlow Ops
+     * @return the Linear activation instance.
      */
     public static Linear linear(Ops tf) {
         return new Linear(tf);
     }
 
     /**
-     * Scaled Exponential Linear Unit (SELU).
+     * Creates a scaled exponential linear unit (SELU) activation.
+     *
+     * @param tf the TensorFlow Ops
      * @return the Scaled Exponential Linear Unit (SELU).
      */
     public static SELU selu(Ops tf) {
@@ -186,57 +209,71 @@ public class Activations {
     }
 
     /**
-     * Sigmoid activation function.
-     * @return the Sigmoid activation function.
+     * Creates a sigmoid activation.
+     *
+     * @param tf the TensorFlow Ops
+     * @return the Sigmoid activation instance.
      */
     public static Sigmoid sigmoid(Ops tf) {
         return new Sigmoid(tf);
     }
 
     /**
-     * Softmax converts a real vector to a vector of categorical probabilities.
-     * @return the Softmax activation function.
+     * Creates a softmax activation.
+     *
+     * @param tf the TensorFlow Ops
+     * @return the Softmax activation instance.
      */
     public static Softmax softmax(Ops tf) {
         return new Softmax(tf);
     }
-    
+
     /**
-     * Softmax converts a real vector to a vector of categorical probabilities.
+     * Creates a softmax activation.
+     *
+     * @param tf the TensorFlow Ops
      * @param axis axis along which the softmax normalization is applied.
-     * @return the Softmax activation function.
+     * @return the Softmax activation instance.
      */
     public static Softmax softmax(Ops tf, int axis) {
         return new Softmax(tf, axis);
     }
 
     /**
-     * Softplus activation function.
-     * @return the Softplus activation function.
+     * Creates a softplus activation.
+     *
+     * @param tf the TensorFlow Ops
+     * @return the Softplus activation instance.
      */
     public static Softplus softplus(Ops tf) {
         return new Softplus(tf);
     }
 
     /**
-     * Softsign activation function.
-     * @return the Softsign activation function.
+     * Creates a softsign activation.
+     *
+     * @param tf the TensorFlow Ops
+     * @return the Softsign activation instance.
      */
     public static Softsign softsign(Ops tf) {
         return new Softsign(tf);
     }
 
     /**
-     * Swish activation function.
-     * @return the Swish activation function.
+     * Creates a swish activation.
+     *
+     * @param tf the TensorFlow Ops
+     * @return the Swish activation instance.
      */
     public static Swish swish(Ops tf) {
         return new Swish(tf);
     }
 
     /**
-     * Hyperbolic tangent activation function.
-     * @return the Hyperbolic tangent activation function.
+     * Creates a hyperbolic tangent (tanh) activation.
+     *
+     * @param tf the TensorFlow Ops
+     * @return the Hyperbolic tangent activation instance.
      */
     public static Tanh tanh(Ops tf) {
         return new Tanh(tf);

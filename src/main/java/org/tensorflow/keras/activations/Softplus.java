@@ -21,26 +21,26 @@ import org.tensorflow.types.family.TType;
 
 /**
  * Softplus activation function.
- * @author Jim Clarke
  */
-public class Softplus <U extends TType> extends Activation<U> {
-     
+public class Softplus<T extends TType> extends Activation<T> {
+
     /**
-     *  Create a Softplus activation function.
+     * Create a Softplus activation function.
+     *
+     * @param tf the TensorFlow Ops
      */
-     public Softplus(Ops tf) {
-         super(tf);
-     }
-     
+    public Softplus(Ops tf) {
+        super(tf);
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Operand<U> input) {
-        assert TypeUtils.isFloating(input.asTensor().dataType()): 
+    public Operand<T> call(Operand<T> input) {
+        assert TypeUtils.isFloating(input.asTensor().dataType()) :
                 "Must be a Floating Point DataType: " + input.asTensor().dataType();
-        return tf.math.softplus((Operand)input);
+        return tf.math.softplus((Operand) input);
     }
-    
+
 }

@@ -20,13 +20,17 @@ import org.tensorflow.types.family.TType;
 
 /**
  * Linear activation function.
- * @author Jim Clarke
  */
-public class Linear <U extends TType> extends Activation<U> {
-     
-     public Linear(Ops tf) {
-         super(tf);
-     }
+public class Linear<U extends TType> extends Activation<U> {
+
+    /**
+     * Create a linear activation.
+     *
+     * @param tf the TensorFlow Ops
+     */
+    public Linear(Ops tf) {
+        super(tf);
+    }
 
     /**
      * {@inheritDoc}
@@ -35,5 +39,5 @@ public class Linear <U extends TType> extends Activation<U> {
     public Operand<U> call(Operand<U> input) {
         return input;
     }
-    
+
 }

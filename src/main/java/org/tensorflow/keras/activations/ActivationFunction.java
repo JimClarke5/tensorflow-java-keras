@@ -15,27 +15,22 @@ limitations under the License.
 package org.tensorflow.keras.activations;
 
 import org.tensorflow.Operand;
-import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TType;
 
 /**
  * A Functional Interface for Activations
- * 
- * @author Jim Clarke
- * @param <U> The Type for the call operation
+ *
+ * @param <T> the data type of the activation
  */
-
 @FunctionalInterface
-public interface ActivationFunction<U extends TType> {
-    
-    
+public interface ActivationFunction<T extends TType> {
+
     /**
-     *  The call operation for the activation
-     * 
-     * @param tf the tensorflow Ops
-     * @param the input tensor
-     * @return  The operand for the activation
+     * The call operation for the activation
+     *
+     * @param input the input tensor
+     * @return The operand for the activation
      */
-    public Operand<U> call(Operand<U> input);
-    
+    public Operand<T> call(Operand<T> input);
+
 }

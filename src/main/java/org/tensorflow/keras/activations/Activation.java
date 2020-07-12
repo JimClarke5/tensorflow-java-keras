@@ -18,12 +18,19 @@ import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TType;
 
 /**
- * abstract class for Activations
- * @author Jim Clarke
+ * Abstract class for Activations
+ *
+ * @param <T> the data type of the activation
  */
-public abstract class Activation<U extends TType> implements ActivationFunction<U> {
+public abstract class Activation<T extends TType> implements ActivationFunction<T> {
+
     protected final Ops tf;
-    
+
+    /**
+     * Create the abstract class for an Activation
+     *
+     * @param tf the TensorFlow Ops
+     */
     public Activation(Ops tf) {
         this.tf = tf;
     }

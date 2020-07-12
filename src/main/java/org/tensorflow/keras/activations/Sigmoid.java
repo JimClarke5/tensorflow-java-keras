@@ -20,24 +20,29 @@ import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TType;
 
 /**
- * Sigmoid activation function.
- * @author Jim Clarke
+ * Sigmoid activation.
+ *
+ * @param <T> the data type of the activation
  */
-public class Sigmoid <U extends TType> extends Activation<U> {
-     
-     public Sigmoid(Ops tf) {
-         super(tf);
-     }
-     
+public class Sigmoid<T extends TType> extends Activation<T> {
+
+    /**
+     * Create a Sigmoid activation.
+     *
+     * @param tf the TensorFlow Ops
+     */
+    public Sigmoid(Ops tf) {
+        super(tf);
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Operand<U> call(Operand<U> input) {
-         assert TypeUtils.isFloating(input.asTensor().dataType()): 
+    public Operand<T> call(Operand<T> input) {
+        assert TypeUtils.isFloating(input.asTensor().dataType()) :
                 "Must be a Floating Point DataType: " + input.asTensor().dataType();
         return tf.math.sigmoid(input);
     }
-    
+
 }
