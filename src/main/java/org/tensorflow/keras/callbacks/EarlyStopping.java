@@ -173,7 +173,7 @@ public class EarlyStopping extends Callback {
      */
     @Override
     public void onEpochEnd(int epoch, Map<String, Number> logs) {
-        Number current = getMonitorValue(logs);
+        Number current = getMonitorValue(logs, this.monitor);
         if (current == null) {
             return;
         }
