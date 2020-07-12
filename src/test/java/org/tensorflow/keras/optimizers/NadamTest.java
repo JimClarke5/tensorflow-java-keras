@@ -24,8 +24,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import org.tensorflow.Graph;
-import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 import org.tensorflow.framework.optimizers.Optimizer;
 import static org.tensorflow.keras.optimizers.Adamax.LEARNING_RATE_KEY;
@@ -40,6 +38,7 @@ import static org.tensorflow.keras.optimizers.Nadam.LEARNING_RATE_DEFAULT;
 import static org.tensorflow.keras.optimizers.Nadam.SECOND_MOMENT;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
 import org.tensorflow.keras.utils.ND;
+import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Assign;
@@ -55,7 +54,8 @@ import org.tensorflow.types.TFloat32;
  * @author Jim Clarke
  */
 public class NadamTest {
-
+    private TestSession.Mode tf_mode = TestSession.Mode.GRAPH;
+    
     private final static int VAR = 0;
     private final static int M = 1;
     private final static int V = 2;
@@ -87,15 +87,16 @@ public class NadamTest {
      */
     @Test
     public void testCreate() {
-        try (Graph graph = new Graph()) {
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Map<String, Object> config = new HashMap<>();
             config.put(NAME_KEY, "AdaDelta");
             config.put(LEARNING_RATE_KEY, LEARNING_RATE_DEFAULT);
             config.put(BETA_ONE_KEY, BETA_ONE_DEFAULT);
             config.put(BETA_TWO_KEY, BETA_TWO_DEFAULT);
             config.put(EPSILON_KEY, EPSILON_DEFAULT);
-            AdaDelta expResult = new AdaDelta(graph);
-            AdaDelta result = AdaDelta.create(graph, config);
+            AdaDelta expResult = new AdaDelta(tf);
+            AdaDelta result = AdaDelta.create(tf, config);
             assertEquals(expResult.getConfig(), result.getConfig());
         }
     }
@@ -105,8 +106,9 @@ public class NadamTest {
      */
     @Test
     public void testGetOptimizerName() {
-        try (Graph graph = new Graph()) {
-            Nadam instance = new Nadam(graph);
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
+            Nadam instance = new Nadam(tf);
             String expResult = "Nadam";
             String result = instance.getOptimizerName();
             assertEquals(expResult, result);
@@ -141,8 +143,8 @@ public class NadamTest {
         float epsilon = 1e-6f;
         float epsilon1 = 1e-3F; // TODO Need to further examine accuracy.
 
-        try (Graph graph = new Graph(); Session sess = new Session(graph)) {
-            Ops tf = Ops.create(graph).withName("test");
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
 
             Shape shape0 = Shape.of(var0_init.length);
             Shape shape1 = Shape.of(var1_init.length);
@@ -155,11 +157,7 @@ public class NadamTest {
             Constant<TFloat32> grads0 = tf.constant(grads0_init);
             Constant<TFloat32> grads1 = tf.constant(grads1_init);
 
-            /* initialize the local variables */
-            sess.runner().addTarget(var0Initializer).run();
-            sess.runner().addTarget(var1Initializer).run();
-
-            Nadam instance = new Nadam(graph);
+            Nadam instance = new Nadam(tf);
             /* build the GradsAnvVars */
             List gradsAndVars = new ArrayList<>();
             gradsAndVars.add(new Optimizer.GradAndVar<>(grads0.asOutput(), var0.asOutput()));
@@ -183,23 +181,21 @@ public class NadamTest {
             secondMomentSlots[1] = instance.getSlot(var1.asOutput(), SECOND_MOMENT).get();
             assertEquals(secondMomentSlots[1].asOutput().shape(), var1.asOutput().shape());
 
+            /* initialize the local variables */
+            session.run(var0Initializer);
+            session.run(var1Initializer);
+
             /**
              * initialize the accumulators
              */
-            graph.initializers().forEach((initializer) -> {
-                sess.runner().addTarget(initializer).run();
-            });
+            session.run(tf.init());
 
-            try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(var0_init[index++], f.getFloat(), epsilon));
-            }
-            try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(var1_init[index++], f.getFloat(), epsilon));
-            }
+            session.setEpsilon(epsilon1);
+            
+            session.evaluate(var0_init, var0);
+            session.evaluate(var1_init, var1);
 
-            try (Tensor<TFloat32> result = sess.runner().fetch("momentum").run().get(0).expect(TFloat32.DTYPE)) {
+            try (Tensor<TFloat32> result = session.getGraphSession().runner().fetch("momentum").run().get(0).expect(TFloat32.DTYPE)) {
                 result.data().scalars().forEach(f
                         -> {
                     assertEquals(1F, f.getFloat(), epsilon1);
@@ -210,12 +206,12 @@ public class NadamTest {
 
             for (int step = 0; step < numSteps; step++) {
 
-                sess.run(update);
+                session.run(update);
 
                 float mut = Nadam.BETA_ONE_DEFAULT * (1F - 0.5F * (float) Math.pow(0.96F, (0.004F * (step + 1))));
                 momentum = momentum * mut;
 
-                try (Tensor<TFloat32> result = sess.runner().fetch("momentum").run().get(0).expect(TFloat32.DTYPE)) {
+                try (Tensor<TFloat32> result = session.getGraphSession().runner().fetch("momentum").run().get(0).expect(TFloat32.DTYPE)) {
                     result.data().scalars().forEach(f
                             -> {
                         assertEquals(momentum, f.getFloat(), epsilon1);
@@ -233,68 +229,19 @@ public class NadamTest {
                 m1 = resultsNP[M];
                 v1 = resultsNP[V];
 
-                // get m0
-                try (Tensor<TFloat32> result = sess.runner().fetch(firstMomentSlots[0]).run().get(0).expect(TFloat32.DTYPE)) {
-                    index = 0;
-                    final FloatNdArray m0_final = m0;
-                    result.data().scalars().forEach(f -> {
-                        assertEquals(m0_final.getFloat(index), f.getFloat(), epsilon1);
-                        index++;
-                    });
-                }
+                // evaluate m0 and m1
+                session.evaluate(m0, firstMomentSlots[0]);
+                session.evaluate(m1, firstMomentSlots[1]);
 
-                // get m1
-                try (Tensor<TFloat32> result = sess.runner().fetch(firstMomentSlots[1]).run().get(0).expect(TFloat32.DTYPE)) {
-                    index = 0;
-                    final FloatNdArray m1_final = m1;
-                    result.data().scalars().forEach(f -> {
-                        assertEquals(m1_final.getFloat(index), f.getFloat(), epsilon1);
-                        index++;
-                    });
-                }
-
-                // get v0
-                try (Tensor<TFloat32> result = sess.runner().fetch(secondMomentSlots[0]).run().get(0).expect(TFloat32.DTYPE)) {
-                    index = 0;
-                    final FloatNdArray v0_final = v0;
-                    result.data().scalars().forEach(f -> {
-                        assertEquals(v0_final.getFloat(index), f.getFloat(), epsilon1);
-                        index++;
-                    });
-                }
-
-                // get v1
-                try (Tensor<TFloat32> result = sess.runner().fetch(secondMomentSlots[1]).run().get(0).expect(TFloat32.DTYPE)) {
-                    index = 0;
-                    final FloatNdArray v1_final = v1;
-                    result.data().scalars().forEach(f -> {
-                        assertEquals(v1_final.getFloat(index), f.getFloat(), epsilon1);
-                        index++;
-                    });
-                }
-
-                // get var0
-                try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
-                    index = 0;
-                    final FloatNdArray var0_final = var0_np;
-                    result.data().scalars().forEach(f -> {
-                        assertEquals(var0_final.getFloat(index), f.getFloat(), epsilon1);
-                        index++;
-                    });
-                }
-
-                // get var1
-                try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
-                    index = 0;
-                    final FloatNdArray var1_final = var1_np;
-                    result.data().scalars().forEach(f -> {
-                        assertEquals(var1_final.getFloat(index), f.getFloat(), epsilon1);
-                        index++;
-                    });
-                }
+                // evaluate v0 and v1
+                session.evaluate(v0, secondMomentSlots[0]);
+                session.evaluate(v1, secondMomentSlots[1]);
+                
+                 // evaluate var0 and var1
+                session.evaluate(var0_np, var0);
+                session.evaluate(var1_np, var1);
 
             }
-
         }
     }
 

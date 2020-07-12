@@ -24,8 +24,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import org.tensorflow.Graph;
-import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 import org.tensorflow.framework.optimizers.Optimizer;
@@ -36,6 +34,7 @@ import static org.tensorflow.keras.optimizers.Ftrl.L2_SHRINKAGE_REGULARIZATION_S
 import static org.tensorflow.keras.optimizers.Ftrl.LEARNING_RATE_KEY;
 import static org.tensorflow.keras.optimizers.Ftrl.LEARNING_RATE_POWER_KEY;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
+import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Assign;
@@ -43,14 +42,13 @@ import org.tensorflow.op.core.Constant;
 import org.tensorflow.op.core.Variable;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat32;
-import org.tensorflow.types.family.TType;
 
 /**
  *
  * @author Jim Clarke
  */
 public class FtrlTest {
-
+    private TestSession.Mode tf_mode = TestSession.Mode.GRAPH;
     int index;
 
     public FtrlTest() {
@@ -77,7 +75,8 @@ public class FtrlTest {
      */
     @Test
     public void testInitConfig() {
-        try (Graph graph = new Graph()) {
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Map<String, Object> config = new HashMap<>();
             config.put(NAME_KEY, "Ftrl");
             config.put(LEARNING_RATE_KEY, 2.0F);
@@ -86,8 +85,8 @@ public class FtrlTest {
             config.put(L1STRENGTH_KEY, 0.0F);
             config.put(L2STRENGTH_KEY, 0.0F);
             config.put(L2_SHRINKAGE_REGULARIZATION_STRENGTH_KEY, 0.0F);
-            Ftrl expResult = new Ftrl(graph, 2.0F);
-            Ftrl result = Ftrl.create(graph, config);
+            Ftrl expResult = new Ftrl(tf, 2.0F);
+            Ftrl result = Ftrl.create(tf, config);
             assertEquals(expResult.getConfig(), result.getConfig());
         }
     }
@@ -97,8 +96,9 @@ public class FtrlTest {
      */
     @Test
     public void testGetOptimizerName() {
-        try (Graph graph = new Graph()) {
-            Ftrl instance = new Ftrl(graph);
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
+            Ftrl instance = new Ftrl(tf);
             String expResult = "Ftrl";
             String result = instance.getOptimizerName();
             assertEquals(expResult, result);
@@ -116,8 +116,8 @@ public class FtrlTest {
 
         int numSteps = 10;
 
-        try (Graph graph = new Graph(); Session sess = new Session(graph)) {
-            Ops tf = Ops.create(graph).withName("test");
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
 
             Shape shape0 = Shape.of(var0_init.length);
             Shape shape1 = Shape.of(var1_init.length);
@@ -130,13 +130,11 @@ public class FtrlTest {
             Constant<TFloat32> grads0 = tf.constant(grads0_init);
             Constant<TFloat32> grads1 = tf.constant(grads1_init);
 
-            /* initialize the local variables */
-            sess.runner().addTarget(var0Initializer).run();
-            sess.runner().addTarget(var1Initializer).run();
+            
 
             float learningRate = 3.0F;
 
-            Ftrl instance = new Ftrl(graph, learningRate,
+            Ftrl instance = new Ftrl(tf, learningRate,
                     -0.5F, // learningRatePower
                     0.1F, // initial_accumulator_value
                     0.001F, // l1_regularization_strength
@@ -152,40 +150,26 @@ public class FtrlTest {
             Op ftrl_update = instance.applyGradients(gradsAndVars, "FtrlTest");
 
             /* initialize the local variables */
-            sess.runner().addTarget(var0Initializer).run();
-            sess.runner().addTarget(var1Initializer).run();
+            session.run(var0Initializer);
+            session.run(var1Initializer);
 
             /**
              * initialize the accumulators
              */
-            graph.initializers().forEach((initializer) -> {
-                sess.runner().addTarget(initializer).run();
-            });
+            session.run(tf.init());
 
-            try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(var0_init[index++], f.getFloat(), epsilon));
-            }
-            try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(var1_init[index++], f.getFloat(), epsilon));
-            }
+            
+            session.evaluate(var0_init, var0);
+            session.evaluate(var1_init, var1);
 
             for (int i = 0; i < numSteps; i++) {
-                sess.run(ftrl_update);
+                session.run(ftrl_update);
             }
 
             float[] expectedVar0 = {-0.22578995F, -0.44345796F};
-            try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(expectedVar0[index++], f.getFloat(), epsilon1));
-            }
-
+            session.evaluate(expectedVar0, var0);
             float[] expectedVar1 = {-0.14378493F, -0.13229476F};
-            try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(expectedVar1[index++], f.getFloat(), epsilon1));
-            }
+             session.evaluate(expectedVar1, var1);
 
         }
     }
@@ -201,8 +185,8 @@ public class FtrlTest {
 
         int numSteps = 10;
 
-        try (Graph graph = new Graph(); Session sess = new Session(graph)) {
-            Ops tf = Ops.create(graph).withName("test");
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
 
             Shape shape0 = Shape.of(var0_init.length);
             Shape shape1 = Shape.of(var1_init.length);
@@ -215,13 +199,9 @@ public class FtrlTest {
             Constant<TFloat32> grads0 = tf.constant(grads0_init);
             Constant<TFloat32> grads1 = tf.constant(grads1_init);
 
-            /* initialize the local variables */
-            sess.runner().addTarget(var0Initializer).run();
-            sess.runner().addTarget(var1Initializer).run();
-
             float learningRate = 3.0F;
 
-            Ftrl instance = new Ftrl(graph, learningRate,
+            Ftrl instance = new Ftrl(tf, learningRate,
                     Ftrl.LEARNING_RATE_POWER_DEFAULT, // learningRatePower
                     0.1F, // initial_accumulator_value
                     0.001F, // l1_regularization_strength
@@ -237,40 +217,28 @@ public class FtrlTest {
             Op ftrl_update = instance.applyGradients(gradsAndVars, "FtrlTest");
 
             /* initialize the local variables */
-            sess.runner().addTarget(var0Initializer).run();
-            sess.runner().addTarget(var1Initializer).run();
+            session.run(var0Initializer);
+            session.run(var1Initializer);
 
             /**
              * initialize the accumulators
              */
-            graph.initializers().forEach((initializer) -> {
-                sess.runner().addTarget(initializer).run();
-            });
+            session.run(tf.init());
+            
+            session.evaluate(var0_init, var0);
+            session.evaluate(var1_init, var1);
 
-            try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(var0_init[index++], f.getFloat(), epsilon));
-            }
-            try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(var1_init[index++], f.getFloat(), epsilon));
-            }
+            
 
             for (int i = 0; i < numSteps; i++) {
-                sess.run(ftrl_update);
+                session.run(ftrl_update);
             }
 
             float[] expectedVar0 = {-7.66718769F, -10.91273689F};
-            try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(expectedVar0[index++], f.getFloat(), epsilon1));
-            }
+            session.evaluate(expectedVar0, var0);
 
             float[] expectedVar1 = {-0.93460727F, -1.86147261F};
-            try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(expectedVar1[index++], f.getFloat(), epsilon1));
-            }
+            session.evaluate(expectedVar1, var1);
 
         }
     }
@@ -286,8 +254,8 @@ public class FtrlTest {
 
         int numSteps = 10;
 
-        try (Graph graph = new Graph(); Session sess = new Session(graph)) {
-            Ops tf = Ops.create(graph).withName("test");
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
 
             Shape shape0 = Shape.of(var0_init.length);
             Shape shape1 = Shape.of(var1_init.length);
@@ -300,13 +268,10 @@ public class FtrlTest {
             Constant<TFloat32> grads0 = tf.constant(grads0_init);
             Constant<TFloat32> grads1 = tf.constant(grads1_init);
 
-            /* initialize the local variables */
-            sess.runner().addTarget(var0Initializer).run();
-            sess.runner().addTarget(var1Initializer).run();
 
             float learningRate = 3.0F;
 
-            Ftrl instance = new Ftrl(graph, learningRate,
+            Ftrl instance = new Ftrl(tf, learningRate,
                     Ftrl.LEARNING_RATE_POWER_DEFAULT, // learningRatePower
                     0.1F, // initial_accumulator_value
                     0.001F, // l1_regularization_strength
@@ -321,41 +286,27 @@ public class FtrlTest {
 
             Op ftrl_update = instance.applyGradients(gradsAndVars, "FtrlTest");
 
-            /* initialize the local variables */
-            sess.runner().addTarget(var0Initializer).run();
-            sess.runner().addTarget(var1Initializer).run();
+             /* initialize the local variables */
+            session.run(var0Initializer);
+            session.run(var1Initializer);
 
             /**
              * initialize the accumulators
              */
-            graph.initializers().forEach((initializer) -> {
-                sess.runner().addTarget(initializer).run();
-            });
-
-            try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(var0_init[index++], f.getFloat(), epsilon));
-            }
-            try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(var1_init[index++], f.getFloat(), epsilon));
-            }
+            session.run(tf.init());
+            
+            session.evaluate(var0_init, var0);
+            session.evaluate(var1_init, var1);
 
             for (int i = 0; i < numSteps; i++) {
-                sess.run(ftrl_update);
+                session.run(ftrl_update);
             }
 
             float[] expectedVar0 = {-0.24059935F, -0.46829352F};
-            try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(expectedVar0[index++], f.getFloat(), epsilon1));
-            }
+            session.evaluate(expectedVar0, var0);
 
             float[] expectedVar1 = {-0.02406147F, -0.04830509F};
-            try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(expectedVar1[index++], f.getFloat(), epsilon1));
-            }
+            session.evaluate(expectedVar1, var1);
 
         }
     }
@@ -371,8 +322,8 @@ public class FtrlTest {
 
         int numSteps = 3;
 
-        try (Graph graph = new Graph(); Session sess = new Session(graph)) {
-            Ops tf = Ops.create(graph).withName("test");
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
 
             Shape shape0 = Shape.of(var0_init.length);
             Shape shape1 = Shape.of(var1_init.length);
@@ -385,13 +336,9 @@ public class FtrlTest {
             Constant<TFloat32> grads0 = tf.constant(grads0_init);
             Constant<TFloat32> grads1 = tf.constant(grads1_init);
 
-            /* initialize the local variables */
-            sess.runner().addTarget(var0Initializer).run();
-            sess.runner().addTarget(var1Initializer).run();
-
             float learningRate = 3.0F;
 
-            Ftrl instance = new Ftrl(graph, learningRate);
+            Ftrl instance = new Ftrl(tf, learningRate);
 
             /* build the GradsAnvVars */
             List gradsAndVars = new ArrayList<>();
@@ -399,41 +346,27 @@ public class FtrlTest {
             gradsAndVars.add(new Optimizer.GradAndVar<>(grads1.asOutput(), var1.asOutput()));
             Op ftrl_update = instance.applyGradients(gradsAndVars, "FtrlTest");
 
-            /* initialize the local variables */
-            sess.runner().addTarget(var0Initializer).run();
-            sess.runner().addTarget(var1Initializer).run();
+             /* initialize the local variables */
+            session.run(var0Initializer);
+            session.run(var1Initializer);
 
             /**
              * initialize the accumulators
              */
-            graph.initializers().forEach((initializer) -> {
-                sess.runner().addTarget(initializer).run();
-            });
-
-            try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(var0_init[index++], f.getFloat(), epsilon));
-            }
-            try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(var1_init[index++], f.getFloat(), epsilon));
-            }
+            session.run(tf.init());
+            
+            session.evaluate(var0_init, var0);
+            session.evaluate(var1_init, var1);
 
             for (int i = 0; i < numSteps; i++) {
-                sess.run(ftrl_update);
+                session.run(ftrl_update);
             }
 
-            float[] expectdVar0 = {-2.60260963F, -4.29698515F};
-            float[] expectdVar1 = {-0.28432083F, -0.56694895F};
+            float[] expectedVar0 = {-2.60260963F, -4.29698515F};
+            float[] expectedVar1 = {-0.28432083F, -0.56694895F};
 
-            try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(expectdVar0[index++], f.getFloat(), epsilon));
-            }
-            try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(expectdVar1[index++], f.getFloat(), epsilon));
-            }
+            session.evaluate(expectedVar0, var0);
+            session.evaluate(expectedVar1, var1);
         }
     }
 

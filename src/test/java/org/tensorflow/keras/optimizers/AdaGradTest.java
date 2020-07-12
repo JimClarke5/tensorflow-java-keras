@@ -24,15 +24,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import org.tensorflow.Graph;
-import org.tensorflow.Session;
-import org.tensorflow.Tensor;
 import static org.tensorflow.framework.optimizers.AdaGrad.ACCUMULATOR;
 import org.tensorflow.framework.optimizers.Optimizer;
 import static org.tensorflow.keras.optimizers.AdaGrad.INITIAL_ACCUM_KEY;
 import static org.tensorflow.keras.optimizers.AdaGrad.LEARNING_RATE_KEY;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
 import org.tensorflow.keras.utils.ND;
+import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Assign;
@@ -48,7 +46,7 @@ import org.tensorflow.types.TFloat32;
  * @author Jim Clarke
  */
 public class AdaGradTest {
-
+    private TestSession.Mode tf_mode = TestSession.Mode.GRAPH;
     int index;
 
     public AdaGradTest() {
@@ -75,13 +73,14 @@ public class AdaGradTest {
      */
     @Test
     public void testCreate() {
-        try (Graph graph = new Graph()) {
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+                    Ops tf = session.getTF();
             Map<String, Object> config = new HashMap<>();
             config.put(NAME_KEY, "AdaDelta");
             config.put(LEARNING_RATE_KEY, 2.0F);
             config.put(INITIAL_ACCUM_KEY, 0.1F);
-            AdaGrad expResult = new AdaGrad(graph, 2.0F, 0.1F);
-            AdaGrad result = AdaGrad.create(graph, config);
+            AdaGrad expResult = new AdaGrad(tf, 2.0F, 0.1F);
+            AdaGrad result = AdaGrad.create(tf, config);
             assertEquals(expResult.getConfig(), result.getConfig());
         }
     }
@@ -105,8 +104,8 @@ public class AdaGradTest {
         FloatNdArray accum0_np = NdArrays.vectorOf(accum0);
         FloatNdArray accum1_np = NdArrays.vectorOf(accum1);
 
-        try (Graph graph = new Graph(); Session sess = new Session(graph)) {
-            Ops tf = Ops.create(graph).withName("test");
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+                    Ops tf = session.getTF();
 
             Shape shape0 = Shape.of(var0_init.length);
             Shape shape1 = Shape.of(var1_init.length);
@@ -119,13 +118,11 @@ public class AdaGradTest {
             Constant<TFloat32> grads0 = tf.constant(grads0_init);
             Constant<TFloat32> grads1 = tf.constant(grads1_init);
 
-            /* initialize the local variables */
-            sess.runner().addTarget(var0Initializer).run();
-            sess.runner().addTarget(var1Initializer).run();
+            
 
             float learningRate = 3.0F;
 
-            AdaGrad instance = new AdaGrad(graph, learningRate);
+            AdaGrad instance = new AdaGrad(tf, learningRate);
 
             /* build the GradsAnvVars */
             List gradsAndVars = new ArrayList<>();
@@ -142,43 +139,31 @@ public class AdaGradTest {
             assertEquals(accumulatorSlots[1].asOutput().shape(), var1.asOutput().shape());
 
             /* initialize the local variables */
-            sess.runner().addTarget(var0Initializer).run();
-            sess.runner().addTarget(var1Initializer).run();
+            session.run(var0Initializer);
+            session.run(var1Initializer);
 
             /**
              * initialize the accumulators
              */
-            graph.initializers().forEach((initializer) -> {
-                sess.runner().addTarget(initializer).run();
-            });
-
-            try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(var0_init[index++], f.getFloat(), epsilon));
-            }
-            try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(var1_init[index++], f.getFloat(), epsilon));
-            }
+            session.run(tf.init());
+            
+            /**
+            * make sure the variables were initialized properly
+            */
+           session.evaluate(var0_init, var0);
+           session.evaluate(var1_init, var1);
 
             for (int step = 0; step < numSteps; step++) {
-                sess.run(ada_update);
+                session.run(ada_update);
 
                 accum0_np = caclulateAccum(accum0_np, grads0_np);
                 var0_np = calculate(var0_np, accum0_np, grads0_np, learningRate);
-                try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
-                    index = 0;
-                    final FloatNdArray var0_final = var0_np;
-                    result.data().scalars().forEach(f -> assertEquals(var0_final.getFloat(index++), f.getFloat(), epsilon1));
-                }
-
+                session.evaluate(var0_np, var0);
+                
                 accum1_np = caclulateAccum(accum1_np, grads1_np);
                 var1_np = calculate(var1_np, accum1_np, grads1_np, learningRate);
-                try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
-                    index = 0;
-                    final FloatNdArray var0_final = var0_np;
-                    result.data().scalars().forEach(f -> assertEquals(var0_final.getFloat(index++), f.getFloat(), epsilon1));
-                }
+                session.evaluate(var1_np, var1);
+                
             }
 
         }
@@ -188,7 +173,6 @@ public class AdaGradTest {
         // accum + g_t * g_t
         FloatNdArray squareG = ND.square(grads);
         FloatNdArray result = ND.add(accum, squareG);
-        ND.print(result);
         return result;
     }
 

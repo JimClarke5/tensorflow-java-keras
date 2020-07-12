@@ -16,8 +16,9 @@ package org.tensorflow.keras.optimizers;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.tensorflow.Graph;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
+import static org.tensorflow.keras.optimizers.OptimizerInterface.assertGraph;
+import org.tensorflow.op.Ops;
 
 /**
  * Adam Optimizer that implements the Adam algorithm.
@@ -42,47 +43,47 @@ public class Adam extends org.tensorflow.framework.optimizers.Adam implements Op
     /**
      * create an Adam Optimizer
      *
-     * @param graph the tensorflow graph
+     * @param tf the tensorflow tf
      */
-    public Adam(Graph graph) {
-        this(graph, LEARNING_RATE_DEFAULT, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT);
+    public Adam(Ops tf) {
+        this(tf, LEARNING_RATE_DEFAULT, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT);
     }
 
     /**
      * create an Adam Optimizer
      *
-     * @param graph the tensorflow graph
+     * @param tf the tensorflow tf
      * @param name the name of the Optimizer, defaults to "Adam"
      */
-    public Adam(Graph graph, String name) {
-        this(graph, name, LEARNING_RATE_DEFAULT, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT);
+    public Adam(Ops tf, String name) {
+        this(tf, name, LEARNING_RATE_DEFAULT, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT);
     }
 
     /**
      * create an Adam Optimizer
      *
-     * @param graph the tensorflow graph
+     * @param tf the tensorflow tf
      * @param learningRate The learning rate. Defaults to 0.001.
      */
-    public Adam(Graph graph, float learningRate) {
-        this(graph, learningRate, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT);
+    public Adam(Ops tf, float learningRate) {
+        this(tf, learningRate, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT);
     }
 
     /**
      * create an Adam Optimizer
      *
-     * @param graph the tensorflow graph
+     * @param tf the tensorflow tf
      * @param name the name of the Optimizer, defaults to "Adam"
      * @param learningRate The learning rate. Defaults to 0.001.
      */
-    public Adam(Graph graph, String name, float learningRate) {
-        this(graph, name, learningRate, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT);
+    public Adam(Ops tf, String name, float learningRate) {
+        this(tf, name, learningRate, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT);
     }
 
     /**
      * create an Adam Optimizer
      *
-     * @param graph the tensorflow graph
+     * @param tf the tensorflow tf
      * @param learningRate The learning rate. Defaults to 0.001.
      * @param betaOne The exponential decay rate for the 1st moment estimates.
      * Defaults to 0.9.
@@ -93,15 +94,15 @@ public class Adam extends org.tensorflow.framework.optimizers.Adam implements Op
      * Section 2.1), not the epsilon in Algorithm 1 of the paper. Defaults to
      * 1e-7.
      */
-    public Adam(Graph graph, float learningRate, float betaOne, float betaTwo, float epsilon) {
-        super(graph, learningRate, betaOne, betaTwo, epsilon);
+    public Adam(Ops tf, float learningRate, float betaOne, float betaTwo, float epsilon) {
+        super(assertGraph(tf), learningRate, betaOne, betaTwo, epsilon);
         initConfig(learningRate, betaOne, betaTwo, epsilon);
     }
 
     /**
      * create an Adam Optimizer
      *
-     * @param graph the tensorflow graph
+     * @param tf the tensorflow tf
      * @param name the name of the Optimizer, defaults to "Adam"
      * @param learningRate The learning rate. Defaults to 0.001.
      * @param betaOne The exponential decay rate for the 1st moment estimates.
@@ -113,8 +114,8 @@ public class Adam extends org.tensorflow.framework.optimizers.Adam implements Op
      * Section 2.1), not the epsilon in Algorithm 1 of the paper. Defaults to
      * 1e-7.
      */
-    public Adam(Graph graph, String name, float learningRate, float betaOne, float betaTwo, float epsilon) {
-        super(graph, name, learningRate, betaOne, betaTwo, epsilon);
+    public Adam(Ops tf, String name, float learningRate, float betaOne, float betaTwo, float epsilon) {
+        super(assertGraph(tf), name, learningRate, betaOne, betaTwo, epsilon);
         initConfig(learningRate, betaOne, betaTwo, epsilon);
     }
 
@@ -122,33 +123,33 @@ public class Adam extends org.tensorflow.framework.optimizers.Adam implements Op
     /**
      * create an Adam Optimizer from a config object
      *
-     * @param graph the tensorflow graph
+     * @param tf the tensorflow tf
      * @param config a config object to initialize, the config object has keys
      * for "name", "learning_rate", "epsilon", "beta_1", "beta_2". If a key is
      * missing the default value is used.
      */
-    public static Adam fromConfig(Graph graph, Map<String, Object> config) {
-        return create(graph, config);
+    public static Adam fromConfig(Ops tf, Map<String, Object> config) {
+        return create(tf, config);
     }
 
     /**
      * create an Adam Optimizer from a config object
      *
-     * @param graph the tensorflow graph
+     * @param tf the tensorflow tf
      * @param config a config object to initialize, the config object has keys
      * for "name", "learning_rate", "epsilon", "beta_1", "beta_2". If a key is
      * missing the default value is used.
      */
-    public static Adam create(Graph graph, Map<String, Object> config) {
+    public static Adam create(Ops tf, Map<String, Object> config) {
         String name = (String) config.get(NAME_KEY);
         float learningRate = (float) config.getOrDefault(LEARNING_RATE_KEY, LEARNING_RATE_DEFAULT);
         float epsilon = (float) config.getOrDefault(EPSILON_KEY, EPSILON_DEFAULT);
         float betaOne = (float) config.getOrDefault(BETA_ONE_KEY, BETA_ONE_DEFAULT);
         float betaTwo = (float) config.getOrDefault(BETA_TWO_KEY, BETA_TWO_DEFAULT);
         if (name == null) {
-            return new Adam(graph, learningRate, betaOne, betaTwo, epsilon);
+            return new Adam(tf, learningRate, betaOne, betaTwo, epsilon);
         } else {
-            return new Adam(graph, name, learningRate, betaOne, betaTwo, epsilon);
+            return new Adam(tf, name, learningRate, betaOne, betaTwo, epsilon);
         }
     }
 

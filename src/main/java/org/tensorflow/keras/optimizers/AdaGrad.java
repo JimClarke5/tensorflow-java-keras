@@ -16,7 +16,8 @@ package org.tensorflow.keras.optimizers;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.tensorflow.Graph;
+import static org.tensorflow.keras.optimizers.OptimizerInterface.assertGraph;
+import org.tensorflow.op.Ops;
 
 /**
  * AdaGrad Optimizer that implements the AdaGrad algorithm. Adagrad is an
@@ -46,8 +47,8 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
      *
      * @param graph the tensorflow graph
      */
-    public AdaGrad(Graph graph) {
-        this(graph, LEARNING_RATE_DEFAULT, INITIAL_ACCUM__DEFAULT);
+    public AdaGrad(Ops tf) {
+        this(tf, LEARNING_RATE_DEFAULT, INITIAL_ACCUM__DEFAULT);
     }
 
     /**
@@ -57,8 +58,8 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
      * @param graph the tensorflow graph
      * @param name the name of the Optimizer, defaults to "Adagrad"
      */
-    public AdaGrad(Graph graph, String name) {
-        this(graph, name, LEARNING_RATE_DEFAULT, INITIAL_ACCUM__DEFAULT);
+    public AdaGrad(Ops tf, String name) {
+        this(tf, name, LEARNING_RATE_DEFAULT, INITIAL_ACCUM__DEFAULT);
     }
 
     /**
@@ -67,8 +68,8 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
      * @param graph the tensorflow graph
      * @param learningRate The learning rate. Defaults to 0.001.
      */
-    public AdaGrad(Graph graph, float learningRate) {
-        this(graph, learningRate, INITIAL_ACCUM__DEFAULT);
+    public AdaGrad(Ops tf, float learningRate) {
+        this(tf, learningRate, INITIAL_ACCUM__DEFAULT);
     }
 
     /**
@@ -78,8 +79,8 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
      * @param name the name of the Optimizer, defaults to "Adagrad"
      * @param learningRate The learning rate. Defaults to 0.01.
      */
-    public AdaGrad(Graph graph, String name, float learningRate) {
-        this(graph, name, learningRate, INITIAL_ACCUM__DEFAULT);
+    public AdaGrad(Ops tf, String name, float learningRate) {
+        this(tf, name, learningRate, INITIAL_ACCUM__DEFAULT);
     }
 
     /**
@@ -89,8 +90,8 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
      * @param learningRate The learning rate
      * @param initialAccumulatorValue initial accumulator value
      */
-    public AdaGrad(Graph graph, float learningRate, float initialAccumulatorValue) {
-        super(graph, learningRate, initialAccumulatorValue);
+    public AdaGrad(Ops tf, float learningRate, float initialAccumulatorValue) {
+        super(assertGraph(tf), learningRate, initialAccumulatorValue);
         initConfig(learningRate, initialAccumulatorValue);
     }
 
@@ -102,8 +103,8 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
      * @param learningRate The learning rate
      * @param initialAccumulatorValue initial accumulator value, must be >= 0.
      */
-    public AdaGrad(Graph graph, String name, float learningRate, float initialAccumulatorValue) {
-        super(graph, name, learningRate, initialAccumulatorValue);
+    public AdaGrad(Ops tf, String name, float learningRate, float initialAccumulatorValue) {
+        super(assertGraph(tf), name, learningRate, initialAccumulatorValue);
         assert initialAccumulatorValue >= 0.0F : "initial_accumulator_value must be non-negative: " + initialAccumulatorValue;
         initConfig(learningRate, initialAccumulatorValue);
     }
@@ -117,8 +118,8 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
      * for "name", "learning_rate" and "accumulator". If a key is missing the
      * default value is used.
      */
-    public static AdaGrad fromConfig(Graph graph, Map<String, Object> config) {
-        return create(graph, config);
+    public static AdaGrad fromConfig(Ops tf, Map<String, Object> config) {
+        return create(tf, config);
     }
 
     /**
@@ -129,14 +130,14 @@ public class AdaGrad extends org.tensorflow.framework.optimizers.AdaGrad impleme
      * for "name", "learning_rate" and "accumulator". If a key is missing the
      * default value is used.
      */
-    public static AdaGrad create(Graph graph, Map<String, Object> config) {
+    public static AdaGrad create(Ops tf, Map<String, Object> config) {
         String name = (String) config.get(NAME_KEY);
         float learningRate = (float) config.getOrDefault(LEARNING_RATE_KEY, LEARNING_RATE_DEFAULT);
         float initialAccumulatorValue = (float) config.getOrDefault(INITIAL_ACCUM_KEY, INITIAL_ACCUM__DEFAULT);
         if (name != null) {
-            return new AdaGrad(graph, name, learningRate, initialAccumulatorValue);
+            return new AdaGrad(tf, name, learningRate, initialAccumulatorValue);
         } else {
-            return new AdaGrad(graph, learningRate, initialAccumulatorValue);
+            return new AdaGrad(tf, learningRate, initialAccumulatorValue);
         }
 
     }

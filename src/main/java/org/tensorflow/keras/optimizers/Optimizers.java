@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.tensorflow.Graph;
 import org.tensorflow.framework.optimizers.Optimizer;
+import org.tensorflow.op.Ops;
 
 /**
  * functions to get an initializer based on String name, an Initializer class,
@@ -32,17 +32,17 @@ import org.tensorflow.framework.optimizers.Optimizer;
  */
 public class Optimizers {
 
-    static Map<String, Function<Graph, Optimizer>> map = new HashMap<String, Function<Graph, Optimizer>>() {
+    static Map<String, Function<Ops, Optimizer>> map = new HashMap<String, Function<Ops, Optimizer>>() {
         {
-            put("adadelta", graph -> new AdaDelta(graph));
-            put("adagrad", graph -> new AdaGrad(graph));
-            put("AdagradDA", graph -> new AdaGradDA(graph));
-            put("adam", graph -> new Adam(graph));
-            put("adamax", graph -> new Adamax(graph));
-            put("ftrl", graph -> new Ftrl(graph));
-            put("nadam", graph -> new Nadam(graph));
-            put("rmsprop", graph -> new RMSProp(graph));
-            put("sgd", graph -> new SGD(graph));
+            put("adadelta", tf -> new AdaDelta(tf));
+            put("adagrad", tf -> new AdaGrad(tf));
+            put("AdagradDA", tf -> new AdaGradDA(tf));
+            put("adam", tf -> new Adam(tf));
+            put("adamax", tf -> new Adamax(tf));
+            put("ftrl", tf -> new Ftrl(tf));
+            put("nadam", tf -> new Nadam(tf));
+            put("rmsprop", tf -> new RMSProp(tf));
+            put("sgd", tf -> new SGD(tf));
         }
     };
 
@@ -53,8 +53,8 @@ public class Optimizers {
      * Initializer, an Initializer class, or an Initializer object.
      * @return the Intializer object or null if not found.
      */
-    public static Optimizer get(Graph graph, Object initializerFunction) {
-        return get(graph, initializerFunction, null);
+    public static Optimizer get(Ops tf, Object initializerFunction) {
+        return get(tf, initializerFunction, null);
     }
 
     /**
@@ -63,8 +63,8 @@ public class Optimizers {
      * @param si a lamda function
      * @return the Intializer object
      */
-    public static Optimizer get(Graph graph, Function<Graph, Optimizer> func) {
-        return func.apply(graph);
+    public static Optimizer get(Ops tf, Function<Ops, Optimizer> func) {
+        return func.apply(tf);
     }
 
     /**
@@ -75,20 +75,20 @@ public class Optimizers {
      * if the initializer is not found in the standard keys
      * @return the Intializer object
      */
-    public static Optimizer get(Graph graph, Object initializerFunction, Map<String, Function<Graph, Optimizer>> custom_functions) {
+    public static Optimizer get(Ops tf, Object initializerFunction, Map<String, Function<Ops, Optimizer>> custom_functions) {
         if (initializerFunction != null) {
             if (initializerFunction instanceof String) {
                 String s = initializerFunction.toString(); // do this for Java 8 rather than Pattern Matching for instanceof
-                Function<Graph, Optimizer> function = map.get(s);
+                Function<Ops, Optimizer> function = map.get(s);
                 if (function == null && custom_functions != null) {
                     function = custom_functions.get(s);
                 }
-                return function != null ? function.apply(graph) : null;
+                return function != null ? function.apply(tf) : null;
             } else if (initializerFunction instanceof Class) {
                 Class c = (Class) initializerFunction; // do this for Java 8 rather than Pattern Matching for instanceof
                 try {
-                    Constructor ctor = c.getConstructor(Graph.class);
-                    return (Optimizer) ctor.newInstance(graph);
+                    Constructor ctor = c.getConstructor(Ops.class);
+                    return (Optimizer) ctor.newInstance(tf);
                 } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                     Logger.getLogger(Optimizers.class.getName()).log(Level.SEVERE, null, ex);
                 }

@@ -15,6 +15,8 @@ limitations under the License.
 package org.tensorflow.keras.optimizers;
 
 import java.util.Map;
+import org.tensorflow.Graph;
+import org.tensorflow.op.Ops;
 
 /**
  *
@@ -23,6 +25,12 @@ import java.util.Map;
 public interface OptimizerInterface {
 
     public static final String NAME_KEY = "name";
+    
+    public static  Graph assertGraph(Ops tf) {
+        assert tf.scope().env().isGraph() :
+                "Optimizers can only be used in Graph Mode";
+        return (Graph)tf.scope().env();
+    }
 
     /**
      * @return the config object used to initialize the Optimizer

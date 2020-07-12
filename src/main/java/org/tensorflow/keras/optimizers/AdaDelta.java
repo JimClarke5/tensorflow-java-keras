@@ -14,9 +14,15 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.optimizers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import org.tensorflow.Graph;
+import java.util.Optional;
+import org.tensorflow.keras.backend.tf.ControlDependencies;
+import static org.tensorflow.keras.optimizers.OptimizerInterface.assertGraph;
+import org.tensorflow.op.Op;
+import org.tensorflow.op.Ops;
 
 /**
  * AdaDelta Optimizer that implements the AdaDelta algorithm. Keras wrapper
@@ -44,6 +50,8 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
 
     private Map<String, Object> config = new HashMap<>();
     private float learningRate;
+    
+    private List<Op> initializers = new ArrayList<>();
 
     // TODO is this still necessary?
     private String[] allowed_options = {"clipnorm", "clipvalue", "lr", "decay"};
@@ -54,8 +62,8 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
      *
      * @param graph the tensorflow graph
      */
-    public AdaDelta(Graph graph) {
-        this(graph, LEARNING_RATE_DEFAULT, RHO_DEFAULT, EPSILON_DEFAULT);
+    public AdaDelta(Ops tf) {
+        this(tf, LEARNING_RATE_DEFAULT, RHO_DEFAULT, EPSILON_DEFAULT);
     }
 
     /**
@@ -65,8 +73,8 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
      * @param graph the tensorflow graph
      * @param name the name of the Optimizer, defaults to "Adadelta"
      */
-    public AdaDelta(Graph graph, String name) {
-        this(graph, LEARNING_RATE_DEFAULT, RHO_DEFAULT, EPSILON_DEFAULT);
+    public AdaDelta(Ops tf, String name) {
+        this(tf, LEARNING_RATE_DEFAULT, RHO_DEFAULT, EPSILON_DEFAULT);
     }
 
     /**
@@ -76,8 +84,8 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
      * @param graph the tensorflow graph
      * @param learningRate The learning rate
      */
-    public AdaDelta(Graph graph, float learningRate) {
-        this(graph, learningRate, RHO_DEFAULT, EPSILON_DEFAULT);
+    public AdaDelta(Ops tf, float learningRate) {
+        this(tf, learningRate, RHO_DEFAULT, EPSILON_DEFAULT);
     }
 
     /**
@@ -87,8 +95,8 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
      * @param name the name of the Optimizer, defaults to "Adadelta"
      * @param learningRate The learning rate
      */
-    public AdaDelta(Graph graph, String name, float learningRate) {
-        this(graph, learningRate, RHO_DEFAULT, EPSILON_DEFAULT);
+    public AdaDelta(Ops tf, String name, float learningRate) {
+        this(tf, learningRate, RHO_DEFAULT, EPSILON_DEFAULT);
     }
 
     /**
@@ -100,8 +108,8 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
      * @param epsilon A constant epsilon used to better conditioning the grad
      * update.
      */
-    public AdaDelta(Graph graph, float learningRate, float rho, float epsilon) {
-        super(graph, learningRate, rho, epsilon);
+    public AdaDelta(Ops tf, float learningRate, float rho, float epsilon) {
+        super(assertGraph(tf), learningRate, rho, epsilon);
         initConfig(learningRate, rho, epsilon);
     }
 
@@ -115,9 +123,22 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
      * @param epsilon A constant epsilon used to better conditioning the grad
      * update.
      */
-    public AdaDelta(Graph graph, String name, float learningRate, float rho, float epsilon) {
-        super(graph, name, learningRate, rho, epsilon);
+    public AdaDelta(Ops tf, String name, float learningRate, float rho, float epsilon) {
+        super(assertGraph(tf), name, learningRate, rho, epsilon);
         initConfig(learningRate, rho, epsilon);
+    }
+    
+    @Override
+    protected Optional<Op> prepare(String name) {
+       switch(initializers.size()) {
+           case 0:
+               return Optional.empty();
+           case 1:
+               return Optional.of(initializers.get(0));
+           default:
+               return Optional.of(ControlDependencies.addControlDependencies(tf, 
+                       this.getOptimizerName(), initializers));
+       }
     }
 
     /* TODO - do we need to do this to be compatible with keras python? */
@@ -129,8 +150,8 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
      * for "name", "learning_rate", "rho" and "epsilon". If a key is missing the
      * default value is used.
      */
-    public static AdaDelta fromConfig(Graph graph, Map<String, Object> config) {
-        return create(graph, config);
+    public static AdaDelta fromConfig(Ops tf, Map<String, Object> config) {
+        return create(tf, config);
     }
 
     /**
@@ -141,16 +162,16 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
      * for "name", "learning_rate", "rho" and "epsilon". If a key is missing the
      * default value is used.
      */
-    public static AdaDelta create(Graph graph, Map<String, Object> config) {
+    public static AdaDelta create(Ops tf, Map<String, Object> config) {
         String name = (String) config.get(NAME_KEY);
         float learningRate = (float) config.getOrDefault(LEARNING_RATE_KEY, LEARNING_RATE_DEFAULT);
         float rho = (float) config.getOrDefault(RHO_RATE_KEY, RHO_DEFAULT);
         float epsilon = (float) config.getOrDefault(EPSILON_KEY, EPSILON_DEFAULT);
         if (name == null) // doe this to get the default name
         {
-            return new AdaDelta(graph, learningRate, rho, epsilon);
+            return new AdaDelta(tf, learningRate, rho, epsilon);
         } else {
-            return new AdaDelta(graph, name, learningRate, rho, epsilon);
+            return new AdaDelta(tf, name, learningRate, rho, epsilon);
         }
     }
 

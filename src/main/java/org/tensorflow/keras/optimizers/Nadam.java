@@ -14,6 +14,7 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.optimizers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +22,11 @@ import java.util.Optional;
 import org.tensorflow.Graph;
 import org.tensorflow.Operand;
 import org.tensorflow.Output;
+import org.tensorflow.keras.backend.tf.ControlDependencies;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
+import static org.tensorflow.keras.optimizers.OptimizerInterface.assertGraph;
 import org.tensorflow.op.Op;
+import org.tensorflow.op.Ops;
 import org.tensorflow.op.Scope;
 import org.tensorflow.op.core.Assign;
 import org.tensorflow.op.core.Constant;
@@ -93,73 +97,74 @@ public class Nadam extends org.tensorflow.framework.optimizers.Optimizer impleme
     private Operand<TFloat32> one_minus_m_schedule_new;
     private Operand<TFloat32> one_minus_m_schedule_next;
     private Operand<TFloat32> v_t_prime_denominator;
+    
 
     /**
      * Optimizer that implements the NAdam algorithm.
      *
-     * @param graph the TensorFlow graph
+     * @param tf the TensorFlow Ops
      */
-    public Nadam(Graph graph) {
-        this(graph, LEARNING_RATE_DEFAULT, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT);
+    public Nadam(Ops tf) {
+        this(tf, LEARNING_RATE_DEFAULT, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT);
     }
 
     /**
      * Optimizer that implements the NAdam algorithm.
      *
-     * @param graph the TensorFlow graph
+     * @param tf the TensorFlow Ops
      * @param name name for the operations created when applying gradients.
      * Defaults to "Nadam".
      */
-    public Nadam(Graph graph, String name) {
-        this(graph, name, LEARNING_RATE_DEFAULT, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT);
+    public Nadam(Ops tf, String name) {
+        this(tf, name, LEARNING_RATE_DEFAULT, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT);
     }
 
     /**
      * Optimizer that implements the NAdam algorithm.
      *
-     * @param graph the TensorFlow graph
+     * @param tf the TensorFlow Ops
      * @param learningRate The learning rate.
      */
-    public Nadam(Graph graph, float learningRate) {
-        this(graph, learningRate, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT);
+    public Nadam(Ops tf, float learningRate) {
+        this(tf, learningRate, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT);
     }
 
     /**
      * Optimizer that implements the NAdam algorithm.
      *
-     * @param graph the TensorFlow graph
+     * @param tf the TensorFlow Ops
      * @param name name for the operations created when applying gradients.
      * Defaults to "Adamax".
      * @param learningRate The learning rate.
      */
-    public Nadam(Graph graph, String name, float learningRate) {
-        this(graph, name, learningRate, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT);
+    public Nadam(Ops tf, String name, float learningRate) {
+        this(tf, name, learningRate, BETA_ONE_DEFAULT, BETA_TWO_DEFAULT, EPSILON_DEFAULT);
     }
 
     /**
      * Optimizer that implements the NAdam algorithm.
      *
-     * @param graph the TensorFlow graph
+     * @param tf the TensorFlow Ops
      * @param learningRate The learning rate.
      * @param betaOne The exponential decay rate for the 1st moment estimates.
      * @param betaTwo The exponential decay rate for the exponentially weighted
      * infinity norm.
      * @param epsilon A small constant for numerical stability.
      */
-    public Nadam(Graph graph, float learningRate, float betaOne, float betaTwo, float epsilon) {
-        super(graph);
+    public Nadam(Ops tf, float learningRate, float betaOne, float betaTwo, float epsilon) {
+        super(assertGraph(tf));
         this.learningRate = learningRate;
         this.betaOne = betaOne;
         this.betaTwo = betaTwo;
         this.epsilon = epsilon;
-        this.scope = new Scope(graph);
+        this.scope = tf.scope();
         initConfig(learningRate, betaOne, betaTwo, epsilon);
     }
 
     /**
      * Optimizer that implements the NAdam algorithm.
      *
-     * @param graph the TensorFlow graph
+     * @param tf the TensorFlow tf
      * @param name name for the operations created when applying gradients.
      * @param learningRate The learning rate.
      * @param betaOne The exponential decay rate for the 1st moment estimates.
@@ -167,33 +172,34 @@ public class Nadam extends org.tensorflow.framework.optimizers.Optimizer impleme
      * infinity norm.
      * @param epsilon A small constant for numerical stability.
      */
-    public Nadam(Graph graph, String name, float learningRate, float betaOne, float betaTwo, float epsilon) {
-        super(graph, name);
+    public Nadam(Ops tf, String name, float learningRate, float betaOne, float betaTwo, float epsilon) {
+        super(assertGraph(tf), name);
         this.learningRate = learningRate;
         this.betaOne = betaOne;
         this.betaTwo = betaTwo;
         this.epsilon = epsilon;
-        this.scope = new Scope(graph);
+        this.scope = tf.scope();
 
         initConfig(learningRate, betaOne, betaTwo, epsilon);
     }
+    
 
     /**
      * create an Adam
      *
-     * @param graph
+     * @param tf
      * @param config a config object to initialize
      */
-    public static Nadam create(Graph graph, Map<String, Object> config) {
+    public static Nadam create(Ops tf, Map<String, Object> config) {
         String name = (String) config.get(NAME_KEY);
         float learningRate = (float) config.getOrDefault(LEARNING_RATE_KEY, LEARNING_RATE_DEFAULT);
         float epsilon = (float) config.getOrDefault(EPSILON_KEY, EPSILON_DEFAULT);
         float betaOne = (float) config.getOrDefault(LEARNING_RATE_KEY, LEARNING_RATE_DEFAULT);
         float betaTwo = (float) config.getOrDefault(LEARNING_RATE_KEY, LEARNING_RATE_DEFAULT);
         if (name == null) {
-            return new Nadam(graph, learningRate, betaOne, betaTwo, epsilon);
+            return new Nadam(tf, learningRate, betaOne, betaTwo, epsilon);
         } else {
-            return new Nadam(graph, name, learningRate, betaOne, betaTwo, epsilon);
+            return new Nadam(tf, name, learningRate, betaOne, betaTwo, epsilon);
         }
     }
 
@@ -220,6 +226,8 @@ public class Nadam extends org.tensorflow.framework.optimizers.Optimizer impleme
     public void setLearningRate(float learningRate) {
         this.learningRate = learningRate;
     }
+    
+    
 
     /**
      * {@inheritDoc}
@@ -232,16 +240,16 @@ public class Nadam extends org.tensorflow.framework.optimizers.Optimizer impleme
         betaOnePower = tf.withName("beta1_power").variable(Shape.scalar(), TFloat32.DTYPE);
         Assign<TFloat32> betaOnePowerInit = tf
                 .assign(betaOnePower, tf.constant(betaOne));
-        graph.addInitializer(betaOnePowerInit);
+        ((Graph)tf.scope().env()).addInitializer(betaOnePowerInit);
 
         betaTwoPower = tf.withName("beta2_power").variable(Shape.scalar(), TFloat32.DTYPE);
         Assign<TFloat32> betaTwoPowerInit = tf
                 .assign(betaTwoPower, tf.constant(betaTwo));
-        graph.addInitializer(betaTwoPowerInit);
+        ((Graph)tf.scope().env()).addInitializer(betaTwoPowerInit);
 
         momentum = tf.withName("momentum").variable(Shape.scalar(), TFloat32.DTYPE);
         Assign<TFloat32> momentumInit = tf.assign(momentum, tf.constant(1.0F));
-        graph.addInitializer(momentumInit);
+        ((Graph)tf.scope().env()).addInitializer(momentumInit);
 
     }
 
@@ -308,7 +316,6 @@ public class Nadam extends org.tensorflow.framework.optimizers.Optimizer impleme
         // 1. - math_ops.pow(beta_2_t, local_step)
         v_t_prime_denominator = tf.math.sub(one,
                 tf.math.pow(betaTwoConst, tf.dtypes.cast(localStepConst, TFloat32.DTYPE)));
-
         return Optional.empty();
     }
 

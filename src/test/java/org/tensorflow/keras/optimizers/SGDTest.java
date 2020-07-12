@@ -35,6 +35,7 @@ import static org.tensorflow.keras.optimizers.SGD.MOMENTUM_DEFAULT;
 import static org.tensorflow.keras.optimizers.SGD.MOMENTUM_KEY;
 import static org.tensorflow.keras.optimizers.SGD.NESTEROV_DEFAULT;
 import static org.tensorflow.keras.optimizers.SGD.NESTEROV_KEY;
+import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Assign;
@@ -48,6 +49,8 @@ import org.tensorflow.types.TFloat32;
  * @author Jim Clarke
  */
 public class SGDTest {
+    
+    private TestSession.Mode tf_mode = TestSession.Mode.GRAPH;
 
     int index;
 
@@ -75,14 +78,15 @@ public class SGDTest {
      */
     @Test
     public void testCreate() {
-        try (Graph graph = new Graph()) {
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Map<String, Object> config = new HashMap<>();
             config.put(NAME_KEY, "Ftrl");
             config.put(LEARNING_RATE_KEY, 2.0F);
             config.put(MOMENTUM_KEY, MOMENTUM_DEFAULT);
             config.put(NESTEROV_KEY, NESTEROV_DEFAULT);
-            SGD expResult = new SGD(graph, 2.0F);
-            SGD result = SGD.create(graph, config);
+            SGD expResult = new SGD(tf, 2.0F);
+            SGD result = SGD.create(tf, config);
             assertEquals(expResult.getConfig(), result.getConfig());
         }
     }
@@ -92,8 +96,9 @@ public class SGDTest {
      */
     @Test
     public void testGetOptimizerName() {
-        try (Graph graph = new Graph()) {
-            SGD instance = new SGD(graph);
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
+            SGD instance = new SGD(tf);
             String expResult = "SGD";
             String result = instance.getOptimizerName();
             assertEquals(expResult, result);
@@ -111,8 +116,8 @@ public class SGDTest {
         float epsilon = 1e-6F;
         float epsilon1 = 1e-2F;
 
-        try (Graph graph = new Graph(); Session sess = new Session(graph)) {
-            Ops tf = Ops.create(graph).withName("test");
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
 
             Shape shape0 = Shape.of(var0_init.length);
             Shape shape1 = Shape.of(var1_init.length);
@@ -130,32 +135,30 @@ public class SGDTest {
             gradsAndVars.add(new Optimizer.GradAndVar<>(grads0.asOutput(), var0.asOutput()));
             gradsAndVars.add(new Optimizer.GradAndVar<>(grads1.asOutput(), var1.asOutput()));
 
-            SGD instance = new SGD(graph, learningRate);
+            SGD instance = new SGD(tf, learningRate);
             Op update = instance.applyGradients(gradsAndVars, "SGDTest");
 
             /* initialize the local variables */
-            sess.runner().addTarget(var0Initializer).run();
-            sess.runner().addTarget(var1Initializer).run();
+            session.run(var0Initializer);
+            session.run(var1Initializer);
+
             /**
              * initialize the accumulators
              */
+            session.run(tf.init());
 
-            for (Op initializer : graph.initializers()) {
-                sess.runner().addTarget(initializer).run();
-            }
+            /**
+             * make sure the variables were initialized properly
+             */
+            session.evaluate(var0_init, var0);
+            session.evaluate(var1_init, var1);
 
-            sess.run(update); // 1 step
+            session.run(update); // 1 step
 
             float[] expectedVar0 = {1.0F - 3.0F * 0.1F, 2.0F - 3.0F * 0.1F};
             float[] expectedVar1 = {3.0F - 3.0F * 0.01F, 4.0F - 3.0F * 0.01F};
-            try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(expectedVar0[index++], f.getFloat(), epsilon));
-            }
-            try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(expectedVar1[index++], f.getFloat(), epsilon));
-            }
+            session.evaluate(expectedVar0, var0);
+            session.evaluate(expectedVar1, var1);
         }
 
     }
@@ -173,8 +176,8 @@ public class SGDTest {
         float epsilon = 1e-6F;
         float epsilon1 = 1e-2F;
 
-        try (Graph graph = new Graph(); Session sess = new Session(graph)) {
-            Ops tf = Ops.create(graph).withName("test");
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
 
             Shape shape0 = Shape.of(var0_init.length);
             Shape shape1 = Shape.of(var1_init.length);
@@ -192,7 +195,7 @@ public class SGDTest {
             gradsAndVars.add(new Optimizer.GradAndVar<>(grads0.asOutput(), var0.asOutput()));
             gradsAndVars.add(new Optimizer.GradAndVar<>(grads1.asOutput(), var1.asOutput()));
 
-            SGD instance = new SGD(graph, learningRate, momentum);
+            SGD instance = new SGD(tf, learningRate, momentum);
             Op update = instance.applyGradients(gradsAndVars, "SGDTest");
 
             Variable<TFloat32> momentumSlot0 = instance.getSlot(var0.asOutput(), MOMENTUM).get();
@@ -200,84 +203,49 @@ public class SGDTest {
             Variable<TFloat32> momentumSlot1 = instance.getSlot(var1.asOutput(), MOMENTUM).get();
             assertEquals(momentumSlot1.asOutput().shape(), var1.asOutput().shape());
 
-            /* initialize the local variables */
-            sess.runner().addTarget(var0Initializer).run();
-            sess.runner().addTarget(var1Initializer).run();
+             /* initialize the local variables */
+            session.run(var0Initializer);
+            session.run(var1Initializer);
 
             /**
              * initialize the accumulators
              */
-            graph.initializers().forEach((initializer) -> {
-                sess.runner().addTarget(initializer).run();
-            });
+            session.run(tf.init());
 
-            sess.run(update); //step 1
+            /**
+             * make sure the variables were initialized properly
+             */
+            session.evaluate(var0_init, var0);
+            session.evaluate(var1_init, var1);
 
-            // TODO momentum seems to return wrong values. Appears like it is not appling learningRate
+            session.run(update); // 1 step
+
+            //TODO momentum seems to return wrong values. Appears like it is not appling learningRate
             float[] expectedMomentum0 = {-0.2F, -0.2F};
             float[] expectedMomentum1 = {-0.02F, -0.02F};
-            try (Tensor<TFloat32> result = sess.runner().fetch(momentumSlot0).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> {
-                    //System.out.printf("momentumSlot0_Step1: expected: %f, actual %f\n", expectedMomentum0[index], f.getFloat());
-                    //assertEquals(expectedMomentum0[index], f.getFloat(), epsilon);
-                    index++;
-                });
-            }
-            try (Tensor<TFloat32> result = sess.runner().fetch(momentumSlot1).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> {
-                    //System.out.printf("momentumSlot1_Step1: expected: %f, actual %f\n", expectedMomentum1[index], f.getFloat());
-                    //assertEquals(expectedMomentum1[index], f.getFloat(), epsilon);
-                    index++;
-                });
-            }
+            //TODO session.evaluate(expectedMomentum0, momentumSlot0);
+            //TODO session.evaluate(expectedMomentum1, momentumSlot1);
 
             float[] expectedVar0 = {1.0F - (0.1F * 2.0F), 2.0F - (0.1F * 2.0F)};
             float[] expectedVar1 = {3.0F - (0.01F * 2.0F), 4.0F - (0.01F * 2.0F)};
-            try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(expectedVar0[index++], f.getFloat(), epsilon));
-            }
-            try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(expectedVar1[index++], f.getFloat(), epsilon));
-            }
+            session.evaluate(expectedVar0, var0);
+            session.evaluate(expectedVar1, var1);
 
-            sess.run(update); //step 2
+            session.run(update); //step 2
 
             // TODO momentum seems to return wrong values. 
             float[] expectedMomentum0_2 = {0.9F * -0.2F - 2.0F * 0.1F, 0.9F * -0.2F - 2.0F * 0.1F};
             float[] expectedMomentum1_2 = {0.9F * -0.02F - 2.0F * 0.01F, 0.9F * -0.02F - 2.0F * 0.01F};
-            try (Tensor<TFloat32> result = sess.runner().fetch(momentumSlot0).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> {
-                    //System.out.printf("momentumSlot0_Step2: expected: %f, actual %f\n", expectedMomentum0_2[index], f.getFloat());
-                    //assertEquals(expectedMomentum0_2[index], f.getFloat(), epsilon);
-                    index++;
-                });
-            }
-            try (Tensor<TFloat32> result = sess.runner().fetch(momentumSlot1).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> {
-                    //System.out.printf("momentumSlot1_Step2: expected: %f, actual %f\n", expectedMomentum1_2[index], f.getFloat());
-                    //assertEquals(expectedMomentum1_2[index], f.getFloat(), epsilon);
-                    index++;
-                });
-            }
+            //session.evaluate(expectedMomentum0_2, momentumSlot0);
+            //session.evaluate(expectedMomentum1_2, momentumSlot0);
 
             float[] expectedVar0_2 = {1.0F - (0.1F * 2.0F) - ((0.9F * 0.1F + 0.1F) * 2.0F),
                 2.0F - (0.1F * 2.0F) - ((0.9F * 0.1F + 0.1F) * 2.0F)};
             float[] expectedVar1_2 = {2.98F - ((0.9F * 0.01F + 0.01F) * 2.0F),
                 3.98F - ((0.9F * 0.01F + 0.01F) * 2.0F)};
-            try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(expectedVar0_2[index++], f.getFloat(), epsilon));
-            }
-            try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
-                index = 0;
-                result.data().scalars().forEach(f -> assertEquals(expectedVar1_2[index++], f.getFloat(), epsilon));
-            }
+            session.evaluate(expectedVar0_2, var0);
+            session.evaluate(expectedVar1_2, var1);
+            
         }
 
     }

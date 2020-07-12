@@ -24,9 +24,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import org.tensorflow.Graph;
-import org.tensorflow.Session;
-import org.tensorflow.Tensor;
 import static org.tensorflow.framework.optimizers.AdaDelta.ACCUMULATOR;
 import static org.tensorflow.framework.optimizers.AdaDelta.ACCUMULATOR_UPDATE;
 import org.tensorflow.framework.optimizers.Optimizer.GradAndVar;
@@ -37,6 +34,7 @@ import static org.tensorflow.keras.optimizers.AdaDelta.LEARNING_RATE_KEY;
 import static org.tensorflow.keras.optimizers.AdaDelta.RHO_DEFAULT;
 import static org.tensorflow.keras.optimizers.AdaDelta.RHO_RATE_KEY;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
+import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Assign;
@@ -50,6 +48,8 @@ import org.tensorflow.types.TFloat32;
  * @author Jim Clarke
  */
 public class AdaDeltaTest {
+    
+    private TestSession.Mode tf_mode = TestSession.Mode.GRAPH;
 
     private int index;
 
@@ -77,24 +77,26 @@ public class AdaDeltaTest {
      */
     @Test
     public void testCreate() {
-        try (Graph graph = new Graph()) {
+         try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Map<String, Object> config = new HashMap<>();
             config.put(NAME_KEY, "AdaDelta");
             config.put(LEARNING_RATE_KEY, LEARNING_RATE_DEFAULT);
             config.put(RHO_RATE_KEY, RHO_DEFAULT);
             config.put(EPSILON_KEY, EPSILON_DEFAULT);
-            AdaDelta expResult = new AdaDelta(graph);
-            AdaDelta result = AdaDelta.create(graph, config);
+            AdaDelta expResult = new AdaDelta(tf);
+            AdaDelta result = AdaDelta.create(tf, config);
             assertEquals(expResult.getConfig(), result.getConfig());
         }
     }
 
     @Test
     public void testConstructAdadeltaWithLR() {
-        try (Graph graph = new Graph()) {
-            AdaDelta opt = new AdaDelta(graph, 1.0F, 0.9F, 1.F);
-            AdaDelta opt2 = new AdaDelta(graph, 0.1F, 0.9F, 1.F);
-            AdaDelta opt3 = new AdaDelta(graph, 0.1F, 0.9F, 1e-8F);
+         try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
+            AdaDelta opt = new AdaDelta(tf, 1.0F, 0.9F, 1.F);
+            AdaDelta opt2 = new AdaDelta(tf, 0.1F, 0.9F, 1.F);
+            AdaDelta opt3 = new AdaDelta(tf, 0.1F, 0.9F, 1e-8F);
             String format = "AdaDelta{learningRate=%s, rho=%s, epsilon=%s}";
             String optExpected = String.format(format, 1.0F, 0.9F, 1.F);
             String opt2Expected = String.format(format, 0.1F, 0.9F, 1.F);
@@ -113,12 +115,13 @@ public class AdaDeltaTest {
 
     @Test
     public void testConstructAdadeltaWithEpsilonValues() {
-        try (Graph graph = new Graph()) {
-            AdaDelta opt = new AdaDelta(graph);
+         try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
+            AdaDelta opt = new AdaDelta(tf);
             Map<String, Object> config = opt.getConfig();
             assertEquals(EPSILON_DEFAULT, (float) config.get(EPSILON_KEY));
 
-            opt = new AdaDelta(graph, LEARNING_RATE_DEFAULT, RHO_DEFAULT, 1e-8F);
+            opt = new AdaDelta(tf, LEARNING_RATE_DEFAULT, RHO_DEFAULT, 1e-8F);
             config = opt.getConfig();
             assertEquals(1e-8F, (float) config.get(EPSILON_KEY));
         }
@@ -131,8 +134,8 @@ public class AdaDeltaTest {
         float[] lrs = {1.0F, 0.5F, 0.1F};
         for (float grad : grads) {
             for (float lr : lrs) {
-                try (Graph graph = new Graph(); Session sess = new Session(graph)) {
-                    Ops tf = Ops.create(graph).withName("test");
+                 try (TestSession session = TestSession.createTestSession(tf_mode)) {
+                    Ops tf = session.getTF();
                     float[] var0_init = {1.0F, 2.0F};
                     float[] var1_init = {3.0F, 4.0F};
                     float[] fgrads = {grad, grad};
@@ -157,7 +160,7 @@ public class AdaDeltaTest {
                     gradsAndVars.add(new GradAndVar<>(cgrads.asOutput(), var1.asOutput()));
 
                     /* get the Optimizer */
-                    AdaDelta adaDelta = new AdaDelta(graph, lr, rho, epsilon);
+                    AdaDelta adaDelta = new AdaDelta(tf, lr, rho, epsilon);
 
                     /**
                      * apply gradients
@@ -181,60 +184,40 @@ public class AdaDeltaTest {
                     assertEquals(slotUpdates[1].asOutput().shape(), var1.asOutput().shape());
 
                     /* initialize the local variables */
-                    sess.runner().addTarget(var0Initializer).run();
-                    sess.runner().addTarget(var1Initializer).run();
+                    session.run(var0Initializer);
+                    session.run(var1Initializer);
 
                     /**
                      * initialize the accumulators
                      */
-                    for (Op initializer : graph.initializers()) {
-                        sess.runner().addTarget(initializer).run();
-                    }
+                    session.run(tf.init());
 
                     /**
                      * make sure the variables were initialized properly
                      */
-                    try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
-                        index = 0;
-                        result.data().scalars().forEach(f -> assertEquals(var0_init[index++], f.getFloat(), epsilon));
-                    }
-                    try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
-                        index = 0;
-                        result.data().scalars().forEach(f -> assertEquals(var1_init[index++], f.getFloat(), epsilon));
-                    }
+                    session.evaluate(var0_init, var0);
+                    session.evaluate(var1_init, var1);
 
                     float[] updates = new float[num_updates];
                     float tot_update = 0;
                     for (int step = 0; step < num_updates; step++) {
-                        sess.run(adadelta_update);
+                        session.run(adadelta_update);
                         accum = accum * rho + (float) Math.pow(grad, 2) * (1.0F - rho);
                         updates[step] = ((float) Math.sqrt(accum_update + epsilon)
                                 * (float) (1 / Math.sqrt(accum + epsilon)) * grad);
                         accum_update = (accum_update * rho + ((float) Math.pow(updates[step], 2) * (1.0F - rho)));
                         tot_update += updates[step] * lr;
-
+                        
                         for (int i = 0; i < 2; i++) {
-                            final float faccum = accum;
-                            try (Tensor<TFloat32> result = sess.runner().fetch(slots[i]).run().get(0).expect(TFloat32.DTYPE)) {
-                                result.data().scalars().forEach(f -> assertEquals(faccum, f.getFloat(), epsilon1));
-                            }
-                            final float faccum_update = accum_update;
-                            try (Tensor<TFloat32> result = sess.runner().fetch(slotUpdates[i]).run().get(0).expect(TFloat32.DTYPE)) {
-                                result.data().scalars().forEach(f -> assertEquals(faccum_update, f.getFloat(), epsilon1));
-                            }
+                            session.evaluate(accum, slots[i]);
+                            session.evaluate(accum_update, slotUpdates[i]);
                         }
 
-                        final float[] var0_initUpdate = {var0_init[0] - tot_update, var0_init[1] - tot_update};
-
-                        try (Tensor<TFloat32> result = sess.runner().fetch(var0).run().get(0).expect(TFloat32.DTYPE)) {
-                            index = 0;
-                            result.data().scalars().forEach(f -> assertEquals(var0_initUpdate[index++], f.getFloat(), epsilon1));
-                        }
-                        final float[] var1_initUpdate = {var1_init[0] - tot_update, var1_init[1] - tot_update};
-                        try (Tensor<TFloat32> result = sess.runner().fetch(var1).run().get(0).expect(TFloat32.DTYPE)) {
-                            index = 0;
-                            result.data().scalars().forEach(f -> assertEquals(var1_initUpdate[index++], f.getFloat(), epsilon1));
-                        }
+                        Float[] var0_initUpdate = {var0_init[0] - tot_update, var0_init[1] - tot_update};
+                        Float[] var1_initUpdate = {var1_init[0] - tot_update, var1_init[1] - tot_update};
+                        
+                        session.evaluate(var0_initUpdate, var0);
+                        session.evaluate(var1_initUpdate, var1);
 
                     }
 

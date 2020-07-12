@@ -16,8 +16,9 @@ package org.tensorflow.keras.optimizers;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.tensorflow.Graph;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
+import static org.tensorflow.keras.optimizers.OptimizerInterface.assertGraph;
+import org.tensorflow.op.Ops;
 
 /**
  * RMSProp Optimizer that implements the RMSProp algorithm.
@@ -46,10 +47,10 @@ public class RMSProp extends org.tensorflow.framework.optimizers.RMSProp impleme
      * learning_rate=0.001, decay=0.9, momentum=0.0, epsilon=1e-07,
      * centered=false
      *
-     * @param graph the TensorFlow Graph
+     * @param tf the TensorFlow Graph
      */
-    public RMSProp(Graph graph) {
-        this(graph, LEARNING_RATE_DEFAULT, DECAY_DEFAULT, MOMENTUM_DEFAULT,
+    public RMSProp(Ops tf) {
+        this(tf, LEARNING_RATE_DEFAULT, DECAY_DEFAULT, MOMENTUM_DEFAULT,
                 EPSILON_DEFAULT, CENTERED_DEFAULT);
     }
 
@@ -57,11 +58,11 @@ public class RMSProp extends org.tensorflow.framework.optimizers.RMSProp impleme
      * create an RMSProp Optimizer with the following defaults, name="RMSProp",
      * decay=0.9, momentum=0.0, epsilon=1e-07, centered=false
      *
-     * @param graph the TensorFlow Graph
+     * @param tf the TensorFlow Graph
      * @param learningRate The learning rate.
      */
-    public RMSProp(Graph graph, float learningRate) {
-        this(graph, learningRate, DECAY_DEFAULT, MOMENTUM_DEFAULT,
+    public RMSProp(Ops tf, float learningRate) {
+        this(tf, learningRate, DECAY_DEFAULT, MOMENTUM_DEFAULT,
                 EPSILON_DEFAULT, CENTERED_DEFAULT);
     }
 
@@ -69,20 +70,20 @@ public class RMSProp extends org.tensorflow.framework.optimizers.RMSProp impleme
      * create an RMSProp Optimizer with the following defaults, decay=0.9,
      * momentum=0.0, epsilon=1e-07, centered=false
      *
-     * @param graph the TensorFlow Graph
+     * @param tf the TensorFlow Graph
      * @param name prefix for the operations created when applying gradients.
      * Defaults to "RMSProp"
      * @param learningRate The learning rate.
      */
-    public RMSProp(Graph graph, String name, float learningRate) {
-        this(graph, name, learningRate, DECAY_DEFAULT, MOMENTUM_DEFAULT,
+    public RMSProp(Ops tf, String name, float learningRate) {
+        this(tf, name, learningRate, DECAY_DEFAULT, MOMENTUM_DEFAULT,
                 EPSILON_DEFAULT, CENTERED_DEFAULT);
     }
 
     /**
      * create an RMSProp Optimizer
      *
-     * @param graph the TensorFlow Graph
+     * @param tf the TensorFlow Graph
      * @param learningRate The learning rate. Defaults to 0.001.
      * @param decay Discounting factor for the history/coming gradient. Defaults
      * to 0.9.
@@ -92,16 +93,16 @@ public class RMSProp extends org.tensorflow.framework.optimizers.RMSProp impleme
      * @param centered If True, gradients are normalized by the estimated
      * variance of the gradient; if False, by the uncentered second moment.
      */
-    public RMSProp(Graph graph, float learningRate, float decay, float momentum,
+    public RMSProp(Ops tf, float learningRate, float decay, float momentum,
             float epsilon, boolean centered) {
-        super(graph, learningRate, decay, momentum, epsilon, centered);
+        super(assertGraph(tf), learningRate, decay, momentum, epsilon, centered);
         initConfig(learningRate, decay, momentum, epsilon, centered);
     }
 
     /**
      * create an RMSProp Optimizer
      *
-     * @param graph the TensorFlow Graph
+     * @param tf the TensorFlow Graph
      * @param name prefix for the operations created when applying gradients.
      * Defaults to "RMSProp"
      * @param learningRate The learning rate. Defaults to 0.001.
@@ -113,9 +114,9 @@ public class RMSProp extends org.tensorflow.framework.optimizers.RMSProp impleme
      * @param centered If True, gradients are normalized by the estimated
      * variance of the gradient; if False, by the uncentered second moment.
      */
-    public RMSProp(Graph graph, String name, float learningRate, float decay,
+    public RMSProp(Ops tf, String name, float learningRate, float decay,
             float momentum, float epsilon, boolean centered) {
-        super(graph, name, learningRate, decay, momentum, epsilon, centered);
+        super(assertGraph(tf), name, learningRate, decay, momentum, epsilon, centered);
         initConfig(learningRate, decay, momentum, epsilon, centered);
     }
 
@@ -123,27 +124,27 @@ public class RMSProp extends org.tensorflow.framework.optimizers.RMSProp impleme
     /**
      * create a RMSProp Optimizer using a configuration
      *
-     * @param graph the TensorFlow graph
+     * @param tf the TensorFlow tf
      * @param config a config object to initialize the Optimizer, the config
      * object has keys for "name", "learning_rate", "decay", "momentum",
      * "epsilon" and "centered". If a key is missing the default value is used.
      * @return the RMSProp optimizer
      */
-    public static RMSProp fromConfig(Graph graph, Map<String, Object> config) {
-        return create(graph, config);
+    public static RMSProp fromConfig(Ops tf, Map<String, Object> config) {
+        return create(tf, config);
     }
 
     /**
      * create a RMSProp Optimizer using a configuration
      *
      *
-     * @param graph the TensorFlow graph
+     * @param tf the TensorFlow tf
      * @param config a config object to initialize the Optimizer, the config
      * object has keys for "name", "learning_rate", "decay", "momentum",
      * "epsilon" and "centered". If a key is missing the default value is used.
      * @return the RMSProp optimizer
      */
-    public static RMSProp create(Graph graph, Map<String, Object> config) {
+    public static RMSProp create(Ops tf, Map<String, Object> config) {
 
         String name = (String) config.get(NAME_KEY);
         float learningRate = (float) config.getOrDefault(LEARNING_RATE_KEY, LEARNING_RATE_DEFAULT);
@@ -152,9 +153,9 @@ public class RMSProp extends org.tensorflow.framework.optimizers.RMSProp impleme
         float epsilon = (float) config.getOrDefault(EPSILON_KEY, EPSILON_DEFAULT);
         boolean centered = (boolean) config.getOrDefault(CENTERED_KEY, CENTERED_DEFAULT);
         if (name == null) {
-            return new RMSProp(graph, learningRate, decay, momentum, epsilon, centered);
+            return new RMSProp(tf, learningRate, decay, momentum, epsilon, centered);
         } else {
-            return new RMSProp(graph, name, learningRate, decay, momentum, epsilon, centered);
+            return new RMSProp(tf, name, learningRate, decay, momentum, epsilon, centered);
         }
 
     }

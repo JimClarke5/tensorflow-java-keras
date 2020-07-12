@@ -17,10 +17,11 @@ package org.tensorflow.keras.optimizers;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.tensorflow.Graph;
 import org.tensorflow.Operand;
 import org.tensorflow.Output;
+import static org.tensorflow.keras.optimizers.OptimizerInterface.assertGraph;
 import org.tensorflow.op.Op;
+import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Variable;
 import org.tensorflow.op.train.ApplyFtrl;
 import org.tensorflow.types.family.TType;
@@ -64,36 +65,36 @@ public class Ftrl extends org.tensorflow.framework.optimizers.Optimizer implemen
     /**
      * create an Ftrl
      *
-     * @param graph
+     * @param tf
      */
-    public Ftrl(Graph graph) {
-        this(graph, LEARNING_RATE_DEFAULT, LEARNING_RATE_POWER_DEFAULT,
+    public Ftrl(Ops tf) {
+        this(tf, LEARNING_RATE_DEFAULT, LEARNING_RATE_POWER_DEFAULT,
                 INITIAL_ACCUM_VALUE_DEFAULT, L1STRENGTH_DEFAULT, L2STRENGTH_DEFAULT,
                 L2_SHRINKAGE_REGULARIZATION_STRENGTH_DEFAULT);
     }
 
-    public Ftrl(Graph graph, String name) {
-        this(graph, name, LEARNING_RATE_DEFAULT, LEARNING_RATE_POWER_DEFAULT,
+    public Ftrl(Ops tf, String name) {
+        this(tf, name, LEARNING_RATE_DEFAULT, LEARNING_RATE_POWER_DEFAULT,
                 INITIAL_ACCUM_VALUE_DEFAULT, L1STRENGTH_DEFAULT, L2STRENGTH_DEFAULT,
                 L2_SHRINKAGE_REGULARIZATION_STRENGTH_DEFAULT);
     }
 
-    public Ftrl(Graph graph, float learningRate) {
-        this(graph, learningRate, LEARNING_RATE_POWER_DEFAULT,
+    public Ftrl(Ops tf, float learningRate) {
+        this(tf, learningRate, LEARNING_RATE_POWER_DEFAULT,
                 INITIAL_ACCUM_VALUE_DEFAULT, L1STRENGTH_DEFAULT, L2STRENGTH_DEFAULT,
                 L2_SHRINKAGE_REGULARIZATION_STRENGTH_DEFAULT);
     }
 
-    public Ftrl(Graph graph, String name, float learningRate) {
-        this(graph, name, learningRate, LEARNING_RATE_POWER_DEFAULT,
+    public Ftrl(Ops tf, String name, float learningRate) {
+        this(tf, name, learningRate, LEARNING_RATE_POWER_DEFAULT,
                 INITIAL_ACCUM_VALUE_DEFAULT, L1STRENGTH_DEFAULT, L2STRENGTH_DEFAULT,
                 L2_SHRINKAGE_REGULARIZATION_STRENGTH_DEFAULT);
     }
 
-    public Ftrl(Graph graph, float learningRate, float learningRatePower,
+    public Ftrl(Ops tf, float learningRate, float learningRatePower,
             float initialAccumulatorValue, float l1Strength, float l2Strength,
             float l2ShrinkageRegularizationStrength) {
-        super(graph);
+        super(assertGraph(tf));
         this.name = getOptimizerName();
         this.learningRate = learningRate;
         this.learningRatePower = learningRatePower;
@@ -105,10 +106,10 @@ public class Ftrl extends org.tensorflow.framework.optimizers.Optimizer implemen
         initConfig();
     }
 
-    public Ftrl(Graph graph, String name, float learningRate, float learningRatePower,
+    public Ftrl(Ops tf, String name, float learningRate, float learningRatePower,
             float initialAccumulatorValue, float l1Strength, float l2Strength,
             float l2ShrinkageRegularizationStrength) {
-        super(graph, name);
+        super(assertGraph(tf), name);
         this.name = name;
         this.learningRate = learningRate;
         this.learningRatePower = learningRatePower;
@@ -123,11 +124,11 @@ public class Ftrl extends org.tensorflow.framework.optimizers.Optimizer implemen
     /**
      * create an Adam
      *
-     * @param graph
+     * @param tf
      * @param config a config object to initialize
      * @return
      */
-    public static Ftrl create(Graph graph, Map<String, Object> config) {
+    public static Ftrl create(Ops tf, Map<String, Object> config) {
         String name = (String) config.get(NAME_KEY);
         float learningRate = (float) config.getOrDefault(LEARNING_RATE_KEY, LEARNING_RATE_DEFAULT);
         float learningRatePower = (float) config.getOrDefault(LEARNING_RATE_POWER_KEY, LEARNING_RATE_POWER_DEFAULT);
@@ -138,11 +139,11 @@ public class Ftrl extends org.tensorflow.framework.optimizers.Optimizer implemen
                 = (float) config.getOrDefault(L2_SHRINKAGE_REGULARIZATION_STRENGTH_KEY, L2_SHRINKAGE_REGULARIZATION_STRENGTH_DEFAULT);
 
         if (name == null) {
-            return new Ftrl(graph, learningRate, learningRatePower, initialAccumulatorValue,
+            return new Ftrl(tf, learningRate, learningRatePower, initialAccumulatorValue,
                     l1RegularizationStrength, l2RegularizationStrength,
                     l2ShrinkageRegularizationStrength);
         } else {
-            return new Ftrl(graph, name, learningRate, learningRatePower, initialAccumulatorValue,
+            return new Ftrl(tf, name, learningRate, learningRatePower, initialAccumulatorValue,
                     l1RegularizationStrength, l2RegularizationStrength,
                     l2ShrinkageRegularizationStrength);
         }
