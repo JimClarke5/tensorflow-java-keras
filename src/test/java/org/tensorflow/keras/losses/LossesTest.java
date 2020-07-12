@@ -790,14 +790,13 @@ public class LossesTest {
     public void test_binary_crossentropy_loss() {
         try (TestSession testSession = TestSession.createTestSession(tf_mode)) {
             Ops tf = testSession.getTF();
-            Operand<TInt32> target = tf.random.randomUniformInt(
-                    tf.constant(Shape.of(5, 1)), tf.constant(0), tf.constant(1));
-            RandomUniform ru = new RandomUniform(tf);
-            Operand<TFloat32> logits = ru.call(tf.constant(Shape.of(5, 1)), TFloat32.DTYPE);
-            Operand sigmoidOutput = tf.math.sigmoid(logits);
-            Operand output_from_logit = Losses.sparse_categorical_crossentropy(tf, target, logits, true);
-            Operand outputFromSigmoid = Losses.sparse_categorical_crossentropy(tf, target, sigmoidOutput, false);
-            testSession.evaluate(output_from_logit, outputFromSigmoid);
+            float[] true_np = {1f, 0f, 1f, 0f};
+            float[] pred_np = {1f, 1f, 1f, 0f};
+            Operand y_true = tf.reshape(tf.constant(true_np), tf.constant(Shape.of(2, 2)));
+            Operand y_pred = tf.reshape(tf.constant(pred_np), tf.constant(Shape.of(2, 2)));
+            Operand loss = Losses.binary_crossentropy(tf, y_true, y_pred);
+            Float[] expected = {7.6666193f, 0.0f};
+            testSession.evaluate(expected, loss);
 
         }
     }
