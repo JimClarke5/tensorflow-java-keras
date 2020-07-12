@@ -24,6 +24,7 @@ import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
+import org.tensorflow.tools.ndarray.FloatNdArray;
 import org.tensorflow.types.TBool;
 import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TString;
@@ -62,6 +63,8 @@ public abstract class TestSession implements AutoCloseable {
     public void run(Op op) {
 
     }
+    
+    
 
     public <T extends TNumber> void evaluate(Number expected, Operand<T> input) {
         evaluate(new Number[]{expected}, input);
@@ -79,6 +82,48 @@ public abstract class TestSession implements AutoCloseable {
     public <T extends TNumber> void evaluate(Number[] expected, Operand<T> input) {
         Output output = input.asOutput();
         evaluate(expected, output);
+    }
+    
+    public  <T extends TNumber> void evaluate(int expected, Operand<T> input) {
+         evaluate((double)expected, input);
+    }
+    
+    public  <T extends TNumber> void evaluate(long expected, Operand<T> input) {
+         evaluate((double)expected, input);
+    }
+    
+    public  <T extends TNumber> void evaluate(float expected, Operand<T> input) {
+         evaluate((double)expected, input);
+    }
+    
+    public abstract <T extends TNumber> void evaluate(double expected, Operand<T> input);
+    
+    public  <T extends TNumber> void evaluate(int[] expected, Operand<T> input) {
+        Integer[] iArray = new Integer[expected.length];
+        for(int i =0 ; i < expected.length; i++)
+            iArray[i] = expected[i];
+        evaluate(iArray, input);
+    }
+    
+    public  <T extends TNumber> void evaluate(long[] expected, Operand<T> input) {
+        Long[] iArray = new Long[expected.length];
+        for(int i =0 ; i < expected.length; i++)
+            iArray[i] = expected[i];
+        evaluate(iArray, input);
+    }
+    
+    public  <T extends TNumber> void evaluate(float[] expected, Operand<T> input) {
+         Float[] iArray = new Float[expected.length];
+        for(int i =0 ; i < expected.length; i++)
+            iArray[i] = expected[i];
+        evaluate(iArray, input);
+    }
+    
+    public  <T extends TNumber> void evaluate(double[] expected, Operand<T> input) {
+        Double[] iArray = new Double[expected.length];
+        for(int i =0 ; i < expected.length; i++)
+            iArray[i] = expected[i];
+        evaluate(iArray, input);
     }
 
     public abstract <T extends TNumber> void evaluate(Number[] expected, Output<T> input);
@@ -133,6 +178,12 @@ public abstract class TestSession implements AutoCloseable {
     }
 
     public abstract <T extends TType> void evaluate(Output<T> expected, Output<T> input);
+    
+    public  <T extends TType> void evaluate(FloatNdArray expected, Operand<T> input) {
+        evaluate(expected, input.asOutput());
+    }
+    
+    public abstract <T extends TType> void evaluate(FloatNdArray expected, Output<T> input);
 
     public <T extends TType> void print(OutputStream out, Operand<T> input) {
         print(new PrintWriter(new OutputStreamWriter(out)), input.asOutput());

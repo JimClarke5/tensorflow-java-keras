@@ -16,13 +16,16 @@ package org.tensorflow.keras.utils;
 
 import java.io.PrintWriter;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.tensorflow.DataType;
 import org.tensorflow.EagerSession;
+import org.tensorflow.Operand;
 import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.op.Ops;
 import org.tensorflow.tools.Shape;
+import org.tensorflow.tools.ndarray.FloatNdArray;
 import org.tensorflow.types.TBool;
 import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TFloat64;
@@ -72,6 +75,61 @@ public class EagerTestSession extends TestSession {
     @Override
     public EagerSession getEagerSession() {
         return this.session;
+    }
+    
+    @Override
+    public <T extends TNumber> void evaluate(double expected, Operand<T> input) {
+        DataType dtype = input.asOutput().dataType();
+        if (dtype == TFloat32.DTYPE) {
+            Output<TFloat32> o = (Output<TFloat32>) input;
+            AtomicInteger index = new AtomicInteger();
+            if (debug) {
+                o.data().scalars().forEach(f -> {
+                    System.out.printf("%d). %f\n", index.getAndIncrement(), f.getFloat());
+                });
+            }
+            index.set(0);
+            o.data().scalars().forEach(f -> {
+                assertEquals(expected, f.getFloat(), epsilon);
+
+            });
+        } else if (dtype == TFloat64.DTYPE) {
+            Output<TFloat64> o = (Output<TFloat64>) input;
+            AtomicInteger index = new AtomicInteger();
+            if (debug) {
+                o.data().scalars().forEach(f -> {
+                    System.out.printf("%d). %f\n", index.getAndIncrement(), f.getDouble());
+                });
+            }
+            index.set(0);
+            o.data().scalars().forEach(f -> {
+                assertEquals((double)expected, f.getDouble(), epsilon);
+            });
+        } else if (dtype == TInt32.DTYPE) {
+            Output<TInt32> o = (Output<TInt32>) input;
+            AtomicInteger index = new AtomicInteger();
+            if (debug) {
+                o.data().scalars().forEach(f -> {
+                    System.out.printf("%d). %d\n", index.getAndIncrement(), f.getInt());
+                });
+            }
+            index.set(0);
+            o.data().scalars().forEach(f -> {
+                assertEquals((int)expected, f.getInt());
+            });
+        } else if (dtype == TInt64.DTYPE) {
+            Output<TInt64> o = (Output<TInt64>) input;
+            AtomicInteger index = new AtomicInteger();
+            if (debug) {
+                o.data().scalars().forEach(f -> {
+                    System.out.printf("%d). %d\n", index.getAndIncrement(), f.getLong());
+                });
+            }
+            index.set(0);
+            o.data().scalars().forEach(f -> {
+                assertEquals((long)expected, f.getLong());
+            });
+        }
     }
 
     @Override
@@ -134,6 +192,61 @@ public class EagerTestSession extends TestSession {
         }
 
     }
+    @Override
+    public  <T extends TType> void evaluate(FloatNdArray expected, Output<T> input) {
+        DataType dtype = input.dataType();
+        if (dtype == TFloat32.DTYPE) {
+            Output<TFloat32> o = (Output<TFloat32>) input;
+            AtomicLong index = new AtomicLong();
+            if (debug) {
+                o.data().scalars().forEach(f -> {
+                    System.out.printf("%d). %f\n", index.getAndIncrement(), f.getFloat());
+                });
+            }
+            index.set(0);
+            o.data().scalars().forEach(f -> {
+                assertEquals(expected.getFloat(index.getAndIncrement()), f.getFloat(), epsilon);
+
+            });
+        } else if (dtype == TFloat64.DTYPE) {
+            Output<TFloat64> o = (Output<TFloat64>) input;
+            AtomicInteger index = new AtomicInteger();
+            if (debug) {
+                o.data().scalars().forEach(f -> {
+                    System.out.printf("%d). %f\n", index.getAndIncrement(), f.getDouble());
+                });
+            }
+            index.set(0);
+            o.data().scalars().forEach(f -> {
+                assertEquals((double)expected.getFloat(index.getAndIncrement()), f.getDouble(), epsilon);
+            });
+        } else if (dtype == TInt32.DTYPE) {
+            Output<TInt32> o = (Output<TInt32>) input;
+            AtomicInteger index = new AtomicInteger();
+            if (debug) {
+                o.data().scalars().forEach(f -> {
+                    System.out.printf("%d). %d\n", index.getAndIncrement(), f.getInt());
+                });
+            }
+            index.set(0);
+            o.data().scalars().forEach(f -> {
+                assertEquals((int)expected.getFloat(index.getAndIncrement()), f.getInt());
+            });
+        } else if (dtype == TInt64.DTYPE) {
+            Output<TInt64> o = (Output<TInt64>) input;
+            AtomicInteger index = new AtomicInteger();
+            if (debug) {
+                o.data().scalars().forEach(f -> {
+                    System.out.printf("%d). %d\n", index.getAndIncrement(), f.getLong());
+                });
+            }
+            index.set(0);
+            o.data().scalars().forEach(f -> {
+                assertEquals((long)expected.getFloat(index.getAndIncrement()), f.getLong());
+            });
+        }
+    }
+    
 
     @Override
     public void evaluate(String[] expected, Output<TString> input) {
