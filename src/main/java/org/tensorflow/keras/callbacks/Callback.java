@@ -219,6 +219,7 @@ public abstract class Callback {
     /**
      * @param model the model to set
      */
+    // TODO replace with Model
     public void setModel(Object model) {
         this.model = model;
     }
