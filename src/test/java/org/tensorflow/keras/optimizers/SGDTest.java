@@ -220,11 +220,10 @@ public class SGDTest {
 
             session.run(update); // 1 step
 
-            //TODO momentum seems to return wrong values. Appears like it is not appling learningRate
-            float[] expectedMomentum0 = {-0.2F, -0.2F};
-            float[] expectedMomentum1 = {-0.02F, -0.02F};
-            //TODO session.evaluate(expectedMomentum0, momentumSlot0);
-            //TODO session.evaluate(expectedMomentum1, momentumSlot1);
+            float[] expectedMomentum0 = {0.1F, 0.1F};
+            float[] expectedMomentum1 = {0.01F, 0.01F};
+            session.evaluate(expectedMomentum0, momentumSlot0);
+            session.evaluate(expectedMomentum1, momentumSlot1);
 
             float[] expectedVar0 = {1.0F - (0.1F * 2.0F), 2.0F - (0.1F * 2.0F)};
             float[] expectedVar1 = {3.0F - (0.01F * 2.0F), 4.0F - (0.01F * 2.0F)};
@@ -233,11 +232,10 @@ public class SGDTest {
 
             session.run(update); //step 2
 
-            // TODO momentum seems to return wrong values. 
-            float[] expectedMomentum0_2 = {0.9F * -0.2F - 2.0F * 0.1F, 0.9F * -0.2F - 2.0F * 0.1F};
-            float[] expectedMomentum1_2 = {0.9F * -0.02F - 2.0F * 0.01F, 0.9F * -0.02F - 2.0F * 0.01F};
-            //session.evaluate(expectedMomentum0_2, momentumSlot0);
-            //session.evaluate(expectedMomentum1_2, momentumSlot0);
+            float[] expectedMomentum0_2 = {(0.9f * 0.1f + 0.1f), (0.9f * 0.1f + 0.1f)};
+            float[] expectedMomentum1_2 = {(0.9f * 0.01f + 0.01f), (0.9f * 0.01f + 0.01f)};
+            session.evaluate(expectedMomentum0_2, momentumSlot0);
+            session.evaluate(expectedMomentum1_2, momentumSlot1);
 
             float[] expectedVar0_2 = {1.0F - (0.1F * 2.0F) - ((0.9F * 0.1F + 0.1F) * 2.0F),
                 2.0F - (0.1F * 2.0F) - ((0.9F * 0.1F + 0.1F) * 2.0F)};
