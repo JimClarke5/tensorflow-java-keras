@@ -23,8 +23,7 @@ import java.util.logging.Logger;
 import org.tensorflow.keras.utils.PlaceholderStringFormat;
 
 /**
- *
- * @author jbclarke
+ * Callback to save the Keras model or model weights at some frequency.
  */
 public class ModelCheckpoint extends Callback {
 
@@ -52,7 +51,7 @@ public class ModelCheckpoint extends Callback {
     private BiFunction<Number, Number, Boolean> monitor_op;
 
     /**
-     * Create a Callback
+     * Create a ModelCheckpoint Callback
      *
      * @param filename
      */
@@ -61,7 +60,7 @@ public class ModelCheckpoint extends Callback {
     }
 
     /**
-     * Create a Callback
+     * Create a ModelCheckpoint Callback
      *
      * @param params Training parameters
      * @param filename
@@ -71,7 +70,7 @@ public class ModelCheckpoint extends Callback {
     }
 
     /**
-     * Create a Callback
+     * Create a ModelCheckpoint Callback
      *
      * @param params Training parameters
      * @param model Reference of the model being trained.
@@ -82,7 +81,7 @@ public class ModelCheckpoint extends Callback {
     }
 
     /**
-     * Create a Callback
+     * Create a ModelCheckpoint Callback
      *
      * @param params Training parameters
      * @param model Reference of the model being trained.
@@ -159,8 +158,7 @@ public class ModelCheckpoint extends Callback {
         super.setModel(model);
         /**
          * TODO if(!this.saveWeightsOnly && !model.isGraph() && !(model
-         * instanceof Sequential)) { this.saveWeightsOnly = true; }
-        * **
+         * instanceof Sequential)) { this.saveWeightsOnly = true; } **
          */
     }
 
@@ -241,8 +239,7 @@ public class ModelCheckpoint extends Callback {
                         /**
                          * TODO if(this.saveWeightsOnly) {
                          * this.model.save_weights(filepath, true); }else {
-                         * this.model.save(filepath, true); }
-                        * ***
+                         * this.model.save(filepath, true); } ***
                          */
                     } else {
                         if (this.verbose) {
@@ -258,8 +255,7 @@ public class ModelCheckpoint extends Callback {
                 /**
                  * TODO if(this.saveWeightsOnly) {
                  * this.model.save_weights(filepath, true); }else {
-                 * this.model.save(filepath, true); }
-                * ***
+                 * this.model.save(filepath, true); } ***
                  */
             }
             //TOOD multi-worker 

@@ -21,52 +21,49 @@ import java.util.function.Consumer;
 /**
  * Callback for creating simple, custom callbacks on-the-fly.
  * <p>
- * Example: 
- * <code>
+ * Example:  <code>
  * LambdaCallbacks batchPrintCallback = new LambdaCallbacks();
  * c.setOnTrainBatchBegin((batch, logs)-> System.out.println("Batch: " + batch + " started");
  * </code>
- * 
- * @author jbclarke
+ *
  */
 public class LambdaCallbacks extends Callback {
 
     /**
-     * Called at the beginning of every epoch.
-     * expect two positional arguments: `epoch`, `logs`
+     * Called at the beginning of every epoch. expect two positional arguments:
+     * `epoch`, `logs`
      */
     private BiConsumer<Integer, Map<String, Number>> onEpochBegin;
 
     /**
-     * Called at the end of every epoch.
-     * expect two positional arguments: `epoch`, `logs`
+     * Called at the end of every epoch. expect two positional arguments:
+     * `epoch`, `logs`
      */
     private BiConsumer<Integer, Map<String, Number>> onEpochEnd;
 
     /**
-     * Called at the beginning of every batch.
-     * expect two positional arguments: `batch`, `logs`
+     * Called at the beginning of every batch. expect two positional arguments:
+     * `batch`, `logs`
      */
     private BiConsumer<Integer, Map<String, Number>> onTrainBatchBegin;
 
     /**
-     * called at the end of every batch.
-     * expect two positional arguments: `batch`, `logs`
+     * called at the end of every batch. expect two positional arguments:
+     * `batch`, `logs`
      */
     private BiConsumer<Integer, Map<String, Number>> onTrainBatchEnd;
 
     /**
-     * called at the beginning of model training.
-     * expect one positional argument: `logs`
+     * called at the beginning of model training. expect one positional
+     * argument: `logs`
      */
     private Consumer<Map<String, Number>> onTrainBegin;
 
     /**
-     * called at the end of model training.
-     * expect one positional argument: `logs`
+     * called at the end of model training. expect one positional argument:
+     * `logs`
      */
     private Consumer<Map<String, Number>> onTrainEnd;
-    
 
     /**
      * Create a LambdaCallbacks callback
@@ -99,7 +96,7 @@ public class LambdaCallbacks extends Callback {
      */
     @Override
     public void onEpochBegin(int epoch, Map<String, Number> logs) {
-        if(this.onEpochBegin != null) {
+        if (this.onEpochBegin != null) {
             this.onEpochBegin.accept(epoch, logs);
         }
     }
@@ -109,7 +106,7 @@ public class LambdaCallbacks extends Callback {
      */
     @Override
     public void onEpochEnd(int epoch, Map<String, Number> logs) {
-        if(this.onEpochEnd != null) {
+        if (this.onEpochEnd != null) {
             this.onEpochEnd.accept(epoch, logs);
         }
     }
@@ -119,7 +116,7 @@ public class LambdaCallbacks extends Callback {
      */
     @Override
     public void onTrainBatchBegin(int batch, Map<String, Number> logs) {
-        if(this.onTrainBatchBegin != null) {
+        if (this.onTrainBatchBegin != null) {
             this.onTrainBatchBegin.accept(batch, logs);
         }
     }
@@ -129,7 +126,7 @@ public class LambdaCallbacks extends Callback {
      */
     @Override
     public void onTrainBatchEnd(int batch, Map<String, Number> logs) {
-        if(this.onTrainBatchEnd != null) {
+        if (this.onTrainBatchEnd != null) {
             this.onTrainBatchEnd.accept(batch, logs);
         }
     }
@@ -139,7 +136,7 @@ public class LambdaCallbacks extends Callback {
      */
     @Override
     public void onTrainBegin(Map<String, Number> logs) {
-        if(this.onTrainBegin != null) {
+        if (this.onTrainBegin != null) {
             this.onTrainBegin.accept(logs);
         }
     }
@@ -149,12 +146,11 @@ public class LambdaCallbacks extends Callback {
      */
     @Override
     public void onTrainEnd(Map<String, Number> logs) {
-        if(this.onTrainEnd != null) {
+        if (this.onTrainEnd != null) {
             this.onTrainEnd.accept(logs);
         }
     }
 
-    
     /**
      * @return the onEpochBegin
      */

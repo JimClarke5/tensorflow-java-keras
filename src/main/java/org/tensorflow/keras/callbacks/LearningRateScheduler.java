@@ -21,8 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author jbclarke
+ * Learning rate scheduler.
  */
 public class LearningRateScheduler extends Callback {
 

@@ -34,8 +34,7 @@ import org.tensorflow.keras.utils.ND;
 import org.tensorflow.tools.ndarray.NdArray;
 
 /**
- *
- * @author jbclarke
+ * Callback that streams epoch results to a csv file.
  */
 public class CSVLogger extends Callback implements AutoCloseable {
 
@@ -47,14 +46,33 @@ public class CSVLogger extends Callback implements AutoCloseable {
 
     private CSVPrinter writer;
 
+    /**
+     * Creates a CSVLogger callback.
+     *
+     * @param filename filename of the csv file
+     */
     public CSVLogger(String filename) {
         this(filename, ",", false);
     }
 
+    /**
+     * Creates a CSVLogger callback.
+     *
+     * @param filename filename of the csv file
+     * @param separator string used to separate elements in the csv file.
+     */
     public CSVLogger(String filename, String separator) {
         this(filename, separator, false);
     }
 
+    /**
+     * Creates a CSVLogger callback.
+     *
+     * @param filename filename of the csv file
+     * @param separator string used to separate elements in the csv file.
+     * @param append if true, append if file exists (useful for continuing
+     * training). if false, overwrite existing file,
+     */
     public CSVLogger(String filename, String separator, boolean append) {
         this.filename = filename;
         this.separator = separator;
@@ -115,8 +133,7 @@ public class CSVLogger extends Callback implements AutoCloseable {
 
         /**
          * TODO if(this.model.stopTraining) { this.keys.forEach(key -> {
-         * if(!logs.containsKey(key)) { logs.put(key, Double.NaN); } }); }
-        **
+         * if(!logs.containsKey(key)) { logs.put(key, Double.NaN); } }); } *
          */
         try {
             if (this.writer == null) {

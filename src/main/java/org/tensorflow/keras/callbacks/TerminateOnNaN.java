@@ -18,20 +18,19 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- *
- * @author jbclarke
+ * Callback that terminates training when a NaN loss is encountered.
  */
 public class TerminateOnNaN extends Callback {
 
     /**
-     * Create a Callback
+     * Create a TerminateOnNaN Callback
      */
     public TerminateOnNaN() {
         this(null, null);
     }
 
     /**
-     * Create a Callback
+     * Create a TerminateOnNaN Callback
      *
      * @param params Training parameters
      */
@@ -40,7 +39,7 @@ public class TerminateOnNaN extends Callback {
     }
 
     /**
-     * Create a Callback
+     * Create a TerminateOnNaN Callback
      *
      * @param params Training parameters
      * @param model Reference of the model being trained.

@@ -21,39 +21,39 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
- * @author jbclarke
+ * Callback that records events into a History object.
  */
 public class History extends Callback {
-    private final Map<String, List<Number> > history = new HashMap<>();
+
+    private final Map<String, List<Number>> history = new HashMap<>();
     private final List<Integer> epoch = new ArrayList<>();
-    
+
     /**
-     * Create a Callback
+     * Create a History Callback
      */
     protected History() {
         this(null, null);
     }
-    
+
     /**
-     * Create a Callback
-     * 
+     * Create a History Callback
+     *
      * @param params Training parameters
      */
     protected History(Map<String, Object> params) {
         this(params, null);
     }
-    
+
     /**
-     * Create a Callback
-     * 
+     * Create a History Callback
+     *
      * @param params Training parameters
      * @param model Reference of the model being trained.
      */
     protected History(Map<String, Object> params, Object model) {
         super(params, model);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -61,7 +61,7 @@ public class History extends Callback {
     public void onTrainBegin(Map<String, Number> logs) {
         epoch.clear();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -69,17 +69,17 @@ public class History extends Callback {
     public void onEpochEnd(int epoch, Map<String, Number> logs) {
         logs = logs == null ? Collections.EMPTY_MAP : logs;
         this.epoch.add(epoch);
-        
-        final  Map<String, Number> finalLogs = logs;
+
+        final Map<String, Number> finalLogs = logs;
         logs.keySet().forEach(key -> {
             List<Number> historyList = this.history.get(key);
-            if(historyList == null) {
+            if (historyList == null) {
                 historyList = new ArrayList<>();
                 this.history.put(key, historyList);
             }
             historyList.add(finalLogs.get(key));
         });
-        
+
         // TODO
         //this.model.history = this;
     }

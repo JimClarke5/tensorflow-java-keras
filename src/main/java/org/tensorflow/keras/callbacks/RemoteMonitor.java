@@ -25,8 +25,7 @@ import java.util.Map;
 import org.json.JSONObject;
 
 /**
- *
- * @author jbclarke
+ * Callback used to stream events to a server.
  */
 public class RemoteMonitor extends Callback {
 
@@ -37,10 +36,28 @@ public class RemoteMonitor extends Callback {
     private final Map<String, String> headers;
     private final boolean sendAsJson;
 
+    /**
+     * Create a Remote Monitor that connected to
+     * http://localhost:9000/publish/epoch/end
+     *
+     * @throws MalformedURLException If there is a problem with the Default URL.
+     */
     public RemoteMonitor() throws MalformedURLException {
         this(null, null, new URL(DEFAULT_URL), DEFAULT_FIELD, null, false);
     }
 
+    /**
+     * Create a Remote Monitor
+     *
+     * @param params
+     * @param model
+     * @param url the URL of the target server
+     * @param field the JSON field under which the data will be stored. The
+     * field is used only if the payload is sent within a form (i.e. sendAsJson
+     * is set to false).
+     * @param headers optional custom HTTP headers.
+     * @param sendAsJson whether the request should be sent as application/json.
+     */
     public RemoteMonitor(Map<String, Object> params, Object model,
             URL url, String field, Map<String, String> headers, boolean sendAsJson) {
         super(params, model);

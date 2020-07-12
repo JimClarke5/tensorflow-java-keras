@@ -24,8 +24,7 @@ import java.util.logging.Logger;
 import org.tensorflow.keras.utils.ProgressBar;
 
 /**
- *
- * @author jbclarke
+ * Callback that prints metrics to stdout.
  */
 public class ProgbarLogger extends Callback {
 
