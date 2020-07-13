@@ -22,24 +22,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import org.tensorflow.EagerSession;
 import org.tensorflow.Operand;
-import org.tensorflow.keras.utils.PrintUtils;
+import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Ops;
 import org.tensorflow.tools.Shape;
-import org.tensorflow.tools.buffer.DataBuffers;
 import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TFloat64;
 import org.tensorflow.types.TInt32;
 
 /**
- *
- * @author Jim Clarke
+ * Test the Orthogonal initializer
  */
 public class OrthogonalTest {
 
-    private static final double EPSILON = 1e-7;
-    private static final float EPSILON_F = 1e-7f;
+    private TestSession.Mode tf_mode = TestSession.Mode.EAGER;
+
     private static final long SEED = 1000L;
     private static final double GAIN_VALUE = 1.0;
 
@@ -95,12 +92,12 @@ public class OrthogonalTest {
      */
     @Test
     public void testCall_Int() {
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(10, 10);
             Orthogonal<TInt32> instance
                     = new Orthogonal(tf, GAIN_VALUE, SEED);
-            Operand<TInt32> operand = instance.call(tf.constant(shape.asArray()), TInt32.DTYPE);
+            Operand<TInt32> operand = instance.call(tf.constant(shape), TInt32.DTYPE);
             fail("Should jave thown assertion on Integer type");
         } catch (AssertionError expected) {
 
@@ -112,38 +109,35 @@ public class OrthogonalTest {
      */
     @Test
     public void testCall_Float() {
-        float[] actual = new float[10 * 10];
         float[] expected = {
-            -0.3097564F, -0.11214957F, -0.04083291F, -0.24071707F, 0.29931748F, 0.4461752F,
-            -0.16319607F, -0.30204326F, -0.26093683F, 0.59770143F,
-            0.15418966F, 0.50748324F, -0.03822303F, -0.59814125F, 0.11034431F, -0.01813965F,
-            -0.21199228F, -0.04033701F, -0.40765563F, -0.36632827F,
-            0.10572237F, 0.27673772F, -0.00941799F, 0.07603773F, 0.48299354F, 0.37719437F,
-            0.65557724F, 0.31341612F, 0.04323304F, -0.03049367F,
-            -0.00511622F, -0.30234647F, -0.24784878F, -0.27694383F, -0.6077379F, 0.40848815F,
-            0.40706915F, -0.0732277F, -0.16744994F, -0.18739915F,
-            -0.151793F, -0.21273288F, 0.24265847F, -0.00964088F, 0.25967413F, 0.40649366F,
-            -0.20693113F, -0.3185814F, 0.38828942F, -0.5873469F,
-            -0.48195702F, 0.32218578F, -0.29953587F, 0.00851173F, 0.01569128F, -0.33701414F,
-            0.36372715F, -0.54230285F, 0.17351612F, -0.06162076F,
-            -0.2438229F, 0.35682017F, 0.7260855F, 0.24974659F, -0.34703425F, 0.14939374F,
-            0.09953088F, -0.08766067F, -0.25020337F, 0.02669237F,
-            0.41220927F, 0.4300388F, -0.03955907F, -0.11728173F, -0.2787032F, 0.26550797F,
-            -0.11485924F, -0.19093868F, 0.5791758F, 0.3107499F,
-            -0.46279088F, -0.04041088F, 0.23238355F, -0.5590758F, -0.07460429F, -0.13264497F,
-            0.04314278F, 0.47426552F, 0.39604855F, 0.10401782F,
-            -0.41256273F, 0.31454724F, -0.45164356F, 0.33607012F, -0.1557368F, 0.31974515F,
-            -0.3645014F, 0.37268594F, -0.00656797F, -0.12504758F
+            -0.3097564f, -0.11214957f, -0.04083291f, -0.24071707f, 0.29931748f, 0.4461752f,
+            -0.16319607f, -0.30204326f, -0.26093683f, 0.59770143f,
+            0.15418966f, 0.50748324f, -0.03822303f, -0.59814125f, 0.11034431f, -0.01813965f,
+            -0.21199228f, -0.04033701f, -0.40765563f, -0.36632827f,
+            0.10572237f, 0.27673772f, -0.00941799f, 0.07603773f, 0.48299354f, 0.37719437f,
+            0.65557724f, 0.31341612f, 0.04323304f, -0.03049367f,
+            -0.00511622f, -0.30234647f, -0.24784878f, -0.27694383f, -0.6077379f, 0.40848815f,
+            0.40706915f, -0.0732277f, -0.16744994f, -0.18739915f,
+            -0.151793f, -0.21273288f, 0.24265847f, -0.00964088f, 0.25967413f, 0.40649366f,
+            -0.20693113f, -0.3185814f, 0.38828942f, -0.5873469f,
+            -0.48195702f, 0.32218578f, -0.29953587f, 0.00851173f, 0.01569128f, -0.33701414f,
+            0.36372715f, -0.54230285f, 0.17351612f, -0.06162076f,
+            -0.2438229f, 0.35682017f, 0.7260855f, 0.24974659f, -0.34703425f, 0.14939374f,
+            0.09953088f, -0.08766067f, -0.25020337f, 0.02669237f,
+            0.41220927f, 0.4300388f, -0.03955907f, -0.11728173f, -0.2787032f, 0.26550797f,
+            -0.11485924f, -0.19093868f, 0.5791758f, 0.3107499f,
+            -0.46279088f, -0.04041088f, 0.23238355f, -0.5590758f, -0.07460429f, -0.13264497f,
+            0.04314278f, 0.47426552f, 0.39604855f, 0.10401782f,
+            -0.41256273f, 0.31454724f, -0.45164356f, 0.33607012f, -0.1557368f, 0.31974515f,
+            -0.3645014f, 0.37268594f, -0.00656797f, -0.12504758f
         };
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(10, 10);
             Orthogonal<TFloat32> instance
                     = new Orthogonal(tf, GAIN_VALUE, SEED);
-            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()), TFloat32.DTYPE);
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            PrintUtils.printTFloat32(operand.asTensor());
-            assertArrayEquals(expected, actual, EPSILON_F);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape), TFloat32.DTYPE);
+            session.evaluate(expected, operand);
         }
     }
 
@@ -152,7 +146,6 @@ public class OrthogonalTest {
      */
     @Test
     public void testCall_Double() {
-        double[] actual = new double[10 * 10];
         double[] expected = {
             0.4852166440161694, -0.4290733656784607, 0.09147039077482466, -0.3033533647665251,
             -0.13422222791377508, -0.3129540993206184, 0.183062569636896, -0.0797586175921162,
@@ -181,15 +174,13 @@ public class OrthogonalTest {
             0.028705024822326536, -0.27774030642345227
 
         };
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(10, 10);
             Orthogonal<TFloat64> instance
                     = new Orthogonal(tf, GAIN_VALUE, SEED);
-            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()), TFloat64.DTYPE);
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            PrintUtils.printTFloat64(operand.asTensor());
-            assertArrayEquals(expected, actual, EPSILON);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape), TFloat64.DTYPE);
+            session.evaluate(expected, operand);
         }
     }
 

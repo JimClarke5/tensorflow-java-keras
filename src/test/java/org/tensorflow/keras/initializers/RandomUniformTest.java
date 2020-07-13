@@ -22,24 +22,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import org.tensorflow.EagerSession;
 import org.tensorflow.Operand;
-import org.tensorflow.keras.utils.PrintUtils;
+import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Ops;
 import org.tensorflow.tools.Shape;
-import org.tensorflow.tools.buffer.DataBuffers;
 import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TFloat64;
 import org.tensorflow.types.TInt32;
 
 /**
- *
- * @author Jim Clarke
+ * Test the RandomUniform initializer
  */
 public class RandomUniformTest {
 
-    private static final double EPSILON = 1e-7;
-    private static final float EPSILON_F = 1e-7f;
+    private TestSession.Mode tf_mode = TestSession.Mode.EAGER;
+
     private static final long SEED = 1000L;
     private static final double MIN_VALUE = 0.0;
     private static final double MAX_VALUE = 10.0;
@@ -98,17 +95,14 @@ public class RandomUniformTest {
      */
     @Test
     public void testCall_Int() {
-        int[] actual = {0, 0, 0, 0};
         int[] expected = {6, 1, 4, 1};
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(2, 2);
             RandomUniform<TInt32> instance
                     = new RandomUniform<>(tf, MIN_VALUE, MAX_VALUE, SEED);
-            Operand<TInt32> operand = instance.call(tf.constant(shape.asArray()), TInt32.DTYPE);
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            PrintUtils.printTInt32(operand.asTensor());
-            assertArrayEquals(expected, actual);
+            Operand<TInt32> operand = instance.call(tf.constant(shape), TInt32.DTYPE);
+            session.evaluate(expected, operand);
         }
     }
 
@@ -117,34 +111,28 @@ public class RandomUniformTest {
      */
     @Test
     public void testCall_Float() {
-        float[] actual = {0, 0, 0, 0};
-        float[] expected = {7.5660157F, 6.6877327F, 9.200811F, 5.385646F};
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        float[] expected = {7.5660157f, 6.6877327f, 9.200811f, 5.385646F};
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(2, 2);
             RandomUniform<TFloat32> instance
                     = new RandomUniform<>(tf, MIN_VALUE, MAX_VALUE, SEED);
-            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()), TFloat32.DTYPE);
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            PrintUtils.printTFloat32(operand.asTensor());
-            assertArrayEquals(expected, actual, EPSILON_F);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape), TFloat32.DTYPE);
+            session.evaluate(expected, operand);
         }
     }
 
     @Test
     public void testCall_Double() {
-        double[] actual = {0, 0, 0, 0};
         double[] expected = {0.5281258126492294, 3.6064922351122752,
             0.5479556897864346, 5.126554100456142};
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(2, 2);
             RandomUniform<TFloat64> instance
                     = new RandomUniform<>(tf, MIN_VALUE, MAX_VALUE, SEED);
-            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()), TFloat64.DTYPE);
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            PrintUtils.printTFloat64(operand.asTensor());
-            assertArrayEquals(expected, actual, EPSILON);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape), TFloat64.DTYPE);
+            session.evaluate(expected, operand);
         }
     }
 

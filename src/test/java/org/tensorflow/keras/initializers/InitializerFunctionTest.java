@@ -19,12 +19,10 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-import org.tensorflow.EagerSession;
 import org.tensorflow.Operand;
+import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Ops;
 import org.tensorflow.tools.Shape;
-import org.tensorflow.tools.buffer.DataBuffers;
 import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TFloat64;
 import org.tensorflow.types.TInt32;
@@ -32,13 +30,11 @@ import org.tensorflow.types.TInt64;
 import org.tensorflow.types.TUint8;
 
 /**
- *
- * @author Jim Clarke
+ * Test the InitializerFunction initializer
  */
 public class InitializerFunctionTest {
 
-    private static final double EPSILON = 1e-7;
-    private static final float EPSILON_F = 1e-7f;
+    private TestSession.Mode tf_mode = TestSession.Mode.EAGER;
 
     public InitializerFunctionTest() {
     }
@@ -64,19 +60,17 @@ public class InitializerFunctionTest {
      */
     @Test
     public void testLambdaCallFloat() {
-        float[] floats = {12345.0F};
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        float[] expected = {12345.0f};
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(1);
 
             // Test float
             InitializerFunction<TFloat32> func = (dims, dtype) -> {
-                return tf.dtypes.cast(tf.constant(floats[0]), dtype);
+                return tf.dtypes.cast(tf.constant(new float[]{12345.0f}), dtype);
             };
-            Operand<TFloat32> operand = func.call(tf.constant(shape.asArray()), TFloat32.DTYPE);
-            float[] actual = new float[floats.length];
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            assertArrayEquals(floats, actual, EPSILON_F);
+            Operand<TFloat32> operand = func.call(tf.constant(shape), TFloat32.DTYPE);
+            session.evaluate(expected, operand);
 
         }
     }
@@ -86,19 +80,17 @@ public class InitializerFunctionTest {
      */
     @Test
     public void testLambdaCallUInt8() {
-        byte[] bytes = {0x15};
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        byte[] expected = {0x15};
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(1);
 
             // Test float
             InitializerFunction<TUint8> func = (dims, dtype) -> {
-                return tf.dtypes.cast(tf.constant(bytes[0]), dtype);
+                return tf.dtypes.cast(tf.constant(new byte[]{0x15}), dtype);
             };
-            Operand<TUint8> operand = func.call(tf.constant(shape.asArray()), TUint8.DTYPE);
-            byte[] actual = new byte[bytes.length];
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            assertArrayEquals(bytes, actual);
+            Operand<TUint8> operand = func.call(tf.constant(shape), TUint8.DTYPE);
+            session.evaluate(expected, operand);
 
         }
     }
@@ -108,19 +100,17 @@ public class InitializerFunctionTest {
      */
     @Test
     public void testLambdaCallInt() {
-        int[] ints = {12345};
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        int[] expected = {12345};
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(1);
 
             // Test float
             InitializerFunction<TInt32> func = (dims, dtype) -> {
-                return tf.dtypes.cast(tf.constant(ints[0]), dtype);
+                return tf.dtypes.cast(tf.constant(new int[]{12345}), dtype);
             };
-            Operand<TInt32> operand = func.call(tf.constant(shape.asArray()), TInt32.DTYPE);
-            int[] actual = new int[ints.length];
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            assertArrayEquals(ints, actual);
+            Operand<TInt32> operand = func.call(tf.constant(shape), TInt32.DTYPE);
+            session.evaluate(expected, operand);
 
         }
     }
@@ -130,37 +120,33 @@ public class InitializerFunctionTest {
      */
     @Test
     public void testLambdaCallLong() {
-        long[] longs = {12345L};
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        long[] expected = {12345L};
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(1);
 
             // Test float
             InitializerFunction<TInt64> func = (dims, dtype) -> {
-                return tf.dtypes.cast(tf.constant(longs[0]), dtype);
+                return tf.dtypes.cast(tf.constant(new long[]{12345L}), dtype);
             };
-            Operand<TInt64> operand = func.call(tf.constant(shape.asArray()), TInt64.DTYPE);
-            long[] actual = new long[longs.length];
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            assertArrayEquals(longs, actual);
+            Operand<TInt64> operand = func.call(tf.constant(shape), TInt64.DTYPE);
+            session.evaluate(expected, operand);
 
         }
     }
 
     public void testLambdaCallDouble() {
-        double[] doubles = {Math.PI};
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        double[] expected = {Math.PI};
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(1);
 
             // Test float
             InitializerFunction<TFloat64> func = (dims, dtype) -> {
-                return tf.dtypes.cast(tf.constant(doubles[0]), dtype);
+                return tf.dtypes.cast(tf.constant(new double[]{Math.PI}), dtype);
             };
-            Operand<TFloat64> operand = func.call(tf.constant(shape.asArray()), TFloat64.DTYPE);
-            double[] actual = new double[doubles.length];
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            assertArrayEquals(doubles, actual, EPSILON_F);
+            Operand<TFloat64> operand = func.call(tf.constant(shape), TFloat64.DTYPE);
+            session.evaluate(expected, operand);
 
         }
     }

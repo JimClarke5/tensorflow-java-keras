@@ -22,26 +22,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import org.tensorflow.EagerSession;
 import org.tensorflow.Operand;
-import org.tensorflow.keras.utils.PrintUtils;
+import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Ops;
 import org.tensorflow.tools.Shape;
-import org.tensorflow.tools.buffer.DataBuffers;
 import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TFloat64;
 
 /**
- *
- * @author Jim Clarke
+ * Test the LeCunNormal initializer
  */
 public class LeCunNormalTest {
 
-    private static final double EPSILON = 1e-7;
-    private static final float EPSILON_F = 1e-7f;
-    private static final long SEED = 1000L;
+    private TestSession.Mode tf_mode = TestSession.Mode.EAGER;
 
-    int counter;
+    private static final long SEED = 1000L;
 
     public LeCunNormalTest() {
     }
@@ -99,39 +94,27 @@ public class LeCunNormalTest {
      */
     @Test
     public void testCall_Float() {
-        float[] actual = {0, 0, 0, 0};
-        float[] expected = {-0.52388954F, -0.29329166F, -0.07872587F, -0.31851602F};
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        float[] expected = {-0.52388954f, -0.29329166f, -0.07872587f, -0.31851602f};
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(2, 2);
             LeCunNormal<TFloat32> instance
                     = new LeCunNormal<>(tf, SEED);
-            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()), TFloat32.DTYPE);
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            PrintUtils.print(operand.asTensor());
-            //counter = 0;
-            //operand.asTensor().data().scalars().forEach(s -> {counter++;});
-            //assertEquals(shape.size(), counter);
-            assertArrayEquals(expected, actual, EPSILON_F);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape), TFloat32.DTYPE);
+            session.evaluate(expected, operand);
         }
     }
 
     @Test
     public void testCall_Double() {
-        double[] actual = {0, 0, 0, 0};
         double[] expected = {1.4971264721246893, -1.2488522307109322, -0.5409677352523339, 0.4871390504288623};
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(2, 2);
             LeCunNormal<TFloat64> instance
                     = new LeCunNormal<>(tf, SEED);
-            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()), TFloat64.DTYPE);
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            PrintUtils.print(operand.asTensor());
-            //counter = 0;
-            //operand.asTensor().data().scalars().forEach(s -> {counter++;});
-            //assertEquals(shape.size(), counter);
-            assertArrayEquals(expected, actual, EPSILON);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape), TFloat64.DTYPE);
+            session.evaluate(expected, operand);
         }
     }
 

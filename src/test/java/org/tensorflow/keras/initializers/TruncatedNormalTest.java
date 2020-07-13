@@ -22,23 +22,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import org.tensorflow.EagerSession;
 import org.tensorflow.Operand;
-import org.tensorflow.keras.utils.PrintUtils;
+import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Ops;
 import org.tensorflow.tools.Shape;
-import org.tensorflow.tools.buffer.DataBuffers;
 import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TFloat64;
 
 /**
- *
- * @author Jim Clarke
+ * Test the TruncatedNormal initializer
  */
 public class TruncatedNormalTest {
 
-    private static final double EPSILON = 1e-7;
-    private static final float EPSILON_F = 1e-7f;
+    private TestSession.Mode tf_mode = TestSession.Mode.EAGER;
+
     private static final long SEED = 1000L;
     private static final double MEAN_VALUE = 0.0;
     private static final double STDDEV_VALUE = 3.0;
@@ -97,34 +94,28 @@ public class TruncatedNormalTest {
      */
     @Test
     public void testCall_Float() {
-        float[] actual = {0, 0, 0, 0};
         float[] expected = {-1.955122F, -1.0945456F, -0.29379985F, -1.1886811F};
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(2, 2);
             TruncatedNormal<TFloat32> instance
                     = new TruncatedNormal(tf, MEAN_VALUE, STDDEV_VALUE, SEED);
-            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()), TFloat32.DTYPE);
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            PrintUtils.printTFloat32(operand.asTensor());
-            assertArrayEquals(expected, actual, EPSILON_F);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape), TFloat32.DTYPE);
+            session.evaluate(expected, operand);
         }
     }
 
     @Test
     public void testCall_Double() {
-        double[] actual = {0, 0, 0, 0};
         double[] expected = {5.58717960737721, -4.6606361225803825,
             -2.0188567598844402, 1.8179715736711362};
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(2, 2);
             TruncatedNormal<TFloat64> instance
                     = new TruncatedNormal(tf, MEAN_VALUE, STDDEV_VALUE, SEED);
-            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()), TFloat64.DTYPE);
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            PrintUtils.printTFloat64(operand.asTensor());
-            assertArrayEquals(expected, actual, EPSILON);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape), TFloat64.DTYPE);
+            session.evaluate(expected, operand);
         }
     }
 

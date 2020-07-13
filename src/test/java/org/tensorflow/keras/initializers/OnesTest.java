@@ -20,12 +20,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import org.tensorflow.EagerSession;
 import org.tensorflow.Operand;
-import org.tensorflow.keras.utils.PrintUtils;
+import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Ops;
 import org.tensorflow.tools.Shape;
-import org.tensorflow.tools.buffer.DataBuffers;
 import org.tensorflow.types.TBool;
 import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TFloat64;
@@ -35,15 +33,11 @@ import org.tensorflow.types.TString;
 import org.tensorflow.types.TUint8;
 
 /**
- *
- * @author Jim Clarke
+ * Test the Ones initializer
  */
 public class OnesTest {
 
-    private static final double EPSILON = 1e-7;
-    private static final float EPSILON_F = 1e-7f;
-
-    private int counter;
+    private TestSession.Mode tf_mode = TestSession.Mode.EAGER;
 
     public OnesTest() {
     }
@@ -69,16 +63,13 @@ public class OnesTest {
      */
     @Test
     public void testCallUInt() {
-        byte[] actual = {0, 0, 0, 0};
-        byte[] expected = {1, 1, 1, 1}; // init to ones to make sure they all changet to zero
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        Byte[] expected = {1, 1, 1, 1}; // init to ones to make sure they all changet to zero
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(2, 2);
             Ones<TUint8> instance = new Ones<>(tf);
-            Operand<TUint8> operand = instance.call(tf.constant(shape.asArray()), TUint8.DTYPE);
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            // PrintUtils.print(operand.asTensor());
-            assertArrayEquals(expected, actual);
+            Operand<TUint8> operand = instance.call(tf.constant(shape), TUint8.DTYPE);
+            session.evaluate(expected, operand);
         }
     }
 
@@ -87,16 +78,13 @@ public class OnesTest {
      */
     @Test
     public void testCallInt() {
-        int[] actual = {0, 0, 0, 0};
         int[] expected = {1, 1, 1, 1}; // init to ones to make sure they all changet to zero
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(2, 2);
             Ones<TInt32> instance = new Ones<>(tf);
-            Operand<TInt32> operand = instance.call(tf.constant(shape.asArray()), TInt32.DTYPE);
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            // PrintUtils.print(operand.asTensor());
-            assertArrayEquals(expected, actual);
+            Operand<TInt32> operand = instance.call(tf.constant(shape), TInt32.DTYPE);
+            session.evaluate(expected, operand);
         }
     }
 
@@ -105,16 +93,13 @@ public class OnesTest {
      */
     @Test
     public void testCallLong() {
-        long[] actual = {0, 0, 0, 0};
         long[] expected = {1, 1, 1, 1}; // init to ones to make sure they all changet to zero
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(2, 2);
             Ones<TInt64> instance = new Ones<>(tf);
-            Operand<TInt64> operand = instance.call(tf.constant(shape.asArray()), TInt64.DTYPE);
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            // PrintUtils.print(operand.asTensor());
-            assertArrayEquals(expected, actual);
+            Operand<TInt64> operand = instance.call(tf.constant(shape), TInt64.DTYPE);
+            session.evaluate(expected, operand);
         }
     }
 
@@ -123,16 +108,13 @@ public class OnesTest {
      */
     @Test
     public void testCallFloat() {
-        float[] actual = {0.F, 0.F, 0.F, 0.F};
         float[] expected = {1.f, 1.f, 1.f, 1.f};
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(2, 2);
             Ones<TFloat32> instance = new Ones<>(tf);
-            Operand<TFloat32> operand = instance.call(tf.constant(shape.asArray()), TFloat32.DTYPE);
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            PrintUtils.print(operand.asTensor());
-            assertArrayEquals(expected, actual, EPSILON_F);
+            Operand<TFloat32> operand = instance.call(tf.constant(shape), TFloat32.DTYPE);
+            session.evaluate(expected, operand);
         }
     }
 
@@ -141,17 +123,14 @@ public class OnesTest {
      */
     @Test
     public void testCallDouble() {
-        double[] actual = {0., 0., 0., 0.};
         double[] expected = {1., 1., 1., 1.};
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(2, 2);
 
             Ones<TFloat64> instance = new Ones<>(tf);
-            Operand<TFloat64> operand = instance.call(tf.constant(shape.asArray()), TFloat64.DTYPE);
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            PrintUtils.print(operand.asTensor());
-            assertArrayEquals(expected, actual, EPSILON);
+            Operand<TFloat64> operand = instance.call(tf.constant(shape), TFloat64.DTYPE);
+            session.evaluate(expected, operand);
         }
     }
 
@@ -160,12 +139,12 @@ public class OnesTest {
      */
     @Test
     public void testCallString() {
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(2, 2);
 
             Ones<TString> instance = new Ones<>(tf);
-            Operand<TString> operand = instance.call(tf.constant(shape.asArray()), TString.DTYPE);
+            Operand<TString> operand = instance.call(tf.constant(shape), TString.DTYPE);
             fail("AssertionError should have been thrown for TString");
         } catch (AssertionError expected) {
         }
@@ -173,19 +152,14 @@ public class OnesTest {
 
     @Test
     public void testCallBool() {
-        boolean[] expected = {true, true, true, true};
-        boolean[] actual = {false, false, false, false};
-        try (EagerSession session = EagerSession.create()) {
-            Ops tf = Ops.create(session);
+        Boolean[] expected = {true, true, true, true};
+        try (TestSession session = TestSession.createTestSession(tf_mode)) {
+            Ops tf = session.getTF();
             Shape shape = Shape.of(2, 2);
 
             Ones<TBool> instance = new Ones<>(tf);
-            Operand<TBool> operand = instance.call(tf.constant(shape.asArray()), TBool.DTYPE);
-            //counter = 0;
-            //operand.asTensor().data().scalars().forEach(s -> {/*counter++;*/ assertFalse(s.getBoolean());});
-            //assertEquals(counter, 2*2);
-            operand.asTensor().data().read(DataBuffers.of(actual));
-            assertArrayEquals(expected, actual);
+            Operand<TBool> operand = instance.call(tf.constant(shape), TBool.DTYPE);
+            session.evaluate(expected, operand);
         }
     }
 
