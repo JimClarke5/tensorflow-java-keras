@@ -83,6 +83,9 @@ public abstract class TestSession implements AutoCloseable {
         Output output = input.asOutput();
         evaluate(expected, output);
     }
+    public  <T extends TNumber> void evaluate(byte expected, Operand<T> input) {
+         evaluate((double)expected, input);
+    }
     
     public  <T extends TNumber> void evaluate(int expected, Operand<T> input) {
          evaluate((double)expected, input);
@@ -97,6 +100,13 @@ public abstract class TestSession implements AutoCloseable {
     }
     
     public abstract <T extends TNumber> void evaluate(double expected, Operand<T> input);
+    
+    public  <T extends TNumber> void evaluate(byte[] expected, Operand<T> input) {
+        Byte[] iArray = new Byte[expected.length];
+        for(int i =0 ; i < expected.length; i++)
+            iArray[i] = expected[i];
+        evaluate(iArray, input);
+    }
     
     public  <T extends TNumber> void evaluate(int[] expected, Operand<T> input) {
         Integer[] iArray = new Integer[expected.length];
