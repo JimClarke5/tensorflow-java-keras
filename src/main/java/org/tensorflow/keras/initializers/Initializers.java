@@ -29,7 +29,6 @@ import org.tensorflow.op.Ops;
 /**
  * functions to get an initializer based on String name, 
  * an Initializer class, or lambda function
- * @author Jim Clarke
  */
 public class Initializers {
     static Map<String, Function<Ops, Initializer > > map = new HashMap<String, Function<Ops, Initializer>>() 
