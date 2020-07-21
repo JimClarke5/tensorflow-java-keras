@@ -29,7 +29,7 @@ public class L1L2 extends Regularizer {
     private final Float l2;
     
     public L1L2(Ops tf) {
-       this(tf, 0.f, 0.f);
+       this(tf, null, null);
     }
     
     public L1L2(Ops tf, Float l1, Float l2) {
