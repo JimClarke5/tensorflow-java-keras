@@ -17,7 +17,10 @@ package org.tensorflow.keras.utils;
 import java.io.PrintWriter;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Predicate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import org.tensorflow.DataType;
 import org.tensorflow.EagerSession;
 import org.tensorflow.Operand;
@@ -244,6 +247,91 @@ public class EagerTestSession extends TestSession {
             o.data().scalars().forEach(f -> {
                 assertEquals((long)expected.getFloat(index.getAndIncrement()), f.getLong());
             });
+        }
+    }
+    
+    public <T extends TType> void evaluate(Output<T> input, Predicate<Number> predicate) {
+        AtomicInteger index = new AtomicInteger();
+        DataType dtype = input.asOutput().dataType();
+        boolean isScalar = input.shape().equals(Shape.scalar());
+        if (dtype == TFloat32.DTYPE) {
+            Output<TFloat32> o = (Output<TFloat32>) input;
+            if (debug) {
+                if(isScalar) {
+                    System.out.printf("0). %b <==> %f\n", predicate.test(o.data().getFloat()), o.data().getFloat());
+                }else {
+                    o.data().scalars().forEachIndexed((idx, f) -> {
+                        System.out.printf("%d). %b <==> %f\n", index.getAndIncrement(), predicate.test(f.getFloat()), f.getFloat());
+                    });
+                }
+            }
+            index.set(0);
+            if (isScalar) {
+                assertTrue(predicate.test(o.data().getFloat()));
+            } else {
+                o.data().scalars().forEachIndexed((idx, f) -> {
+                    assertTrue(predicate.test(o.data().getFloat()));
+                });
+            }
+        } else if (dtype == TFloat64.DTYPE) {
+            Output<TFloat64> o = (Output<TFloat64>) input;
+            if (debug) {
+                if(isScalar) {
+                    System.out.printf("0). %b <==> %f\n", predicate.test(o.data().getDouble()), o.data().getDouble());
+                }else {
+                    o.data().scalars().forEachIndexed((idx, f) -> {
+                        System.out.printf("%d). %b <==> %f\n", index.getAndIncrement(), predicate.test(f.getDouble()), f.getDouble());
+                    });
+                }
+            }
+            index.set(0);
+            if (isScalar) {
+                assertTrue(predicate.test(o.data().getDouble()));
+            } else {
+                o.data().scalars().forEachIndexed((idx, f) -> {
+                    assertTrue(predicate.test(o.data().getDouble()));
+                });
+            }
+        } else if (dtype == TInt32.DTYPE) {
+            Output<TInt32> o = (Output<TInt32>) input;
+            if (debug) {
+                if(isScalar) {
+                    System.out.printf("0). %b <==> %d\n", predicate.test(o.data().getInt()), o.data().getInt());
+                }else {
+                    o.data().scalars().forEachIndexed((idx, f) -> {
+                        System.out.printf("%d). %b <==> %d\n", index.getAndIncrement(), predicate.test(f.getInt()), f.getInt());
+                    });
+                }
+            }
+            index.set(0);
+            if (isScalar) {
+                assertTrue(predicate.test(o.data().getInt()));
+            } else {
+                o.data().scalars().forEachIndexed((idx, f) -> {
+                    assertTrue(predicate.test(o.data().getInt()));
+                });
+            }
+        } else if (dtype == TInt64.DTYPE) {
+            Output<TInt64> o = (Output<TInt64>) input;
+            if (debug) {
+                if(isScalar) {
+                    System.out.printf("0). %b <==> %d\n", predicate.test(o.data().getLong()), o.data().getLong());
+                }else {
+                    o.data().scalars().forEachIndexed((idx, f) -> {
+                        System.out.printf("%d). %b <==> %d\n", index.getAndIncrement(), predicate.test(f.getLong()), f.getLong());
+                    });
+                }
+            }
+            index.set(0);
+            if (isScalar) {
+                assertTrue(predicate.test(o.data().getLong()));
+            } else {
+                o.data().scalars().forEachIndexed((idx, f) -> {
+                    assertTrue(predicate.test(o.data().getLong()));
+                });
+            }
+        } else {
+            fail("Unexpected DataType: " + dtype);
         }
     }
     

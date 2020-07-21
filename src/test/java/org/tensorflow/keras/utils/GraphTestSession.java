@@ -17,7 +17,9 @@ package org.tensorflow.keras.utils;
 import java.io.PrintWriter;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Predicate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import org.tensorflow.DataType;
 import org.tensorflow.EagerSession;
@@ -514,6 +516,106 @@ public class GraphTestSession extends TestSession {
                 } else {
                     result.data().scalars().forEachIndexed((idx, f) -> {
                         assertEquals(expectedResult.data().getObject(idx), f.getObject());
+                    });
+                }
+            }
+        } else {
+            fail("Unexpected DataType: " + dtype);
+        }
+    }
+    
+    public <T extends TType> void evaluate(Output<T> input, Predicate<Number> predicate) {
+        AtomicInteger index = new AtomicInteger();
+        DataType dtype = input.asOutput().dataType();
+        boolean isScalar = input.shape().equals(Shape.scalar());
+        if (dtype == TFloat32.DTYPE) {
+            if (debug) {
+                try (Tensor<TFloat32> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TFloat32.DTYPE)) {
+                    if (isScalar) {
+                        System.out.printf("0). %b <==> %f\n", predicate.test(result.data().getFloat()), result.data().getFloat());
+                    } else {
+                        result.data().scalars().forEachIndexed((idx, f) -> {
+                            System.out.printf("%d). %b <==> %f\n", index.getAndIncrement(), predicate.test(f.getFloat()), f.getFloat());
+                        });
+                    }
+                }
+            }
+            index.set(0);
+            try (Tensor<TFloat32> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TFloat32.DTYPE)) {
+                if (isScalar) {
+                    assertTrue(predicate.test(result.data().getFloat()));
+                } else {
+                    result.data().scalars().forEachIndexed((idx, f) -> {
+                        assertTrue(predicate.test(result.data().getFloat()));
+                    });
+                }
+            }
+        } else if (dtype == TFloat64.DTYPE) {
+            if (debug) {
+                try (Tensor<TFloat64> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TFloat64.DTYPE)) {
+                    if (isScalar) {
+                        System.out.printf("0). %b <==> %f\n", predicate.test(result.data().getDouble()), result.data().getDouble());
+                    } else {
+                        result.data().scalars().forEachIndexed((idx, f) -> {
+                            System.out.printf("%d). %b <==> %f\n", index.getAndIncrement(), predicate.test(f.getDouble()), f.getDouble());
+                        });
+                    }
+                }
+            }
+            index.set(0);
+            try (Tensor<TFloat64> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TFloat64.DTYPE);
+                    Tensor<TFloat64> expectedResult = this.getGraphSession().runner().fetch(input).run().get(0).expect(TFloat64.DTYPE)) {
+                if (isScalar) {
+                    assertTrue(predicate.test(result.data().getDouble()));
+                } else {
+                    result.data().scalars().forEachIndexed((idx, f) -> {
+                        assertTrue(predicate.test(result.data().getDouble()));
+                    });
+                }
+            }
+        } else if (dtype == TInt32.DTYPE) {
+            if (debug) {
+                try (Tensor<TInt32> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TInt32.DTYPE)) {
+                    if (isScalar) {
+                        System.out.printf("0). %b <==> %d\n", predicate.test(result.data().getInt()), result.data().getInt());
+                    } else {
+                        result.data().scalars().forEachIndexed((idx, f) -> {
+                            System.out.printf("%d). %b <==> %d\n", index.getAndIncrement(), predicate.test(f.getInt()), f.getInt());
+                        });
+                    }
+                }
+            }
+            index.set(0);
+            try (Tensor<TInt32> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TInt32.DTYPE);
+                    Tensor<TInt32> expectedResult = this.getGraphSession().runner().fetch(input).run().get(0).expect(TInt32.DTYPE)) {
+                if (isScalar) {
+                    assertTrue(predicate.test(result.data().getInt()));
+                } else {
+                    result.data().scalars().forEachIndexed((idx, f) -> {
+                        assertTrue(predicate.test(result.data().getInt()));
+                    });
+                }
+            }
+        } else if (dtype == TInt64.DTYPE) {
+            if (debug) {
+                try (Tensor<TInt64> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TInt64.DTYPE)) {
+                    if (isScalar) {
+                        System.out.printf("0). %b <==> %d\n", predicate.test(result.data().getLong()), result.data().getLong());
+                    } else {
+                        result.data().scalars().forEachIndexed((idx, f) -> {
+                            System.out.printf("%d). %b <==> %d\n", index.getAndIncrement(), predicate.test(f.getLong()), f.getLong());
+                        });
+                    }
+                }
+            }
+            index.set(0);
+            try (Tensor<TInt64> result = this.getGraphSession().runner().fetch(input).run().get(0).expect(TInt64.DTYPE);
+                    Tensor<TInt64> expectedResult = this.getGraphSession().runner().fetch(input).run().get(0).expect(TInt64.DTYPE)) {
+                if (isScalar) {
+                    assertTrue(predicate.test(result.data().getLong()));
+                } else {
+                    result.data().scalars().forEachIndexed((idx, f) -> {
+                        assertTrue(predicate.test(result.data().getLong()));
                     });
                 }
             }

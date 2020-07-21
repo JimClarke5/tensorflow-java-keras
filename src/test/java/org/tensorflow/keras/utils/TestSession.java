@@ -18,6 +18,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.function.Predicate;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.tensorflow.EagerSession;
 import org.tensorflow.Operand;
 import org.tensorflow.Output;
@@ -26,7 +28,6 @@ import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.tools.ndarray.FloatNdArray;
 import org.tensorflow.types.TBool;
-import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TString;
 import org.tensorflow.types.family.TNumber;
 import org.tensorflow.types.family.TType;
@@ -194,7 +195,17 @@ public abstract class TestSession implements AutoCloseable {
     }
     
     public abstract <T extends TType> void evaluate(FloatNdArray expected, Output<T> input);
-
+    
+    public <T extends TType> void evaluate(Operand<T> input, Predicate<Number> predicate) {
+        evaluate(input.asOutput(), predicate);
+    }
+    
+    public abstract <T extends TType> void evaluate( Output<T> input, Predicate<Number> predicate);
+    
+    public <T extends TType> void evaluate( FloatNdArray input, Predicate<Number> predicate) {
+        input.scalars().forEach( f  -> assertTrue(predicate.test(f.getFloat())));
+    }
+    
     public <T extends TType> void print(OutputStream out, Operand<T> input) {
         print(new PrintWriter(new OutputStreamWriter(out)), input.asOutput());
     }
