@@ -24,7 +24,6 @@ import org.tensorflow.Operand;
 import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
-import org.tensorflow.tools.Shape;
 
 /**
  *

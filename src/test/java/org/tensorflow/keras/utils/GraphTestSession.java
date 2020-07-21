@@ -28,10 +28,10 @@ import org.tensorflow.Operand;
 import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
+import org.tensorflow.ndarray.FloatNdArray;
+import org.tensorflow.ndarray.Shape;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
-import org.tensorflow.tools.Shape;
-import org.tensorflow.tools.ndarray.FloatNdArray;
 import org.tensorflow.types.TBool;
 import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TFloat64;
@@ -91,10 +91,11 @@ public class GraphTestSession extends TestSession {
         return null;
     }
 
+    @Override
     public void initialize() {
-        for (Op initializer : graph.initializers()) {
+        graph.initializers().forEach(initializer -> {
             session.runner().addTarget(initializer).run();
-        }
+        });
     }
 
     @Override

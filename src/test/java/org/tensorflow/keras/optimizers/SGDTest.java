@@ -24,9 +24,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import org.tensorflow.Graph;
-import org.tensorflow.Session;
-import org.tensorflow.Tensor;
 import static org.tensorflow.framework.optimizers.Momentum.MOMENTUM;
 import org.tensorflow.framework.optimizers.Optimizer;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
@@ -36,12 +33,12 @@ import static org.tensorflow.keras.optimizers.SGD.MOMENTUM_KEY;
 import static org.tensorflow.keras.optimizers.SGD.NESTEROV_DEFAULT;
 import static org.tensorflow.keras.optimizers.SGD.NESTEROV_KEY;
 import org.tensorflow.keras.utils.TestSession;
+import org.tensorflow.ndarray.Shape;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Assign;
 import org.tensorflow.op.core.Constant;
 import org.tensorflow.op.core.Variable;
-import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat32;
 
 /**

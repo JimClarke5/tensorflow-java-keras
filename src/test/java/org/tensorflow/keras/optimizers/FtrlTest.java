@@ -24,8 +24,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import org.tensorflow.Session;
-import org.tensorflow.Tensor;
 import org.tensorflow.framework.optimizers.Optimizer;
 import static org.tensorflow.keras.optimizers.Ftrl.INITIAL_ACCUM_VALUE_KEY;
 import static org.tensorflow.keras.optimizers.Ftrl.L1STRENGTH_KEY;
@@ -35,12 +33,12 @@ import static org.tensorflow.keras.optimizers.Ftrl.LEARNING_RATE_KEY;
 import static org.tensorflow.keras.optimizers.Ftrl.LEARNING_RATE_POWER_KEY;
 import static org.tensorflow.keras.optimizers.OptimizerInterface.NAME_KEY;
 import org.tensorflow.keras.utils.TestSession;
+import org.tensorflow.ndarray.Shape;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Assign;
 import org.tensorflow.op.core.Constant;
 import org.tensorflow.op.core.Variable;
-import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat32;
 
 /**

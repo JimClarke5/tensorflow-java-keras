@@ -23,10 +23,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.Operand;
 import org.tensorflow.keras.utils.TestSession;
 import org.tensorflow.keras.utils.TestSession.Mode;
+import org.tensorflow.ndarray.Shape;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Variable;
-import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TInt32;
 

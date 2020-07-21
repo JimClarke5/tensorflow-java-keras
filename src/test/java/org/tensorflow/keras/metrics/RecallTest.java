@@ -22,13 +22,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.Operand;
-import org.tensorflow.keras.metrics.impl.MetricsImpl;
 import org.tensorflow.keras.utils.TestSession;
+import org.tensorflow.ndarray.Shape;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
-import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat32;
-import org.tensorflow.types.TInt32;
 
 /**
  *
@@ -329,10 +327,6 @@ public class RecallTest {
             Operand yTrue = tf.constant(new float[][] {{0, 1, 1, 0, 0}});
             Op update = instance.updateState(yTrue, yPred);
             session.run(update);
-            System.out.println("++++++++++++++++  TRUE_POSITIVES ++++++++++++++");
-            session.print(System.out, instance.getTruePositives());
-            System.out.println("++++++++++++++++  FALSE_NEGATIVES ++++++++++++++");
-            session.print(System.out, instance.getFalseNegatives());
             session.evaluate(1f, instance.result());
             session.evaluate(1f, instance.getTruePositives());
             session.evaluate(0f, instance.getFalseNegatives());

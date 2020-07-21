@@ -23,9 +23,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.tensorflow.EagerSession;
 import org.tensorflow.Operand;
 import org.tensorflow.exceptions.TensorFlowException;
-import org.tensorflow.keras.utils.PrintUtils;
+import org.tensorflow.ndarray.buffer.DataBuffers;
 import org.tensorflow.op.Ops;
-import org.tensorflow.tools.buffer.DataBuffers;
 import org.tensorflow.types.TFloat32;
 import org.tensorflow.types.TFloat64;
 import org.tensorflow.types.TInt32;
@@ -71,7 +70,6 @@ public class ELUTest {
             ELU<TInt32> instance = new ELU<>(tf);
             Operand<TInt32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
-            PrintUtils.printTInt32(operand.asTensor());
             assertArrayEquals(expected, actual);
         } catch (TensorFlowException exp) {
             // TODO - Docs indicateit it can hanlde int, 
@@ -94,7 +92,6 @@ public class ELUTest {
             ELU<TFloat32> instance = new ELU<>(tf);
             Operand<TFloat32> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
-            PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
         }
     }
@@ -113,7 +110,6 @@ public class ELUTest {
             ELU<TFloat64> instance = new ELU<>(tf);
             Operand<TFloat64> operand = instance.call(tf.constant(input));
             operand.asTensor().data().read(DataBuffers.of(actual));
-            PrintUtils.print(operand.asTensor());
             assertArrayEquals(expected, actual, EPSILON_F);
         }
     }

@@ -14,9 +14,6 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.constraints;
 
-import com.google.common.util.concurrent.AtomicDouble;
-import java.util.Arrays;
-import java.util.Random;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,10 +24,10 @@ import org.tensorflow.Operand;
 import org.tensorflow.Tensor;
 import org.tensorflow.keras.utils.ND;
 import org.tensorflow.keras.utils.TestSession;
+import org.tensorflow.ndarray.FloatNdArray;
+import org.tensorflow.ndarray.NdArrays;
+import org.tensorflow.ndarray.Shape;
 import org.tensorflow.op.Ops;
-import org.tensorflow.tools.Shape;
-import org.tensorflow.tools.ndarray.FloatNdArray;
-import org.tensorflow.tools.ndarray.NdArrays;
 import org.tensorflow.types.TFloat32;
 
 /**
