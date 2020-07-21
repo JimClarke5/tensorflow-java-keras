@@ -21,10 +21,10 @@ import org.tensorflow.Operand;
 import org.tensorflow.keras.backend.tf.ConfusionMatrix;
 import org.tensorflow.keras.backend.K;
 import org.tensorflow.keras.initializers.Zeros;
+import org.tensorflow.ndarray.Shape;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Variable;
-import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat64;
 
 /**

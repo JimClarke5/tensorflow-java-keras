@@ -31,7 +31,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.tensorflow.keras.utils.ND;
-import org.tensorflow.tools.ndarray.NdArray;
+import org.tensorflow.ndarray.NdArray;
 
 /**
  * Callback that streams epoch results to a csv file.

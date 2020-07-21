@@ -23,10 +23,10 @@ import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.keras.initializers.Zeros;
 import org.tensorflow.keras.metrics.impl.ConfusionMatrixEnum;
+import org.tensorflow.ndarray.Shape;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Variable;
-import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat32;
 
 /**

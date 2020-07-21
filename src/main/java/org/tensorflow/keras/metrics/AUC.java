@@ -26,16 +26,12 @@ import org.tensorflow.keras.backend.tf.ControlDependencies;
 import org.tensorflow.keras.backend.K;
 import org.tensorflow.keras.initializers.Zeros;
 import org.tensorflow.keras.metrics.impl.ConfusionMatrixEnum;
-import static org.tensorflow.keras.metrics.impl.SensitivitySpecificityBase.FALSE_NEGATIVES;
-import static org.tensorflow.keras.metrics.impl.SensitivitySpecificityBase.FALSE_POSITIVES;
-import static org.tensorflow.keras.metrics.impl.SensitivitySpecificityBase.TRUE_NEGATIVES;
-import static org.tensorflow.keras.metrics.impl.SensitivitySpecificityBase.TRUE_POSITIVES;
 import org.tensorflow.keras.utils.SymbolicShape;
+import org.tensorflow.ndarray.Shape;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.Assign;
 import org.tensorflow.op.core.Variable;
-import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TFloat32;
 
 /**

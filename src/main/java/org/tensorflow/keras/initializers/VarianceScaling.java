@@ -19,8 +19,8 @@ import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.keras.utils.ShapeUtils;
 import org.tensorflow.keras.utils.TypeUtils;
+import org.tensorflow.ndarray.Shape;
 import org.tensorflow.op.Ops;
-import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TInt64;
 import org.tensorflow.types.family.TType;
 

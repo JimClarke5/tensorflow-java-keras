@@ -14,15 +14,14 @@ limitations under the License.
 =======================================================================*/
 package org.tensorflow.keras.backend.tf;
 
-import org.tensorflow.keras.backend.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.tensorflow.Operand;
+import org.tensorflow.ndarray.Shape;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.nn.SparseSoftmaxCrossEntropyWithLogits;
-import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TBfloat16;
 import org.tensorflow.types.TFloat16;
 import org.tensorflow.types.TFloat32;

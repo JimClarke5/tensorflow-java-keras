@@ -18,11 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.tensorflow.Operand;
 import org.tensorflow.Tensor;
-import org.tensorflow.keras.backend.tf.ControlDependencies;
-import org.tensorflow.keras.backend.tf.WeightsBroadcastOps;
-import org.tensorflow.op.Ops;
-import org.tensorflow.tools.Shape;
-import org.tensorflow.tools.ndarray.NdArray;
+import org.tensorflow.ndarray.NdArray;
+import org.tensorflow.ndarray.Shape;
 import org.tensorflow.types.TInt64;
 
 /**

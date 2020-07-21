@@ -20,10 +20,9 @@ import org.tensorflow.Operand;
 import org.tensorflow.Output;
 import org.tensorflow.keras.utils.ShapeUtils;
 import org.tensorflow.keras.utils.TypeUtils;
+import org.tensorflow.ndarray.Shape;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.linalg.Qr;
-import org.tensorflow.op.random.RandomStandardNormal;
-import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TInt64;
 import org.tensorflow.types.family.TType;
 

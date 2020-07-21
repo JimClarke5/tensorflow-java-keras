@@ -1,13 +1,12 @@
 package org.tensorflow.keras.backend.tf;
 
-import org.tensorflow.keras.backend.*;
 import java.util.Arrays;
 import java.util.List;
 import org.tensorflow.Operand;
 import org.tensorflow.keras.utils.ShapeUtils;
+import org.tensorflow.ndarray.Shape;
 import org.tensorflow.op.Op;
 import org.tensorflow.op.Ops;
-import org.tensorflow.tools.Shape;
 import org.tensorflow.types.TBool;
 import org.tensorflow.types.family.TNumber;
 import org.tensorflow.types.family.TType;

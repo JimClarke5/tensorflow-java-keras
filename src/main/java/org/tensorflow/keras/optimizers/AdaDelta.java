@@ -60,7 +60,7 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
      * create an Adadelta optimizer with default name="Adadelta",
      * learning_rate=0.001F, rho=0.95F, and epsilon=1e-7F
      *
-     * @param graph the tensorflow graph
+     * @param tf the tensorflow Ops
      */
     public AdaDelta(Ops tf) {
         this(tf, LEARNING_RATE_DEFAULT, RHO_DEFAULT, EPSILON_DEFAULT);
@@ -70,7 +70,7 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
      * create an Adadelta optimizer with default learning_rate=0.001F,
      * rho=0.95F, and epsilon=1e-7F
      *
-     * @param graph the tensorflow graph
+     * @param tf the tensorflow Ops
      * @param name the name of the Optimizer, defaults to "Adadelta"
      */
     public AdaDelta(Ops tf, String name) {
@@ -81,7 +81,7 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
      * create an Adadelta optimizer with default name="Adadelta", rho=0.95F, and
      * epsilon=1e-7F
      *
-     * @param graph the tensorflow graph
+     * @param tf the tensorflow Ops
      * @param learningRate The learning rate
      */
     public AdaDelta(Ops tf, float learningRate) {
@@ -91,7 +91,7 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
     /**
      * create an Adadelta optimizer with default rho=0.95F, and epsilon=1e-7F
      *
-     * @param graph the tensorflow graph
+     * @param tf the tensorflow Ops
      * @param name the name of the Optimizer, defaults to "Adadelta"
      * @param learningRate The learning rate
      */
@@ -102,7 +102,7 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
     /**
      * create an Adadelta optimizer with default name="Adadelta",
      *
-     * @param graph the tensorflow graph
+     * @param tf the tensorflow Ops
      * @param learningRate The learning rate
      * @param rho The decay rate.
      * @param epsilon A constant epsilon used to better conditioning the grad
@@ -116,7 +116,7 @@ public class AdaDelta extends org.tensorflow.framework.optimizers.AdaDelta imple
     /**
      * create an Adadelta optimizer
      *
-     * @param graph the tensorflow graph
+     * @param tf the tensorflow Ops
      * @param name the name of the Optimizer, defaults to "Adadelta"
      * @param learningRate The learning rate
      * @param rho The decay rate.
