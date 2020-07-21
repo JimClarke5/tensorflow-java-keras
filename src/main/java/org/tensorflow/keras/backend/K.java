@@ -16,6 +16,7 @@ package org.tensorflow.keras.backend;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.keras.backend.tf.NN;
@@ -467,10 +468,13 @@ public class K {
         }
         return cost;
     }
-
     
-
-
+    
+    public static <T extends TType> Operand<T> map(Operand<T> input, 
+            Function<Operand<T>,Operand<T>> mapFunc) {
+        return null;
+    }
+    
 
     
     /**
