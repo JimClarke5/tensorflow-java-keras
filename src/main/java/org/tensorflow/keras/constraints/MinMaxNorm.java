@@ -20,6 +20,7 @@ import org.tensorflow.keras.backend.K;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.ReduceSum;
 import org.tensorflow.types.family.TNumber;
+import org.tensorflow.types.family.TType;
 
 /**
  *
@@ -96,7 +97,7 @@ public class MinMaxNorm extends Constraint {
      * {@inheritDoc}
      */
     @Override
-    public <T extends TNumber> Operand<T> call(Operand<T> weights) {
+    public <T extends TType> Operand<T> call(Operand<T> weights) {
         DataType dType = weights.asOutput().dataType();
         Operand<T> norms = K.sqrt(tf,
                 tf.reduceSum(tf.math.square(weights), tf.constant(getAxis()), ReduceSum.keepDims(Boolean.TRUE))

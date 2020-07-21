@@ -21,6 +21,7 @@ import org.tensorflow.keras.metrics.impl.MetricsImpl;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.ReduceSum;
 import org.tensorflow.types.family.TNumber;
+import org.tensorflow.types.family.TType;
 
 /**
  * MinMaxNorm weight constraint.
@@ -77,7 +78,7 @@ public class MaxNorm extends Constraint {
      * {@inheritDoc}
      */
     @Override
-    public <T extends TNumber> Operand<T> call(Operand<T> weights) {
+    public <T extends TType> Operand<T> call(Operand<T> weights) {
         DataType dType = weights.asOutput().dataType();
         Operand<T> norms = K.sqrt(tf,tf.reduceSum(tf.math.square(weights), tf.constant(getAxis()), ReduceSum.keepDims(Boolean.TRUE)) );
         Operand desired = K.clip(tf, norms, 0f, this.getMaxValue());

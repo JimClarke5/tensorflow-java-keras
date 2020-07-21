@@ -20,6 +20,7 @@ import org.tensorflow.keras.backend.K;
 import org.tensorflow.op.Ops;
 import org.tensorflow.op.core.ReduceSum;
 import org.tensorflow.types.family.TNumber;
+import org.tensorflow.types.family.TType;
 
 /**
  * Constrains the weights incident to each hidden unit to have unit norm.
@@ -57,7 +58,7 @@ public class UnitNorm extends Constraint {
      * {@inheritDoc}
      */
     @Override
-    public <T extends TNumber> Operand<T> call(Operand<T> weights) {
+    public <T extends TType> Operand<T> call(Operand<T> weights) {
         DataType dType = weights.asOutput().dataType();
 
         return tf.math.div(weights,

@@ -18,6 +18,7 @@ import org.tensorflow.DataType;
 import org.tensorflow.Operand;
 import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TNumber;
+import org.tensorflow.types.family.TType;
 
 /**
  * Constrains the weights to be non-negative.
@@ -37,10 +38,10 @@ public class NonNeg extends Constraint {
      * {@inheritDoc}
      */
     @Override
-    public <T extends TNumber> Operand<T> call(Operand<T> weights) {
+    public <T extends TType> Operand<T> call(Operand<T> weights) {
         DataType dType = weights.asOutput().dataType();
         return tf.math.mul(weights,
-                tf.dtypes.cast(tf.math.greaterEqual(weights, tf.dtypes.cast(tf.constant(0), dType)), dType)
+                tf.dtypes.cast(tf.math.greaterEqual((Operand<TNumber>)weights, tf.dtypes.cast(tf.constant(0), dType)), dType)
         );
     }
 

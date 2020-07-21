@@ -18,6 +18,7 @@ import org.tensorflow.Operand;
 import org.tensorflow.Session;
 import org.tensorflow.op.Ops;
 import org.tensorflow.types.family.TNumber;
+import org.tensorflow.types.family.TType;
 
 /**
  * Abstract class for constraints
@@ -38,6 +39,6 @@ public abstract class Constraint {
      * @return the constrained weights 
      * @param <T> the date type of the weights
      */
-    public abstract <T extends TNumber>  Operand<T> call(Operand<T> weights);
+    public abstract <T extends TType>  Operand<T> call(Operand<T> weights);
     
 }
