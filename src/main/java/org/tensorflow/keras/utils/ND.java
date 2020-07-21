@@ -145,8 +145,6 @@ public class ND {
         boolean sameSize = a.shape().size() == b.shape().size();
         FloatNdArray result = NdArrays.ofFloats(a.shape());
         int nDims = a.shape().numDimensions();
-        print("a", a);
-        print("result", result);
 
         a.elements(nDims - 1).forEachIndexed((idx, v) -> {
             if (sameSize) {
@@ -161,10 +159,12 @@ public class ND {
 
     public static FloatNdArray mul(FloatNdArray a, float scalar) {
         FloatNdArray result = NdArrays.ofFloats(a.shape());
-        int nDims = a.shape().numDimensions();
-        a.elements(nDims - 1).forEachIndexed((idx, v) -> {
-            result.setFloat(v.getFloat() * scalar, idx);
-        });
+        if(a.shape().isScalar()) {
+            a.scalars().forEach(f -> result.setFloat(f.getFloat() * scalar));
+        }else {
+            a.scalars().forEachIndexed((idx, f) -> result.setFloat(f.getFloat() * scalar, idx));
+        }
+        
         return result;
     }
 
@@ -303,20 +303,14 @@ public class ND {
 
     public static FloatNdArray abs(FloatNdArray a) {
         FloatNdArray result = NdArrays.ofFloats(a.shape());
-        int nDims = a.shape().numDimensions();
-        a.elements(nDims - 1).forEachIndexed((idx, v) -> {
-            result.setFloat((float) Math.abs(v.getFloat()), idx);
-        });
+        a.scalars().forEachIndexed((idx, f) -> result.setFloat((float) Math.abs(f.getFloat()), idx));
         return result;
     }
 
     public static FloatNdArray sum(FloatNdArray a) {
-        FloatNdArray result = NdArrays.ofFloats(a.shape());
-        float sum = 0;
-        for (int i = 0; i < a.size(); i++) {
-            sum += a.getFloat(i);
-        }
-        return NdArrays.scalarOf(sum);
+        AtomicReference<Float> sum =  new AtomicReference<>(0.f);
+        a.scalars().forEach(f -> sum.set(sum.get() + f.getFloat()));
+        return NdArrays.scalarOf(sum.get());
     }
 
     public static FloatNdArray sum(FloatNdArray a, int axis) {
@@ -386,9 +380,13 @@ public class ND {
 
     public static void print(FloatNdArray a) {
         System.out.println("Shape: " + a.shape());
-        a.elements(a.shape().numDimensions() - 1).forEachIndexed((idx, v) -> {
-            System.out.printf("%s == %f\n", Arrays.toString(idx), a.getFloat(idx));
-        });
+        if(a.shape().isScalar()) {
+            a.scalars().forEach(f -> System.out.printf("Scalar: == %f\n",f.getFloat()));
+        }else {
+            a.elements(a.shape().numDimensions() - 1).forEachIndexed((idx, v) -> {
+                System.out.printf("%s == %f\n", Arrays.toString(idx), v.getFloat());
+            });
+        }
         System.out.println();
     }
 
