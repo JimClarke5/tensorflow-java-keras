@@ -17,6 +17,7 @@ package org.tensorflow.keras.utils;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.tensorflow.tools.Shape;
 import org.tensorflow.tools.ndarray.FloatNdArray;
 import org.tensorflow.tools.ndarray.NdArray;
@@ -241,6 +242,18 @@ public class ND {
         });
         return result;
     }
+    
+    public static float max(FloatNdArray a) {
+        AtomicReference<Float> maximum = new AtomicReference<>(Float.MIN_VALUE);
+        a.scalars().forEach(f -> maximum.set(Math.max(maximum.get(), f.getFloat())));
+        return maximum.get();
+    }
+    
+    public static float min(FloatNdArray a) {
+        AtomicReference<Float> minimum = new AtomicReference<>(Float.MAX_VALUE);
+        a.scalars().forEach(f -> minimum.set(Math.min(minimum.get(), f.getFloat())));
+        return minimum.get();
+    }
 
     public static FloatNdArray max(FloatNdArray a, FloatNdArray b) {
         assert (a.shape().size() == b.shape().size());
@@ -307,11 +320,35 @@ public class ND {
     }
 
     public static FloatNdArray sum(FloatNdArray a, int axis) {
-        return sum(a, new Integer[]{axis}, false);
+        return sum(a, axis, false);
     }
 
     public static FloatNdArray sum(FloatNdArray a, int axis, boolean keepDims) {
-        return sum(a, new Integer[]{axis}, keepDims);
+        Shape shape = a.shape();
+        int nDims = shape.numDimensions();
+        int xis = nDims- 1 - axis;
+        long totalSize = shape.size();
+        long axisSize = shape.size(xis);
+        final float[] sums = new float[(int) axisSize];
+
+        
+        a.scalars().forEachIndexed((idx, f) -> {
+            sums[(int)idx[xis]] += f.getFloat();
+        });
+        
+
+        if (keepDims) {
+            long[] newDims = shape.asArray();
+            newDims[axis] = 1;
+            final AtomicInteger counter = new AtomicInteger();
+            FloatNdArray arrayK = NdArrays.ofFloats(Shape.of(newDims));
+            arrayK.elements(newDims.length - 1).forEachIndexed((idx, v) -> {
+                v.setFloat(sums[counter.getAndAdd(1)]);
+            });
+            return arrayK;
+        } else {
+            return NdArrays.vectorOf(sums);
+        }
     }
 
     public static FloatNdArray sum(FloatNdArray a, Integer[] axis, boolean keepDims) {
@@ -328,30 +365,7 @@ public class ND {
             }
             return result;
         } else if (axis.length == 1) {
-            int nDims = shape.numDimensions();
-            if (axis[0] < 0) {
-                axis[0] = nDims + axis[0];
-            }
-
-            final float[] sums = new float[(int) shape.size(axis[0])];
-
-            a.elements(nDims - 1).forEachIndexed((idx, v) -> {
-                System.out.println(Arrays.toString(idx));
-                sums[(int) idx[axis[0]]] += v.getFloat();
-            });
-
-            if (keepDims) {
-                long[] newDims = shape.asArray();
-                newDims[axis[0]] = 1;
-                final AtomicInteger counter = new AtomicInteger();
-                FloatNdArray arrayK = NdArrays.ofFloats(Shape.of(newDims));
-                arrayK.elements(newDims.length - 1).forEachIndexed((idx, v) -> {
-                    v.setFloat(sums[counter.getAndAdd(1)]);
-                });
-                return arrayK;
-            } else {
-                return NdArrays.vectorOf(sums);
-            }
+            return sum(a, axis[0], keepDims);
         } else {
 
             throw new UnsupportedOperationException("Multi Axis Not implemented Yet");
@@ -393,5 +407,6 @@ public class ND {
         });
         return result;
     }
+
 
 }
