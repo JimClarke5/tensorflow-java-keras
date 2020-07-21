@@ -262,10 +262,7 @@ public class RMSPropTest {
             result[MOM_T] = mom;
             result[VAR_T] = calcVar(var_np, grad_np, lr, denom_t, epsilon);
         }
-        ND.print("var_t", result[VAR_T]);
-        ND.print("mg_t", result[MG_T]);
-        ND.print("rms_t", result[RMS_T]);
-        ND.print("mom_t", result[MOM_T]);
+    
 
         return result;
 
