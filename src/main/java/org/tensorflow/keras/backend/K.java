@@ -88,7 +88,9 @@ public class K {
         assert x != null : "Operand x must not be null";
         DataType dtype = x.asOutput().dataType();
         if (maxValue < minValue) {
+            double tmp = maxValue;
             maxValue = minValue;
+            minValue = tmp;
         }
         Operand minValueConstant = tf.dtypes.cast(tf.constant(minValue), dtype);
         Operand maxValueConstant = tf.dtypes.cast(tf.constant(maxValue), dtype);
@@ -126,6 +128,15 @@ public class K {
     public static Operand maximum(Ops tf, Operand x, Operand y) {
         y = tf.dtypes.cast(y, x.asOutput().dataType());
         return tf.math.maximum(x, y);
+    }
+    
+    public static <T extends TType> Operand<T> sqrt(Ops tf, Operand<T> x) {
+        DataType dType = x.asOutput().dataType();
+        Operand<T> zero = tf.dtypes.cast(tf.constant(0), dType);
+        Operand<T> inf = tf.dtypes.cast(tf.constant(Float.POSITIVE_INFINITY), dType);
+        x = tf.clipByValue(x, zero, inf);
+        return tf.math.sqrt(x);
+        
     }
 
     public static Shape merge(Shape a, Shape b) {
@@ -456,6 +467,9 @@ public class K {
         }
         return cost;
     }
+
+    
+
 
 
     
